@@ -1,13 +1,26 @@
-# VIDA+ - Frontend
+# VIDA+ - Plataforma de Acolhimento Emocional Digital
 
-Frontend do projeto VIDA+, conectado ao backend em:
+Plataforma humanizada e segura de escuta e acolhimento emocional, com prontuário confidencial, classificação de risco, suporte anônimo e canais comunitários temáticos.
 
-```text
-C:\Users\todeb\Desktop\PROJETOS\VIDA+
+## Arquitetura Unificada (100% Serverless)
+
+- **Frontend:** React 19, TypeScript, Vite 8, TanStack Router, TanStack Query, Tailwind CSS v4 e shadcn/ui.
+- **Hospedagem & CDN:** Cloudflare Pages / Workers.
+- **Backend & Dados:** Supabase (PostgreSQL, Row Level Security, GoTrue Auth e Supabase Realtime).
+- **Prontuário:** Registros de evolução e histórico confidencial (`care_records`) com acesso exclusivo para voluntários e equipe clínica.
+
+## Como Executar Localmente
+
+```bash
+npm install
+npm run dev
 ```
 
-Este app usa React, TypeScript, Vite, TanStack Router, TanStack Query,
-Tailwind CSS e shadcn/ui.
+Para gerar a build de produção:
+
+```bash
+npm run build
+```
 
 ## Funcionamento
 
