@@ -18,6 +18,34 @@ function ok<T>(data: T, message = "Sucesso"): Envelope<T> {
   return { status: "success", message, data };
 }
 
+/** Avisa em tempo real quem está no grupo (canal usado por useCommunityRealtime). */
+async function broadcastCommunityMessage(commId: string, row: any) {
+  if (!supabase) return;
+  try {
+    const topic = `realtime:community:${commId}`;
+    const existing = supabase.getChannels().find((c) => c.topic === topic);
+    const message = {
+      type: "broadcast" as const,
+      event: "message",
+      payload: { ...row, alias: row.alias_snapshot },
+    };
+    if (existing) {
+      await existing.send(message);
+      return;
+    }
+    const temp = supabase.channel(`community:${commId}`);
+    await new Promise<void>((resolve) => {
+      temp.subscribe((status) => {
+        if (status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT") resolve();
+      });
+    });
+    await temp.send(message);
+    supabase.removeChannel(temp);
+  } catch {
+    // o refetch periódico cobre falhas do broadcast
+  }
+}
+
 export async function handleSupabaseRequest<T>(
   path: string,
   method = "GET",
@@ -397,6 +425,7 @@ export async function handleSupabaseRequest<T>(
       .select()
       .single();
     if (error) throw new Error(error.message);
+    await broadcastCommunityMessage(commId, data);
     return ok(data) as T;
   }
 

@@ -40,7 +40,7 @@ function Page() {
   const messages = useQuery({
     queryKey: ["community-messages", id],
     queryFn: () => communityService.getMessages(id),
-    refetchInterval: 12000,
+    refetchInterval: 4000,
   });
 
   // Conexão tempo real para mensagens, presenças e digitação
