@@ -284,6 +284,14 @@ export const authService = {
     return authService.login(data.email, data.password);
   },
 
+  async resendConfirmation(email: string): Promise<{ ok: true }> {
+    await apiData<unknown>("/auth/resend-confirmation", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return { ok: true };
+  },
+
   async recover(email: string): Promise<{ ok: true }> {
     await apiData<unknown>("/auth/password/reset", {
       method: "POST",

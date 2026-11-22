@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Logo } from "@/components/common/Logo";
@@ -29,6 +30,14 @@ function Page() {
     defaultValues: { email: "", password: "" },
   });
 
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+
+  const resend = useMutation({
+    mutationFn: (email: string) => authService.resendConfirmation(email),
+    onSuccess: () => toast.success("Link de confirmação reenviado. Verifique seu e-mail e o spam."),
+    onError: (err: any) => toast.error(err?.message || "Não foi possível reenviar o link."),
+  });
+
   const m = useMutation({
     mutationFn: ({ email, password }: LoginInput) => authService.login(email, password),
     onSuccess: (user) => {
@@ -38,7 +47,8 @@ function Page() {
       toast.success("Bem-vindo(a) de volta!");
       navigate({ to: roleHome(user.role) });
     },
-    onError: (err: any) => {
+    onError: (err: any, vars) => {
+      setPendingEmail(/confirme seu e-mail/i.test(err?.message ?? "") ? vars.email : null);
       toast.error(err?.message || "Não foi possível entrar. Verifique seu e-mail e senha.");
     },
   });
@@ -69,6 +79,17 @@ function Page() {
         <Button type="submit" className="h-11 w-full" disabled={m.isPending}>
           {m.isPending ? "Entrando…" : "Entrar"}
         </Button>
+        {pendingEmail && (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 w-full"
+            disabled={resend.isPending}
+            onClick={() => resend.mutate(pendingEmail)}
+          >
+            {resend.isPending ? "Reenviando…" : "Reenviar link de confirmação"}
+          </Button>
+        )}
         <p className="text-center text-xs text-muted-foreground">
           É necessário criar uma conta. Nos grupos, outras pessoas verão somente seu apelido.
         </p>

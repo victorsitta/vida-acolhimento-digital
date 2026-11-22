@@ -67,6 +67,7 @@ export async function handleSupabaseRequest<T>(
       email: payload.email,
       password: payload.password,
       options: {
+        emailRedirectTo: `${APP_URL}/login`,
         data: {
           display_name: payload.displayName || payload.name,
           nickname: payload.nickname,
@@ -96,6 +97,21 @@ export async function handleSupabaseRequest<T>(
         role: "cadastrado",
       },
     }) as T;
+  }
+
+  if (cleanPath === "/auth/resend-confirmation" && method === "POST") {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: payload.email.trim(),
+      options: { emailRedirectTo: `${APP_URL}/login` },
+    });
+    if (error) {
+      if (error.code === "over_email_send_rate_limit") {
+        throw new Error("O limite de envio de e-mails foi atingido. Tente novamente mais tarde.");
+      }
+      throw new Error(error.message);
+    }
+    return ok({ ok: true }) as T;
   }
 
   if (cleanPath === "/auth/anonymous" && method === "POST") {
@@ -327,7 +343,25 @@ export async function handleSupabaseRequest<T>(
       .eq("status", "ativo")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return ok(data || []) as T;
+
+    const { data: authData } = await supabase.auth.getUser();
+    const uid = authData?.user?.id;
+    const mine = new Map<string, string>();
+    if (uid) {
+      const { data: members } = await supabase
+        .from("community_members")
+        .select("community_id, alias")
+        .eq("user_id", uid)
+        .eq("status", "ativo");
+      (members || []).forEach((m: any) => mine.set(m.community_id, m.alias));
+    }
+    return ok(
+      (data || []).map((c: any) => ({
+        ...c,
+        is_member: mine.has(c.id),
+        my_alias: mine.get(c.id),
+      })),
+    ) as T;
   }
 
   const commMsgMatch = cleanPath.match(/^\/communities\/([a-f0-9-]+)\/messages$/i);
@@ -345,12 +379,18 @@ export async function handleSupabaseRequest<T>(
   if (commMsgMatch && method === "POST") {
     const commId = commMsgMatch[1];
     const { data: authData } = await supabase.auth.getUser();
+    const { data: member } = await supabase
+      .from("community_members")
+      .select("alias")
+      .eq("community_id", commId)
+      .eq("user_id", authData.user?.id)
+      .maybeSingle();
     const { data, error } = await supabase
       .from("community_messages")
       .insert({
         community_id: commId,
         sender_id: authData.user?.id,
-        alias_snapshot: "Participante",
+        alias_snapshot: member?.alias || "Participante",
         body: payload.text,
         body_encrypted: payload.text,
       })
@@ -364,12 +404,34 @@ export async function handleSupabaseRequest<T>(
   if (commJoinMatch && method === "POST") {
     const commId = commJoinMatch[1];
     const { data: authData } = await supabase.auth.getUser();
-    await supabase.from("community_members").upsert({
+    const uid = authData.user?.id;
+    if (!uid) throw new Error("Não autenticado");
+    const { data: prof } = await supabase
+      .from("user_profiles")
+      .select("nickname")
+      .eq("user_id", uid)
+      .maybeSingle();
+    const alias =
+      prof?.nickname || authData.user?.user_metadata?.nickname || "Membro";
+    const { error } = await supabase.from("community_members").upsert({
       community_id: commId,
-      user_id: authData.user?.id,
-      alias: "Membro",
+      user_id: uid,
+      alias,
       status: "ativo",
     });
+    if (error) throw new Error(`Não foi possível entrar no grupo: ${error.message}`);
+    return ok({ ok: true }) as T;
+  }
+
+  const commLeaveMatch = cleanPath.match(/^\/communities\/([a-f0-9-]+)\/leave$/i);
+  if (commLeaveMatch && method === "POST") {
+    const { data: authData } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from("community_members")
+      .delete()
+      .eq("community_id", commLeaveMatch[1])
+      .eq("user_id", authData.user?.id);
+    if (error) throw new Error(error.message);
     return ok({ ok: true }) as T;
   }
 
