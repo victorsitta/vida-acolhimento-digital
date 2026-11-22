@@ -176,3 +176,17 @@ export interface VolunteerReport {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CareRecord {
+  id: string;
+  userId: string;
+  volunteerId: string;
+  volunteerName?: string;
+  conversationId?: string;
+  riskLevel: "baixo" | "medio" | "alto" | "imediato";
+  summary: string;
+  actionTaken?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+

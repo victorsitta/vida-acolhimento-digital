@@ -20,6 +20,7 @@ import {
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useChatRealtime } from "@/hooks/useChatRealtime";
 import { http } from "@/services/api/client";
+import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
 
 export const Route = createFileRoute("/vol/chat/$id")({
   head: () => ({ meta: [{ title: "Atendimento — VIDA+" }] }),
@@ -211,13 +212,21 @@ function Page() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={() => setShowRisk(!showRisk)}
-              className="rounded-xl p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-              aria-label="Opcoes"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <CareRecordSheet
+                userId={conversation.data?.userId}
+                userAlias={conversation.data?.userAlias}
+                conversationId={id}
+              />
+              <button
+                onClick={() => setShowRisk(!showRisk)}
+                className="rounded-xl p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Opcoes"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </div>
+
           </div>
 
           {/* Painel de risco colapsavel */}

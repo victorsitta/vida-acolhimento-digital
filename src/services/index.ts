@@ -879,3 +879,6 @@ export const volunteerReportService = {
     return mapVolunteerReport(response);
   },
 };
+
+export { careRecordService } from "./careRecordService";
+

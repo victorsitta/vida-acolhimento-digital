@@ -109,11 +109,24 @@ async function refreshAccessToken() {
   return activeRefresh;
 }
 
+import { handleSupabaseRequest } from "./supabaseAdapter";
+
 export async function http<T>(
   path: string,
   init: RequestInit = {},
   retryAfterRefresh = true,
 ): Promise<T> {
+  // 1. Tenta executar diretamente pelo Supabase Client (Zero servidores dormindo)
+  try {
+    const supabaseResult = await handleSupabaseRequest<T>(path, init.method || "GET", init.body);
+    if (supabaseResult !== null) {
+      return supabaseResult;
+    }
+  } catch (err: any) {
+    // Se o Supabase lançou um erro de regra ou auth, propaga para a UI
+    throw err;
+  }
+
   const token = getAccessToken();
   const headers = new Headers(init.headers);
 
@@ -125,13 +138,19 @@ export async function http<T>(
     headers.set("Authorization", "Bearer " + token);
   }
 
-  const response = await fetch(API_BASE_URL + path, {
-    ...init,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(API_BASE_URL + path, {
+      ...init,
+      headers,
+    });
+  } catch (netErr: any) {
+    throw new Error(netErr.message || "Não foi possível conectar ao servidor.");
+  }
 
   const text = await response.text();
   const body = text ? safeJson<ApiErrorBody | T>(text) : null;
+
 
   if (!response.ok) {
     if (response.status === 401 && retryAfterRefresh && (await refreshAccessToken())) {
