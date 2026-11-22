@@ -6,6 +6,7 @@
  */
 
 import { supabase } from "@/lib/supabase";
+import { APP_URL } from "./client";
 
 type Envelope<T> = {
   status: string;
@@ -112,7 +113,9 @@ export async function handleSupabaseRequest<T>(
   }
 
   if (cleanPath === "/auth/password/reset" && method === "POST") {
-    const { error } = await supabase.auth.resetPasswordForEmail(payload.email);
+    const { error } = await supabase.auth.resetPasswordForEmail(payload.email.trim(), {
+      redirectTo: `${APP_URL}/nova-senha`,
+    });
     if (error) throw new Error(error.message);
     return ok({ ok: true }) as T;
   }
