@@ -41,15 +41,21 @@ function Page() {
   const m = useMutation({
     mutationFn: (v: SignupInput) => authService.signup(v),
     onSuccess: (user) => {
+      if (!user) {
+        toast.success("Se o cadastro estiver disponível para este e-mail, você receberá um link de confirmação.");
+        navigate({ to: "/login" });
+        return;
+      }
       setRole(user.role);
       setAuthenticated(true);
       setCurrentUser(user);
       toast.success("Conta criada com sucesso!");
       navigate({ to: roleHome(user.role) });
     },
-    onError: () => toast.error("Não foi possível criar sua conta. Tente novamente."),
+    onError: (err) => {
+      toast.error(err.message || "Não foi possível criar sua conta. Tente novamente.");
+    },
   });
-
   return (
     <AuthShell>
       <h1 className="font-display text-3xl font-semibold tracking-tight">Criar conta</h1>

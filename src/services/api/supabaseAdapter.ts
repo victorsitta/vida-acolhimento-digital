@@ -33,7 +33,15 @@ export async function handleSupabaseRequest<T>(
       email: payload.email,
       password: payload.password,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === "email_not_confirmed") {
+        throw new Error("Confirme seu e-mail pelo link enviado antes de entrar.");
+      }
+      if (error.code === "invalid_credentials") {
+        throw new Error("E-mail ou senha incorretos.");
+      }
+      throw new Error(error.message);
+    }
 
     // Carrega dados da tabela users
     const { data: userData } = await supabase
@@ -64,10 +72,22 @@ export async function handleSupabaseRequest<T>(
         },
       },
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.code === "signup_disabled") {
+        throw new Error("O cadastro por e-mail está indisponível no momento.");
+      }
+      if (error.code === "email_address_not_authorized") {
+        throw new Error("O serviço de confirmação de e-mail está indisponível para este endereço.");
+      }
+      if (error.code === "over_email_send_rate_limit") {
+        throw new Error("O limite de envio de e-mails foi atingido. Tente novamente mais tarde.");
+      }
+      throw new Error(error.message);
+    }
 
     return ok({
       session: data.session,
+      emailConfirmationRequired: !data.session,
       user: {
         id: data.user?.id,
         email: data.user?.email,

@@ -38,8 +38,11 @@ function Page() {
       toast.success("Bem-vindo(a) de volta!");
       navigate({ to: roleHome(user.role) });
     },
-    onError: () => toast.error("Não foi possível entrar. Tente novamente."),
+    onError: (err: any) => {
+      toast.error(err?.message || "Não foi possível entrar. Verifique seu e-mail e senha.");
+    },
   });
+
   return (
     <AuthShell>
       <h1 className="font-display text-3xl font-semibold tracking-tight">Entrar</h1>

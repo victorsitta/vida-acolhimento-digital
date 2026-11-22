@@ -269,7 +269,7 @@ export const authService = {
     nickname: string;
     email: string;
     password: string;
-  }): Promise<User> {
+  }): Promise<User | null> {
     const registered = await apiData<any>("/auth/register", {
       method: "POST",
       body: JSON.stringify({
@@ -280,8 +280,10 @@ export const authService = {
       }),
     });
     if (registered.session?.access_token) return loginWithSession(registered, data.email);
+    if (registered.emailConfirmationRequired) return null;
     return authService.login(data.email, data.password);
   },
+
   async recover(email: string): Promise<{ ok: true }> {
     await apiData<unknown>("/auth/password/reset", {
       method: "POST",
