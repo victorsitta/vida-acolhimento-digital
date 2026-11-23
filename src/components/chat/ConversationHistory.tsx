@@ -1,3 +1,4 @@
+import { SearchInput } from "@/components/common/SearchInput";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -127,19 +128,7 @@ export function ConversationHistory({
   return (
     <>
       <PageHeader title={title} description={description} />
-      <div className="relative mb-4 max-w-md">
-        <Search
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden="true"
-        />
-        <Input
-          value={term}
-          onChange={(e) => setTerm(e.target.value)}
-          placeholder="Buscar por usuário ou voluntário"
-          className="pl-9"
-          aria-label="Buscar conversas"
-        />
-      </div>
+      <SearchInput value={term} onChange={setTerm} placeholder="Buscar por usuário ou voluntário" className="max-w-md" />
 
       {q.isPending ? (
         <p className="text-sm text-muted-foreground">Carregando…</p>

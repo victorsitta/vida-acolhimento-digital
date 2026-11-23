@@ -452,6 +452,17 @@ export const chatService = {
       // silencioso
     }
   },
+  /** Cor de mensagem escolhida por cada participante: { userId: "oceano" }. */
+  async getThemes(id: string): Promise<Record<string, string>> {
+    const data = await apiData<any>(`/conversations/${id}/themes`);
+    return (data ?? {}) as Record<string, string>;
+  },
+  async saveTheme(theme: string): Promise<void> {
+    await apiData<unknown>("/users/me/preferences", {
+      method: "PATCH",
+      body: JSON.stringify({ preferences: { chatTheme: theme } }),
+    });
+  },
   async rate(id: string, rating: number, comment?: string): Promise<{ ok: true }> {
     await apiData<unknown>(`/conversations/${id}/rating`, {
       method: "POST",

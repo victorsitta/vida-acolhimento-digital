@@ -1,3 +1,4 @@
+import { SearchInput } from "@/components/common/SearchInput";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -99,12 +100,7 @@ function Page() {
         }
       />
       <div className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_200px_180px]">
-        <Input
-          placeholder="Buscar candidato..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          aria-label="Buscar candidato"
-        />
+        <SearchInput value={search} onChange={setSearch} placeholder="Buscar candidato…" />
         <Select value={kind} onValueChange={(v) => setKind(v as typeof kind)}>
           <SelectTrigger aria-label="Tipo de candidatura">
             <SelectValue />

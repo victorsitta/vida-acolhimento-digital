@@ -1002,6 +1002,13 @@ async function handleInner<T>(
     ) as T;
   }
 
+  const themesMatch = cleanPath.match(/^\/conversations\/([a-f0-9-]+)\/themes$/i);
+  if (themesMatch && method === "GET") {
+    const { data, error } = await supabase.rpc("get_chat_themes", { p_conversation_id: themesMatch[1] });
+    if (error) return ok({}) as T; // sem a função no banco: só não mostra a cor da outra pessoa
+    return ok(data ?? {}) as T;
+  }
+
   const ratingMatch = cleanPath.match(/^\/conversations\/([a-f0-9-]+)\/rating$/i);
   if (ratingMatch && method === "POST") {
     const rating = Math.min(5, Math.max(1, Number(payload.rating) || 0));

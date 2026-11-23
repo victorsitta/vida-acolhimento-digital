@@ -1,3 +1,4 @@
+import { SearchInput } from "@/components/common/SearchInput";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MessageSquareQuote, Search, Smile, Star, ThumbsUp } from "lucide-react";
@@ -163,10 +164,7 @@ export function VolunteerRatings({
       </div>
 
       {!mine && summaries.length > 1 && (
-        <div className="relative mb-4 max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <Input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Buscar pelo nome" className="pl-9" aria-label="Buscar pelo nome" />
-        </div>
+        <SearchInput value={term} onChange={setTerm} placeholder="Buscar pelo nome" className="max-w-md" />
       )}
 
       {q.isPending ? (

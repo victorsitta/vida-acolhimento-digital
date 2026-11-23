@@ -1,8 +1,9 @@
-import type { ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
 import { CheckCheck, CornerUpLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { fmtTime } from "@/utils/format";
+import { ChatThemeContext } from "@/components/chat/chatThemes";
 
 function initialsOf(name?: string) {
   return (name ?? "?")
@@ -16,11 +17,11 @@ function initialsOf(name?: string) {
 
 /** Cada pessoa ganha sempre a mesma cor (pelo nome), para reconhecer quem fala. */
 const TONES = [
-  { avatar: "bg-primary/20 text-primary ring-primary/40", name: "text-primary", edge: "border-l-primary" },
-  { avatar: "bg-accent/20 text-accent ring-accent/40", name: "text-accent", edge: "border-l-accent" },
-  { avatar: "bg-success/20 text-success ring-success/40", name: "text-success", edge: "border-l-success" },
-  { avatar: "bg-info/20 text-info ring-info/40", name: "text-info", edge: "border-l-info" },
-  { avatar: "bg-destructive/15 text-destructive ring-destructive/30", name: "text-destructive", edge: "border-l-destructive" },
+  { avatar: "bg-primary/20 text-primary ring-primary/40", name: "text-primary" },
+  { avatar: "bg-accent/20 text-accent ring-accent/40", name: "text-accent" },
+  { avatar: "bg-success/20 text-success ring-success/40", name: "text-success" },
+  { avatar: "bg-info/20 text-info ring-info/40", name: "text-info" },
+  { avatar: "bg-destructive/15 text-destructive ring-destructive/30", name: "text-destructive" },
 ];
 function toneOf(name?: string) {
   let h = 0;
@@ -44,15 +45,17 @@ function dayLabel(iso: string) {
 /** Separador "Hoje / Ontem / 12 de março" entre mensagens de dias diferentes. */
 export function ChatDay({ date }: { date: string }) {
   return (
-    <div className="my-2 flex items-center gap-3" role="separator">
-      <span className="h-px flex-1 bg-border" />
-      <span className="rounded-full border bg-card/90 px-3 py-0.5 text-[11px] font-medium text-muted-foreground shadow-sm">
+    <div className="my-3 flex justify-center" role="separator">
+      <span className="rounded-lg bg-card/90 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground shadow-sm ring-1 ring-border">
         {dayLabel(date)}
       </span>
-      <span className="h-px flex-1 bg-border" />
     </div>
   );
 }
+
+/** Mensagem só de 1 a 3 emojis: aparece grande, como no WhatsApp. */
+const EMOJI_ONLY = /^(?:\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic}|\p{Emoji_Modifier})*\s*){1,3}$/u;
+export const isEmojiOnly = (text: string) => EMOJI_ONLY.test(text.trim());
 
 /** Figurinha: mensagem enviada como "::sticker::🤗" (sem mudar o banco). */
 export const STICKER_PREFIX = "::sticker::";
@@ -78,6 +81,9 @@ export interface ChatBubbleProps {
   onRetry?: () => void;
   /** conteúdo extra abaixo da bolha (ex.: ações de moderação) */
   footer?: ReactNode;
+  /** agrupamento (preenchido pelo ChatRoom): mesma pessoa em sequência */
+  joinPrev?: boolean;
+  joinNext?: boolean;
 }
 
 /** Balão de mensagem único para todos os chats (atendimento, grupos e históricos). */
@@ -93,19 +99,65 @@ export function ChatBubble({
   onReply,
   onRetry,
   footer,
+  joinPrev,
+  joinNext,
 }: ChatBubbleProps) {
   const tone = toneOf(name);
+  const { other } = useContext(ChatThemeContext);
+  const otherColored = !mine && !!other?.from;
   const newDay = prevCreatedAt === undefined ? false : !sameDay(prevCreatedAt, createdAt);
+  // se o dia mudou, o grupo recomeça
+  const gPrev = joinPrev && !newDay;
+  const sticker = isSticker(text);
+  const big = isEmojiOnly(text);
+  const onColor = mine || otherColored;
+
+  const time = (
+    <span
+      className={cn(
+        "ml-3 inline-flex translate-y-0.5 items-center gap-1 whitespace-nowrap align-bottom text-[11px] leading-none",
+        onColor ? "opacity-80" : "text-muted-foreground",
+      )}
+    >
+      <time dateTime={createdAt}>{fmtTime(createdAt)}</time>
+      {mine && status !== "sending" && status !== "error" && (
+        <CheckCheck className="h-3.5 w-3.5" aria-label="Enviada" />
+      )}
+      {status === "sending" && <span>enviando…</span>}
+      {status === "error" && (
+        <button type="button" onClick={onRetry} className="underline">
+          reenviar
+        </button>
+      )}
+    </span>
+  );
+
+  const bubbleStyle = otherColored
+    ? { background: `linear-gradient(135deg, ${other!.from}, ${other!.to})`, color: other!.fg || "white" }
+    : mine
+      ? {
+          background:
+            "linear-gradient(135deg, var(--bubble-from, var(--primary)), var(--bubble-to, color-mix(in oklab, var(--primary) 82%, var(--accent))))",
+          color: "var(--bubble-fg, var(--primary-foreground))",
+        }
+      : undefined;
 
   return (
     <>
       {newDay && <ChatDay date={createdAt} />}
-      <div className={cn("pop-in group flex items-end gap-2", mine ? "justify-end" : "justify-start")}>
+      <div
+        className={cn(
+          "pop-in group flex items-end gap-2",
+          mine ? "justify-end" : "justify-start",
+          gPrev && "-mt-2",
+        )}
+      >
         {!mine && showAvatar && (
           <span
             className={cn(
-              "mb-5 grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-bold ring-2",
+              "grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-bold ring-2",
               tone.avatar,
+              joinNext && "invisible",
             )}
             aria-hidden="true"
           >
@@ -113,13 +165,9 @@ export function ChatBubble({
           </span>
         )}
 
-        <div className={cn("flex min-w-0 max-w-[82%] flex-col", mine ? "items-end" : "items-start")}>
-          {!mine && name && (
-            <span className={cn("mb-1 px-1 text-xs font-semibold", tone.name)}>{name}</span>
-          )}
-
-          {isSticker(text) ? (
-            <div className="px-1">
+        <div className={cn("flex min-w-0 max-w-[80%] flex-col sm:max-w-[70%]", mine ? "items-end" : "items-start")}>
+          {sticker ? (
+            <div className="px-1 pb-1">
               <span
                 className="block origin-bottom animate-in zoom-in-50 text-6xl leading-none drop-shadow-sm duration-300 sm:text-7xl"
                 role="img"
@@ -127,60 +175,47 @@ export function ChatBubble({
               >
                 {stickerOf(text)}
               </span>
-              <time dateTime={createdAt} className="mt-1 block text-[11px] text-muted-foreground">
-                {fmtTime(createdAt)}
-              </time>
+              <span className="mt-1 block text-right text-[11px] text-muted-foreground">{fmtTime(createdAt)}</span>
             </div>
           ) : (
-          <div
-            className={cn(
-              "relative px-4 py-2.5 text-sm leading-relaxed",
-              mine
-                ? "rounded-2xl rounded-br-md text-primary-foreground shadow-md"
-                : cn("rounded-2xl rounded-bl-md border border-l-4 bg-card text-card-foreground shadow-sm", tone.edge),
-            )}
-            style={
-              mine
-                ? {
-                    background:
-                      "linear-gradient(135deg, var(--bubble-from, var(--primary)), var(--bubble-to, color-mix(in oklab, var(--primary) 82%, var(--accent))))",
-                    color: "var(--bubble-fg, var(--primary-foreground))",
-                  }
-                : undefined
-            }
-          >
-            {reply && (
-              <div
-                className={cn(
-                  "mb-2 rounded-lg border-l-2 p-2 text-xs",
-                  mine
-                    ? "border-primary-foreground/50 bg-primary-foreground/10"
-                    : "border-primary/60 bg-muted/60 text-muted-foreground",
-                )}
-              >
-                <span className="block font-semibold">{reply.author}</span>
-                <span className="line-clamp-2">{reply.text}</span>
-              </div>
-            )}
-            <p className="whitespace-pre-wrap break-words text-pretty">{text}</p>
             <div
               className={cn(
-                "mt-1 flex items-center justify-end gap-1 text-[11px]",
-                mine ? "text-primary-foreground/75" : "text-muted-foreground",
+                "relative flow-root px-3 py-1.5 text-[0.92rem] leading-snug shadow-sm",
+                !onColor && "border bg-card text-card-foreground",
+                // cantos: o grupo "cola" as mensagens da mesma pessoa; o último ganha o rabinho
+                mine
+                  ? cn("rounded-2xl", gPrev && "rounded-tr-md", joinNext ? "rounded-br-md" : "rounded-br-sm")
+                  : cn("rounded-2xl", gPrev && "rounded-tl-md", joinNext ? "rounded-bl-md" : "rounded-bl-sm"),
+                !joinNext && (mine ? "chat-tail chat-tail-r" : "chat-tail chat-tail-l"),
               )}
+              style={bubbleStyle}
             >
-              <time dateTime={createdAt}>{fmtTime(createdAt)}</time>
-              {mine && status !== "sending" && status !== "error" && (
-                <CheckCheck className="h-3.5 w-3.5" aria-label="Enviada" />
+              {!mine && name && !gPrev && (
+                <span className={cn("mb-0.5 block text-xs font-semibold", otherColored ? "opacity-90" : tone.name)}>
+                  {name}
+                </span>
               )}
-              {status === "sending" && <span>· enviando…</span>}
-              {status === "error" && (
-                <button type="button" onClick={onRetry} className="underline">
-                  Falhou — reenviar
-                </button>
+              {reply && (
+                <div
+                  className={cn(
+                    "mb-1.5 rounded-lg border-l-4 px-2 py-1 text-xs",
+                    onColor ? "border-white/60 bg-black/10" : "border-primary/70 bg-muted/60 text-muted-foreground",
+                  )}
+                >
+                  <span className="block font-semibold">{reply.author}</span>
+                  <span className="line-clamp-2 opacity-90">{reply.text}</span>
+                </div>
               )}
+              <span
+                className={cn(
+                  "whitespace-pre-wrap break-words",
+                  big && "block text-4xl leading-tight sm:text-5xl",
+                )}
+              >
+                {text}
+              </span>
+              {time}
             </div>
-          </div>
           )}
 
           {footer}
@@ -193,7 +228,7 @@ export function ChatBubble({
             size="icon"
             onClick={onReply}
             aria-label="Responder mensagem"
-            className="mb-1 h-8 w-8 shrink-0 rounded-full text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground group-hover:opacity-100 max-md:opacity-60"
+            className="mb-0.5 h-8 w-8 shrink-0 rounded-full text-muted-foreground opacity-0 transition-opacity hover:bg-muted hover:text-foreground group-hover:opacity-100 max-md:opacity-60"
           >
             <CornerUpLeft className="h-3.5 w-3.5" />
           </Button>
@@ -206,7 +241,7 @@ export function ChatBubble({
 /** Aviso do sistema no meio da conversa. */
 export function ChatNotice({ children }: { children: ReactNode }) {
   return (
-    <p className="mx-auto my-1 w-fit max-w-[90%] rounded-full bg-muted/70 px-3 py-1 text-center text-xs text-muted-foreground">
+    <p className="mx-auto my-1 w-fit max-w-[90%] rounded-lg bg-amber-100/70 px-3 py-1 text-center text-xs text-amber-900 shadow-sm dark:bg-amber-950/40 dark:text-amber-100">
       {children}
     </p>
   );

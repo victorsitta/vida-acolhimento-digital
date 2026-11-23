@@ -1,3 +1,4 @@
+import { SearchInput } from "@/components/common/SearchInput";
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -191,19 +192,7 @@ function Page() {
       </div>
 
       <div className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_220px_160px]">
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            placeholder="Buscar por pessoa, ação ou detalhe"
-            className="pl-9"
-            aria-label="Buscar nos logs"
-          />
-        </div>
+        <SearchInput value={term} onChange={setTerm} placeholder="Buscar por pessoa, ação ou detalhe" className="w-full" />
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger aria-label="Categoria">
             <SelectValue />

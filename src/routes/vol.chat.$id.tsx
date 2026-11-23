@@ -208,6 +208,7 @@ function Page() {
   return (
     <AppShell>
       <ChatRoom
+        conversationId={id}
         title={personAlias}
         subtitle="em atendimento · você pode sair e voltar quando quiser"
         avatarText={personAlias}

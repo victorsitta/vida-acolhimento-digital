@@ -178,6 +178,7 @@ function Page() {
   return (
     <AppShell>
       <ChatRoom
+        conversationId={id}
         title={volunteerName}
         subtitle="Conversa em andamento · confidencial"
         avatarText={volunteerName}
@@ -342,12 +343,16 @@ function Page() {
 function Bubble({
   message,
   prev,
+  joinPrev,
+  joinNext,
   replyToMessage,
   onRetry,
   onReply,
 }: {
   message: ChatMessage;
   prev?: string;
+  joinPrev?: boolean;
+  joinNext?: boolean;
   replyToMessage?: ChatMessage;
   onRetry: () => void;
   onReply?: () => void;
@@ -356,6 +361,8 @@ function Bubble({
   const mine = message.author === "user";
   return (
     <ChatBubble
+      joinPrev={joinPrev}
+      joinNext={joinNext}
       prevCreatedAt={prev}
       mine={mine}
       text={message.text}
