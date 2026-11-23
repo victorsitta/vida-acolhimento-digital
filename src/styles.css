@@ -346,3 +346,40 @@ img, svg, video { max-width: 100%; }
 
 /* barra de rolagem discreta */
 * { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--foreground) 25%, transparent) transparent; }
+
+
+/* ─────────────────────────────────────────────
+   REFINAMENTO — minimalista, calmo, com um toque de brilho
+   ───────────────────────────────────────────── */
+body {
+  background-image:
+    radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklab, var(--primary) 11%, transparent), transparent 70%),
+    radial-gradient(45rem 28rem at -10% 110%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 70%);
+  background-attachment: fixed;
+}
+.dark body {
+  background-image:
+    radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklab, var(--primary) 9%, transparent), transparent 70%),
+    radial-gradient(45rem 28rem at -10% 110%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 70%);
+}
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* bordas mais suaves: menos linhas, mais respiro */
+:root:not(.dark) { --border: oklch(0.89 0.03 78); }
+.divide-y > :not([hidden]) ~ :not([hidden]) { border-color: color-mix(in oklab, var(--border) 70%, transparent); }
+
+/* sombras discretas nas listas e cartões */
+.shadow-soft { box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 5%, transparent), 0 8px 24px -12px color-mix(in oklab, var(--foreground) 14%, transparent); }
+.dark .shadow-soft { box-shadow: 0 1px 2px oklch(0 0 0 / 0.35), 0 10px 28px -14px oklch(0 0 0 / 0.5); }
+
+/* selo decorativo reutilizável (pequeno brilho dourado) */
+.sparkle::after {
+  content: "";
+  display: inline-block;
+  width: 0.4rem; height: 0.4rem; margin-left: 0.4rem;
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 0 10px 2px color-mix(in oklab, var(--primary) 60%, transparent);
+  vertical-align: middle;
+}

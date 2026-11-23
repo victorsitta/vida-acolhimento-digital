@@ -63,7 +63,7 @@ function Page() {
   useEffect(() => {
     if (conversation.data?.status === "ended") {
       toast.info(
-        conversation.data.topic === "usuario_encerrou"
+        conversation.data.closedReason === "usuario_encerrou"
           ? "Conversa encerrada."
           : "O voluntário encerrou a conversa. Você pode relê-la e avaliar no histórico.",
       );

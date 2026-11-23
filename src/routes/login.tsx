@@ -108,12 +108,22 @@ function Page() {
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="grid min-h-dvh place-items-center bg-gradient-to-b from-background to-secondary/30 px-4 py-12">
-      <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 inline-block">
+    <div className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-12">
+      <div
+        className="orb -left-24 -top-24 h-72 w-72 bg-primary/30"
+        aria-hidden="true"
+      />
+      <div
+        className="orb -bottom-28 -right-20 h-80 w-80 bg-accent/25"
+        aria-hidden="true"
+      />
+      <div className="relative z-10 w-full max-w-md fade-up">
+        <Link to="/" className="mb-8 flex justify-center" aria-label="VIDA+ — início">
           <Logo />
         </Link>
-        <div className="rounded-3xl border bg-card p-8 shadow-soft">{children}</div>
+        <div className="rounded-3xl border bg-card/90 p-7 shadow-soft backdrop-blur-xl sm:p-9">
+          {children}
+        </div>
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Em emergência: CVV <strong>188</strong> · SAMU <strong>192</strong>
         </p>

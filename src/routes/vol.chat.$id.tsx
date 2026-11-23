@@ -82,7 +82,7 @@ function Page() {
     // acabou de encerrar: o voluntário registra o prontuário
     setEnded(true);
     toast.info(
-      conversation.data.topic === "voluntario_encerrou"
+      conversation.data.closedReason === "voluntario_encerrou"
         ? "Você encerrou a conversa."
         : "A pessoa acolhida encerrou a conversa. Registre o prontuário.",
     );

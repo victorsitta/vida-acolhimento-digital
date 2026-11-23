@@ -30,7 +30,7 @@ function Page() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           to="/app/conversar"
-          className="group relative overflow-hidden rounded-3xl bg-primary p-6 text-primary-foreground shadow-soft transition hover:opacity-95"
+          className="card-lift group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent/80 p-6 text-primary-foreground shadow-soft"
         >
           <Sparkles className="absolute -right-4 -top-4 h-24 w-24 opacity-15" />
           <MessageCircleHeart className="h-7 w-7" aria-hidden="true" />
@@ -43,7 +43,7 @@ function Page() {
 
         <Link
           to="/app/comunidades"
-          className="group rounded-3xl border border-primary/20 bg-primary/5 p-6 shadow-soft transition hover:bg-primary/10"
+          className="card-lift group rounded-3xl border bg-card p-6 shadow-soft"
         >
           <UsersRound className="h-7 w-7 text-primary" />
           <h2 className="mt-4 font-display text-2xl font-semibold">Grupos de apoio</h2>
@@ -57,7 +57,7 @@ function Page() {
 
         <Link
           to="/app/historico"
-          className="group rounded-3xl border bg-card p-6 shadow-soft transition hover:bg-muted/30"
+          className="card-lift group rounded-3xl border bg-card p-6 shadow-soft"
         >
           <History className="h-7 w-7 text-primary" />
           <h2 className="mt-4 font-display text-2xl font-semibold">Suas conversas</h2>
@@ -70,7 +70,7 @@ function Page() {
 
       <section className="mt-10">
         <h2 className="font-display text-xl font-semibold">Atividade recente</h2>
-        <div className="mt-3 divide-y rounded-2xl border bg-card">
+        <div className="mt-3 divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
           {conv.isPending && (
             <div className="space-y-3 p-4" aria-label="Carregando atividade recente">
               {[1, 2, 3].map((item) => (
@@ -81,7 +81,7 @@ function Page() {
           {(conv.data ?? []).slice(0, 4).map((c) => (
             <div
               key={c.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
+              className="row-hover grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{c.topic}</p>
@@ -98,7 +98,7 @@ function Page() {
         </div>
       </section>
 
-      <section className="mt-10 rounded-2xl border bg-secondary/40 p-6">
+      <section className="mt-10 rounded-3xl border bg-gradient-to-br from-secondary/60 to-transparent p-6">
         <div className="flex items-start gap-3">
           <Heart className="mt-0.5 h-5 w-5 text-primary" />
           <div>

@@ -42,6 +42,7 @@ export interface Conversation {
   userId?: string;
   isTeamChat?: boolean;
   rating?: number;
+  closedReason?: string;
 }
 
 export type QueuePriority = "normal" | "prioritaria" | "crise";

@@ -257,7 +257,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     setCurrentUser(null);
     navigate({ to: "/login", replace: true });
   }
-  const routeRole: ProfileRole =
+  // O menu segue a área em que a pessoa está, mas só se o papel dela permitir
+  // essa área. Assim cada um vê somente o que pode abrir (sem links que redirecionam).
+  const areaRole: ProfileRole =
     pathname === "/app/preferencias"
       ? role
       : pathname.startsWith("/vol")
@@ -267,6 +269,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           : pathname.startsWith("/admin")
             ? "administrador"
             : "usuario";
+  const RANK: Record<ProfileRole, number> = {
+    usuario: 0,
+    voluntario: 1,
+    moderador: 2,
+    administrador: 3,
+  };
+  const routeRole: ProfileRole = RANK[role] >= RANK[areaRole] ? areaRole : role;
   const items = NAV[routeRole] ?? NAV[role];
   const [moreOpen, setMoreOpen] = useState(false);
   const mobileItems =
@@ -341,7 +350,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 pb-24 md:px-8 md:pb-10">
+        <main className="flex-1 px-4 py-6 pb-24 md:px-10 md:py-10 md:pb-12">
           <div className="fade-up mx-auto max-w-5xl">{children}</div>
         </main>
 
