@@ -1,3 +1,4 @@
+import { IconInput, PasswordInput } from "@/components/common/IconInput";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -101,18 +102,21 @@ function Page() {
       </p>
       <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
         <Field label="Nova senha" id="password" error={errors.password?.message}>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
+            meter
             autoComplete="new-password"
+            placeholder="Crie uma senha forte"
+            aria-invalid={!!errors.password}
             {...register("password")}
           />
         </Field>
         <Field label="Confirmar nova senha" id="confirm" error={errors.confirm?.message}>
-          <Input
+          <PasswordInput
             id="confirm"
-            type="password"
             autoComplete="new-password"
+            placeholder="Repita a senha"
+            aria-invalid={!!errors.confirm}
             {...register("confirm")}
           />
         </Field>

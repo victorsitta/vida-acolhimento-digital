@@ -1,4 +1,5 @@
 import { SearchInput } from "@/components/common/SearchInput";
+import { FilterChips } from "@/components/common/FilterChips";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -99,32 +100,31 @@ function Page() {
             : "Usuários que querem ser voluntários e voluntários que querem ser moderadores."
         }
       />
-      <div className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_200px_180px]">
-        <SearchInput value={search} onChange={setSearch} placeholder="Buscar candidato…" />
-        <Select value={kind} onValueChange={(v) => setKind(v as typeof kind)}>
-          <SelectTrigger aria-label="Tipo de candidatura">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os tipos</SelectItem>
-            <SelectItem value="voluntario">Usuário → Voluntário</SelectItem>
-            <SelectItem value="moderador">Voluntário → Moderador</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select
-          value={status}
-          onValueChange={(value) => setStatus(value as ApplicationStatus | "todos")}
-        >
-          <SelectTrigger aria-label="Status">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os status</SelectItem>
-            <SelectItem value="pendente">Pendente</SelectItem>
-            <SelectItem value="aprovado">Aprovado</SelectItem>
-            <SelectItem value="recusado">Recusado</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="mb-4 space-y-3">
+        <SearchInput value={search} onChange={setSearch} placeholder="Buscar candidato…" className="max-w-md" />
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          <FilterChips
+            label="Tipo de candidatura"
+            value={kind}
+            onChange={setKind}
+            options={[
+              { value: "todos", label: "Todos os tipos" },
+              { value: "voluntario", label: "Usuário → Voluntário", count: all.filter((a) => a.kind !== "moderador").length },
+              { value: "moderador", label: "Voluntário → Moderador", count: all.filter((a) => a.kind === "moderador").length },
+            ]}
+          />
+          <FilterChips
+            label="Status"
+            value={status}
+            onChange={setStatus}
+            options={[
+              { value: "todos", label: "Todos" },
+              { value: "pendente", label: "Pendentes", count: all.filter((a) => a.status === "pendente").length },
+              { value: "aprovado", label: "Aprovadas", count: all.filter((a) => a.status === "aprovado").length },
+              { value: "recusado", label: "Recusadas", count: all.filter((a) => a.status === "recusado").length },
+            ]}
+          />
+        </div>
       </div>
 
       {!loading && list.length === 0 ? (

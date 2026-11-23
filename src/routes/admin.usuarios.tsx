@@ -14,8 +14,10 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { ProfileRole } from "@/types";
 import { Pager, usePagination } from "@/components/common/Pager";
+import { FilterChips } from "@/components/common/FilterChips";
+import { SearchInput } from "@/components/common/SearchInput";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,7 +67,18 @@ function Page() {
     onError: () => toast.error("Não foi possível alterar o status do usuário."),
   });
 
-  const pg = usePagination(q.data ?? [], 10);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"todos" | ProfileRole | "suspensos">("todos");
+  const all = q.data ?? [];
+  const filtered = useMemo(() => {
+    const t = search.trim().toLowerCase();
+    return all.filter((u) => {
+      if (roleFilter === "suspensos" ? u.status !== "banido" : roleFilter !== "todos" && u.role !== roleFilter) return false;
+      return !t || u.name.toLowerCase().includes(t) || (u.email ?? "").toLowerCase().includes(t);
+    });
+  }, [all, search, roleFilter]);
+  const countOf = (r: ProfileRole) => all.filter((u) => u.role === r).length;
+  const pg = usePagination(filtered, 12);
   const userDetailsQuery = useQuery({
     queryKey: ["user-details", selectedUserId],
     queryFn: () => userService.getDetails(selectedUserId!),
@@ -130,47 +143,25 @@ function Page() {
         title="Usuários e papéis"
         description="Gerencie permissões. Confirme antes de aplicar ações críticas."
       />
-      <div className="hidden overflow-x-auto rounded-2xl border bg-card shadow-soft md:block">
-        <table className="w-full text-sm">
-          <thead className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3">Usuário</th>
-              <th className="px-4 py-3 hidden sm:table-cell">E-mail</th>
-              <th className="px-4 py-3">Papel</th>
-              <th className="px-4 py-3 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {pg.pageItems.map((u) => (
-              <tr key={u.id} className="row-hover">
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback>{u.initials}</AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium">
-                      {u.name}
-                      {u.status === "banido" && (
-                        <span className="ml-2 text-[10px] bg-destructive/15 text-destructive px-1.5 py-0.5 rounded font-bold">Suspenso</span>
-                      )}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-4 py-3 hidden sm:table-cell text-muted-foreground">{u.email}</td>
-                <td className="px-4 py-3">
-                  {roleSelect(u)}
-                </td>
-                <td className="px-4 py-3 text-right space-x-2">
-                  {actions(u)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-4 space-y-3">
+        <SearchInput value={search} onChange={setSearch} placeholder="Buscar por nome ou e-mail" className="max-w-md" />
+        <FilterChips
+          label="Filtrar por papel"
+          value={roleFilter}
+          onChange={setRoleFilter}
+          options={[
+            { value: "todos", label: "Todos", count: all.length },
+            { value: "usuario", label: "Usuários", count: countOf("usuario") },
+            { value: "voluntario", label: "Voluntários", count: countOf("voluntario") },
+            { value: "moderador", label: "Moderadores", count: countOf("moderador") },
+            { value: "administrador", label: "Admins", count: countOf("administrador") },
+            { value: "suspensos", label: "Suspensos", count: all.filter((u) => u.status === "banido").length },
+          ]}
+        />
       </div>
-      <ul className="space-y-3 md:hidden">
+      <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {pg.pageItems.map((u) => (
-          <li key={u.id} className="rounded-2xl border bg-card p-4 shadow-soft">
+          <li key={u.id} className="card-lift rounded-2xl border bg-card p-4 shadow-soft">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 shrink-0">
                 <AvatarFallback>{u.initials}</AvatarFallback>

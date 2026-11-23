@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Anima de 0 até o número do texto (ex.: "1.234", "98%", "12 min"). Texto sem número não anima. */
-function CountUp({ value }: { value: string }) {
+export function CountUp({ value }: { value: string }) {
   const match = value.match(/^(\D*)([\d.,]+)(.*)$/);
   const target = match ? Number(match[2].replace(/\./g, "").replace(",", ".")) : NaN;
   const [shown, setShown] = useState(0);

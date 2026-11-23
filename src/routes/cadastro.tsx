@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Mail, UserRound, Smile } from "lucide-react";
+import { IconInput, PasswordInput } from "@/components/common/IconInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import { signupSchema, type SignupInput } from "@/utils/validators";
 import { authService } from "@/services";
@@ -63,31 +64,37 @@ function Page() {
 
       <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
         <Field label="Nome completo" id="name" error={errors.name?.message}>
-          <Input id="name" autoComplete="name" {...register("name")} />
+          <IconInput id="name" icon={UserRound} autoComplete="name" placeholder="Seu nome" aria-invalid={!!errors.name} valid={!!watch("name") && !errors.name} {...register("name")} />
           <p className="mt-1 text-xs text-muted-foreground">
             Dado privado, acessível somente à equipe autorizada.
           </p>
         </Field>
         <Field label="Apelido público" id="nickname" error={errors.nickname?.message}>
-          <Input id="nickname" autoComplete="nickname" {...register("nickname")} />
+          <IconInput id="nickname" icon={Smile} autoComplete="nickname" placeholder="Como quer ser chamado(a) nos grupos" aria-invalid={!!errors.nickname} valid={!!watch("nickname") && !errors.nickname} {...register("nickname")} />
           <p className="mt-1 text-xs text-muted-foreground">
             É este nome que as outras pessoas verão nos grupos.
           </p>
         </Field>
         <Field label="E-mail" id="email" error={errors.email?.message}>
-          <Input
+          <IconInput
             id="email"
+            icon={Mail}
             type="email"
             autoComplete="email"
             inputMode="email"
+            placeholder="voce@email.com"
+            aria-invalid={!!errors.email}
+            valid={!!watch("email") && !errors.email}
             {...register("email")}
           />
         </Field>
         <Field label="Senha" id="password" error={errors.password?.message}>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
+            meter
             autoComplete="new-password"
+            placeholder="Crie uma senha"
+            aria-invalid={!!errors.password}
             {...register("password")}
           />
         </Field>

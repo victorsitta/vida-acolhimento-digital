@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useRef } from "react";
 import { PublicLayout } from "@/layouts/PublicLayout";
+import { PublicStats, usePublicStats } from "@/components/common/PublicStats";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -94,6 +95,7 @@ const FAQS = [
 ];
 
 function Landing() {
+  const stats = usePublicStats();
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
@@ -155,7 +157,11 @@ function Landing() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-70" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
             </span>
-            <span className="text-primary font-medium">Voluntários disponíveis agora</span>
+            <span className="text-primary font-medium">
+              {stats.data && stats.data.online > 0
+                ? `${stats.data.online} voluntário${stats.data.online > 1 ? "s" : ""} online agora`
+                : "Acolhimento gratuito e anônimo"}
+            </span>
           </motion.div>
 
           {/* Título */}
@@ -163,7 +169,7 @@ function Landing() {
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-            className="font-display text-6xl font-bold tracking-tight text-balance text-foreground sm:text-7xl md:text-8xl lg:text-9xl leading-[0.92]"
+            className="font-display text-5xl font-bold tracking-tight text-balance text-foreground sm:text-6xl md:text-7xl leading-[0.98]"
           >
             Você não está <span className="gradient-text">sozinho.</span>
           </motion.h1>
@@ -189,7 +195,7 @@ function Landing() {
             <Link to="/cadastro">
               <Button
                 size="lg"
-                className="h-14 gap-3 px-9 text-base font-semibold rounded-full shadow-glow
+                className="h-12 gap-2 px-7 text-[0.95rem] font-semibold rounded-full shadow-glow
                            bg-primary text-primary-foreground border-0
                            hover:scale-105 hover:opacity-90 transition-all duration-300"
               >
@@ -201,7 +207,7 @@ function Landing() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 gap-3 px-9 text-base font-medium rounded-full
+                className="h-12 gap-2 px-7 text-[0.95rem] font-medium rounded-full
                            border-border hover:bg-muted hover:border-primary/40
                            transition-all duration-300"
               >
@@ -261,10 +267,12 @@ function Landing() {
         </motion.div>
       </section>
 
+      <PublicStats />
+
       {/* ═══════════════════════════════════════════
           COMO FUNCIONA — Clean Timeline
       ═══════════════════════════════════════════ */}
-      <section className="relative py-32">
+      <section className="relative py-20">
         <div className="mx-auto max-w-5xl px-6">
           <motion.div
             initial="hidden"
@@ -336,7 +344,7 @@ function Landing() {
       {/* ═══════════════════════════════════════════
           PILARES — Cards Limpos
       ═══════════════════════════════════════════ */}
-      <section className="relative py-28 bg-muted/30 border-y border-border/60">
+      <section className="relative py-20 bg-muted/30 border-y border-border/60">
         <div className="relative mx-auto max-w-6xl px-6">
           <motion.div
             initial="hidden"
@@ -382,7 +390,7 @@ function Landing() {
       {/* ═══════════════════════════════════════════
           FAQ — Minimalista
       ═══════════════════════════════════════════ */}
-      <section className="relative py-28">
+      <section className="relative py-20">
         <div className="mx-auto max-w-3xl px-6">
           <motion.div
             initial="hidden"
@@ -421,7 +429,7 @@ function Landing() {
       {/* ═══════════════════════════════════════════
           CTA FINAL — Chamada Emocional Clean
       ═══════════════════════════════════════════ */}
-      <section className="relative py-28">
+      <section className="relative py-20">
         <div className="mx-auto max-w-4xl px-6">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -458,7 +466,7 @@ function Landing() {
                 <Link to="/cadastro">
                   <Button
                     size="lg"
-                    className="h-14 gap-3 px-9 text-base font-semibold rounded-full shadow-glow
+                    className="h-12 gap-2 px-7 text-[0.95rem] font-semibold rounded-full shadow-glow
                                bg-primary text-primary-foreground border-0
                                hover:scale-105 hover:opacity-90 transition-all duration-300"
                   >
@@ -474,6 +482,8 @@ function Landing() {
       {/* ═══════════════════════════════════════════
           EMERGÊNCIA — Faixa de Segurança
       ═══════════════════════════════════════════ */}
+      <AudienceAndCta />
+
       <section className="border-t border-border/60 bg-muted/20">
         <motion.div
           initial={{ opacity: 0 }}
@@ -591,5 +601,121 @@ function ChatBubble({
         {children}
       </div>
     </motion.div>
+  );
+}
+
+
+// ─── Para quem + chamada final ────────────────────────────────────────────────
+const AUDIENCES = [
+  {
+    icon: MessageCircleHeart,
+    title: "Preciso conversar",
+    text: "Fale com um voluntário agora, de forma anônima e sem julgamentos.",
+    cta: "Quero conversar",
+    to: "/cadastro",
+    tone: "from-primary/25 to-primary/5",
+  },
+  {
+    icon: UsersRound,
+    title: "Quero um grupo",
+    text: "Entre em comunidades de apoio e converse usando só um apelido.",
+    cta: "Ver grupos",
+    to: "/cadastro",
+    tone: "from-info/25 to-info/5",
+  },
+  {
+    icon: Heart,
+    title: "Quero ajudar",
+    text: "Seja voluntário(a) e ofereça escuta. Você recebe apoio da equipe.",
+    cta: "Ser voluntário",
+    to: "/cadastro",
+    tone: "from-accent/25 to-accent/5",
+  },
+] as const;
+
+function AudienceAndCta() {
+  return (
+    <>
+      <section className="relative py-20">
+        <div className="mx-auto max-w-6xl px-6">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={staggerContainer}
+            className="text-center"
+          >
+            <motion.p variants={fadeUp} className="text-sm font-semibold uppercase tracking-widest text-primary">
+              Para cada momento
+            </motion.p>
+            <motion.h2 variants={fadeUp} className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Como podemos te ajudar hoje?
+            </motion.h2>
+          </motion.div>
+
+          <motion.ul
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="mt-10 grid gap-5 md:grid-cols-3"
+          >
+            {AUDIENCES.map((a) => (
+              <motion.li key={a.title} variants={fadeUp}>
+                <Link
+                  to={a.to}
+                  className={`card-lift group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-br ${a.tone} p-7`}
+                >
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-background/80 text-primary shadow-sm transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                    <a.icon className="h-6 w-6" aria-hidden="true" />
+                  </span>
+                  <h3 className="mt-5 font-display text-xl font-semibold">{a.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{a.text}</p>
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                    {a.cta}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              </motion.li>
+            ))}
+          </motion.ul>
+        </div>
+      </section>
+
+      <section className="relative px-6 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="hero relative mx-auto max-w-5xl overflow-hidden rounded-3xl border p-10 text-center shadow-soft sm:p-14"
+        >
+          <span className="blob blob-a" aria-hidden="true" />
+          <span className="blob blob-b" aria-hidden="true" />
+          <span className="hero-dots" aria-hidden="true" />
+          <div className="relative z-10">
+            <Sparkles className="float-y mx-auto h-9 w-9 text-primary" aria-hidden="true" />
+            <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+              Dar o primeiro passo já é um ato de coragem.
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
+              Crie sua conta em menos de um minuto. É gratuito, anônimo e você decide o ritmo.
+            </p>
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link to="/cadastro">
+                <Button size="lg" className="gap-2 rounded-full px-8 shadow-glow">
+                  Criar minha conta <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button size="lg" variant="outline" className="rounded-full px-8">
+                  Já tenho conta
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+    </>
   );
 }

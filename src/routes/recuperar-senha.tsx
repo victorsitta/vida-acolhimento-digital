@@ -1,3 +1,5 @@
+import { IconInput, PasswordInput } from "@/components/common/IconInput";
+import { Mail } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,11 +42,14 @@ function Page() {
       <p className="mt-2 text-sm text-muted-foreground">Enviaremos um link para o seu e-mail.</p>
       <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
         <Field label="E-mail" id="email" error={errors.email?.message}>
-          <Input
+          <IconInput
             id="email"
+            icon={Mail}
             type="email"
             inputMode="email"
             autoComplete="email"
+            placeholder="voce@email.com"
+            aria-invalid={!!errors.email}
             {...register("email")}
           />
         </Field>

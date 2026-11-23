@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { Logo } from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Mail } from "lucide-react";
+import { IconInput, PasswordInput } from "@/components/common/IconInput";
 import { Label } from "@/components/ui/label";
 import { loginSchema, type LoginInput } from "@/utils/validators";
 import { authService } from "@/services";
@@ -60,19 +62,23 @@ function Page() {
 
       <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
         <Field label="E-mail" id="email" error={errors.email?.message}>
-          <Input
+          <IconInput
             id="email"
+            icon={Mail}
             type="email"
             autoComplete="email"
             inputMode="email"
+            placeholder="voce@email.com"
+            aria-invalid={!!errors.email}
             {...register("email")}
           />
         </Field>
         <Field label="Senha" id="password" error={errors.password?.message}>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
+            placeholder="Sua senha"
+            aria-invalid={!!errors.password}
             {...register("password")}
           />
         </Field>
