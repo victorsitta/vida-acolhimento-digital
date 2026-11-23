@@ -43,6 +43,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useVolunteerQueueRealtime } from "@/hooks/useVolunteerQueueRealtime";
+import { useQueueAlerts } from "@/hooks/useQueueAlerts";
 
 export const Route = createFileRoute("/vol/")({
   head: () => ({ meta: [{ title: "Painel do voluntário — VIDA+" }] }),
@@ -71,6 +72,7 @@ function Page() {
   useVolunteerQueueRealtime(status === "online");
 
   const q = useQuery({ queryKey: ["queue"], queryFn: queueService.list });
+  useQueueAlerts(q.data, status === "online");
   const dashboard = useQuery({
     queryKey: ["volunteer-dashboard"],
     queryFn: metricsService.overview,

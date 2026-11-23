@@ -171,6 +171,8 @@ export interface ChatRoomProps {
   /** ação principal de saída: encerrar atendimento / sair do grupo */
   onEnd?: () => void;
   endLabel?: string;
+  /** botões extras dentro do campo de mensagem (ex.: respostas rápidas) */
+  toolbar?: ReactNode;
   /** painel opcional logo abaixo do cabeçalho (ex.: sinalizar risco) */
   panel?: ReactNode;
   /** aviso fixo de confidencialidade */
@@ -213,6 +215,7 @@ export function ChatRoom({
   onEnd,
   endLabel = "Encerrar",
   panel,
+  toolbar,
   notice,
   conversationId,
   scrollKey,
@@ -447,6 +450,7 @@ export function ChatRoom({
             >
               <Smile className="h-5 w-5" />
             </button>
+            {toolbar}
             <textarea
               id="chat-message"
               rows={1}

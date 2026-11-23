@@ -875,6 +875,7 @@ export interface Notification {
   body: string;
   readAt: string | null;
   createdAt: string;
+  link?: string;
 }
 
 function mapNotification(input: any): Notification {
@@ -883,8 +884,9 @@ function mapNotification(input: any): Notification {
     userId: input.user_id ?? input.userId ?? "",
     title: input.title ?? "",
     body: input.body ?? "",
-    readAt: input.read_at ?? input.readAt ?? null,
-    createdAt: input.created_at ?? input.createdAt ?? new Date().toISOString(),
+    readAt: input.read_at ?? input.readAt ?? (input.status === "lida" ? new Date().toISOString() : null),
+    createdAt: input.sent_at ?? input.created_at ?? input.createdAt ?? new Date().toISOString(),
+    link: input.link ?? undefined,
   };
 }
 
@@ -893,6 +895,10 @@ export const notificationService = {
     const data = await apiData<any>("/notifications");
     const list: any[] = Array.isArray(data) ? data : (data.items ?? []);
     return list.map(mapNotification);
+  },
+  async markAllRead(): Promise<{ ok: true }> {
+    await apiData<unknown>("/notifications/read-all", { method: "PATCH" });
+    return { ok: true };
   },
   async markRead(id: string): Promise<{ ok: true }> {
     await apiData<unknown>(`/notifications/${id}/read`, { method: "PATCH" });

@@ -23,6 +23,7 @@ import { http } from "@/services/api/client";
 import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
 import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
 import { ChatRoom } from "@/components/chat/ChatRoom";
+import { QuickReplies } from "@/components/chat/QuickReplies";
 
 export const Route = createFileRoute("/vol/chat/$id")({
   head: () => ({ meta: [{ title: "Atendimento — VIDA+" }] }),
@@ -208,6 +209,7 @@ function Page() {
   return (
     <AppShell>
       <ChatRoom
+        toolbar={<QuickReplies onPick={(t) => setText((cur) => (cur.trim() ? `${cur} ${t}` : t))} />}
         conversationId={id}
         title={personAlias}
         subtitle="em atendimento · você pode sair e voltar quando quiser"

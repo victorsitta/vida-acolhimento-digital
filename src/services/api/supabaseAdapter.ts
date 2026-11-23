@@ -1052,6 +1052,17 @@ async function handleInner<T>(
     return ok({ ok: true }) as T;
   }
 
+  if (cleanPath === "/notifications/read-all" && method === "PATCH") {
+    const { data: authData } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from("notifications")
+      .update({ status: "lida", read_at: new Date().toISOString() })
+      .eq("user_id", authData.user?.id)
+      .neq("status", "lida");
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+
   const notifRead = cleanPath.match(/^\/notifications\/([a-f0-9-]+)\/read$/i);
   if (notifRead && method === "PATCH") {
     const { error } = await supabase
