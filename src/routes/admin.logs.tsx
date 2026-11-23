@@ -73,6 +73,7 @@ const LABELS: Record<string, string> = {
   "disponibilidade.alterada": "Alterou a disponibilidade",
   "logs.exportado": "Exportou os logs",
   "conta.excluida": "Excluiu a própria conta",
+  "risco.alerta_automatico": "Alerta automático de risco",
   "moderacao.medida": "Aplicou uma medida de moderação",
   "moderacao.advertir": "Advertiu uma pessoa",
   "moderacao.suspender": "Suspendeu uma conta",

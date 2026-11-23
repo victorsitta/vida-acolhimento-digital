@@ -24,6 +24,7 @@ import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
 import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
 import { ChatRoom } from "@/components/chat/ChatRoom";
 import { QuickReplies } from "@/components/chat/QuickReplies";
+import { detectRisk } from "@/lib/risk";
 
 export const Route = createFileRoute("/vol/chat/$id")({
   head: () => ({ meta: [{ title: "Atendimento — VIDA+" }] }),
@@ -198,6 +199,8 @@ function Page() {
   }
 
   const personAlias = conversation.data?.userAlias ?? "Pessoa acolhida";
+  // alerta para o voluntário: a pessoa escreveu algo com sinal de risco
+  const riskHit = (messages.data ?? []).some((m) => m.author !== "user" && m.author !== "system" && detectRisk(m.text));
   const personInitials = personAlias
     .split(" ")
     .filter(Boolean)
@@ -238,7 +241,17 @@ function Page() {
           </>
         }
         panel={
-          showRisk ? (
+          riskHit && !showRisk ? (
+            <div role="alert" className="flex flex-wrap items-center gap-3 border-b border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" />
+              <p className="min-w-0 flex-1 basis-56">
+                A pessoa escreveu algo com <strong>possível sinal de risco</strong>. Pergunte com cuidado e, se preciso, acione o CVV 188 ou o SAMU 192.
+              </p>
+              <Button size="sm" variant="destructive" onClick={() => setShowRisk(true)}>
+                Sinalizar risco
+              </Button>
+            </div>
+          ) : showRisk ? (
             <div className="space-y-2 border-b bg-muted/40 px-4 py-4 animate-in fade-in slide-in-from-top-2 sm:px-5">
               <p className="flex items-center gap-2 text-sm font-semibold">
                 <AlertTriangle className="h-4 w-4 text-amber-500" /> Sinalizar risco

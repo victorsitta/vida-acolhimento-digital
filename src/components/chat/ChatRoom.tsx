@@ -3,6 +3,8 @@ import { ChevronDown, Palette, Send, Smile, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { chatService } from "@/services";
+import { detectRisk } from "@/lib/risk";
+import { RiskSupport } from "@/components/chat/RiskSupport";
 import { ChatThemeContext, THEMES, themeById } from "@/components/chat/chatThemes";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -196,6 +198,8 @@ export interface ChatRoomProps {
     disabled?: boolean;
     maxLength?: number;
     hint?: string;
+    /** mostra apoio (188/192) se quem escreve usar palavras de risco */
+    riskHelp?: boolean;
     /** envia uma figurinha (já no formato "::sticker::🤗") */
     onSticker?: (sticker: string) => void;
   };
@@ -421,6 +425,7 @@ export function ChatRoom({
         }}
         className="border-t bg-card px-3 py-3 safe-bottom sm:px-4"
       >
+        {composer.riskHelp && detectRisk(composer.value) && <RiskSupport />}
         {typing}
         {replyBar}
         {showStickers && (

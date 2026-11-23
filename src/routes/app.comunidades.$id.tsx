@@ -185,6 +185,7 @@ function Page() {
               if (message) send.mutate(message);
             },
             sending: send.isPending,
+            riskHelp: true,
             onSticker: (st: string) => send.mutate(st),
             disabled: !group.data.joined,
             placeholder: `Escreva como ${group.data.myAlias}...`,

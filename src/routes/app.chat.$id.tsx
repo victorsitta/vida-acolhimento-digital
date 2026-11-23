@@ -229,6 +229,7 @@ function Page() {
           value: text,
           onChange: handleTextChange,
           onSubmit: handleSend,
+          riskHelp: true,
           onSticker: (st: string) => send.mutate({ text: st }),
           disabled: rateOpen || conversation.data?.status === "ended",
           placeholder: "Escreva como está se sentindo…",
