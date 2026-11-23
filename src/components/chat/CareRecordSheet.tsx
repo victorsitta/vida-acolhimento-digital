@@ -67,9 +67,9 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
       case "alto":
         return <Badge variant="destructive" className="bg-amber-600 text-white">Risco Alto</Badge>;
       case "medio":
-        return <Badge className="bg-yellow-500 text-black">Risco Médio</Badge>;
+        return <Badge className="bg-yellow-400 text-black hover:bg-yellow-400">Risco Médio</Badge>;
       default:
-        return <Badge variant="secondary">Risco Baixo</Badge>;
+        return <Badge variant="secondary" className="bg-emerald-200 text-emerald-950 hover:bg-emerald-200">Risco Baixo</Badge>;
     }
   };
 
@@ -85,7 +85,7 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
         </button>
       </SheetTrigger>
 
-      <SheetContent className="flex w-full flex-col sm:max-w-md" style={{ background: "hsl(30 15% 10%)", color: "white" }}>
+      <SheetContent className="flex w-full flex-col overflow-x-hidden px-4 sm:max-w-md sm:px-6" style={{ background: "hsl(30 15% 10%)", color: "white" }}>
         <SheetHeader className="border-b border-white/10 pb-4 text-left">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-lg font-bold text-white flex items-center gap-2">
@@ -93,7 +93,7 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
               Prontuário do Acolhido
             </SheetTitle>
           </div>
-          <SheetDescription className="text-white/60 text-xs">
+          <SheetDescription className="text-white/75 text-xs">
             Registro confidencial e histórico de evoluções para {userAlias}. Visível apenas para a equipe de atendimento.
           </SheetDescription>
         </SheetHeader>
@@ -112,12 +112,12 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
             </Button>
           ) : (
             <div className="rounded-xl border border-white/15 bg-white/5 p-4 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-semibold text-white">Nova anotação clínica / acolhimento</span>
                 <select
                   value={riskLevel}
                   onChange={(e: any) => setRiskLevel(e.target.value)}
-                  className="rounded bg-black/40 text-xs text-white border border-white/20 px-2 py-1"
+                  className="rounded-lg border border-white/30 bg-neutral-900 px-2 py-1.5 text-sm text-white [color-scheme:dark] focus:outline-none focus:ring-2 focus:ring-amber-400"
                 >
                   <option value="baixo">Risco Baixo</option>
                   <option value="medio">Risco Médio</option>
@@ -131,7 +131,7 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
                 placeholder="Descreva a evolução do estado emocional do acolhido..."
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
-                className="bg-black/30 border-white/10 text-xs text-white resize-none"
+                className="resize-none border-white/25 bg-black/40 text-base text-white caret-amber-300 placeholder:text-white/55 focus-visible:ring-amber-400 sm:text-sm"
               />
 
               <Textarea
@@ -139,7 +139,7 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
                 placeholder="Conduta ou orientações oferecidas (opcional)..."
                 value={actionTaken}
                 onChange={(e) => setActionTaken(e.target.value)}
-                className="bg-black/30 border-white/10 text-xs text-white resize-none"
+                className="resize-none border-white/25 bg-black/40 text-base text-white caret-amber-300 placeholder:text-white/55 focus-visible:ring-amber-400 sm:text-sm"
               />
 
               <div className="flex justify-end gap-2 pt-1">
@@ -147,7 +147,7 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowAdd(false)}
-                  className="text-white/60 hover:text-white"
+                  className="text-white/75 hover:text-white"
                 >
                   Cancelar
                 </Button>
@@ -165,36 +165,36 @@ export function CareRecordSheet({ userId, userAlias = "Pessoa Acolhida", convers
 
           {/* Lista de Registros Anteriores */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-white/70">
               Histórico de Acolhimentos ({records.length})
             </h4>
 
             {isLoading ? (
-              <p className="text-xs text-white/40">Carregando histórico do acolhido...</p>
+              <p className="text-xs text-white/65">Carregando histórico do acolhido...</p>
             ) : records.length === 0 ? (
               <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
                 <CheckCircle2 className="mx-auto h-6 w-6 text-emerald-400/80 mb-2" />
                 <p className="text-xs text-white/70">Nenhum prontuário registrado ainda para este acolhido.</p>
-                <p className="text-[11px] text-white/40 mt-1">Este é o primeiro registro ou as notas anteriores estão arquivadas.</p>
+                <p className="text-xs text-white/65 mt-1">Este é o primeiro registro ou as notas anteriores estão arquivadas.</p>
               </div>
             ) : (
               records.map((rec) => (
                 <div key={rec.id} className="rounded-xl border border-white/10 bg-white/5 p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] text-white/50">{fmtDateTime(rec.createdAt)}</span>
+                    <span className="text-xs text-white/70">{fmtDateTime(rec.createdAt)}</span>
                     {riskBadge(rec.riskLevel)}
                   </div>
 
-                  <p className="text-xs text-white/90 leading-relaxed">{rec.summary}</p>
+                  <p className="text-sm text-white/95 leading-relaxed">{rec.summary}</p>
 
                   {rec.actionTaken && (
-                    <div className="rounded bg-black/20 p-2 text-[11px] text-white/70 border-l-2 border-amber-400">
+                    <div className="rounded bg-black/20 p-2 text-xs text-white/70 border-l-2 border-amber-400">
                       <span className="font-semibold text-amber-300">Conduta: </span>
                       {rec.actionTaken}
                     </div>
                   )}
 
-                  <div className="pt-1 text-[10px] text-white/40 flex justify-between">
+                  <div className="pt-1 text-xs text-white/65 flex justify-between">
                     <span>Atendido por: {rec.volunteerName || "Voluntário"}</span>
                   </div>
                 </div>

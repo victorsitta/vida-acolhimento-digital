@@ -965,17 +965,41 @@ export async function handleSupabaseRequest<T>(
       .from("conversations")
       .select("*", { count: "exact", head: true })
       .eq("status", "ativa");
+    const { count: pendingChats } = await supabase
+      .from("conversations")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "aguardando");
+    const since = new Date(Date.now() - 90_000).toISOString();
     const { count: onlineVolunteers } = await supabase
       .from("volunteer_profiles")
       .select("*", { count: "exact", head: true })
-      .eq("availability_status", "online");
+      .eq("availability_status", "online")
+      .gte("last_seen_at", since);
+
+    const weekAgo = new Date(Date.now() - 7 * 86400_000).toISOString();
+    const { data: recent } = await supabase
+      .from("conversations")
+      .select("created_at")
+      .gte("created_at", weekAgo);
+    const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    const weekly = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(Date.now() - (6 - i) * 86400_000);
+      const key = d.toDateString();
+      return {
+        day: dayNames[d.getDay()],
+        conversations: (recent || []).filter((r: any) => new Date(r.created_at).toDateString() === key).length,
+      };
+    });
+    const today = new Date().toDateString();
 
     return ok({
       totalUsersAllTime: totalUsers || 0,
       activeChats: activeChats || 0,
-      onlineVolunteers: onlineVolunteers || 1,
-      satisfactionRate: 98,
-      weeklyConversations: [],
+      pendingChats: pendingChats || 0,
+      onlineVolunteers: onlineVolunteers || 0,
+      total: (recent || []).filter((r: any) => new Date(r.created_at).toDateString() === today).length,
+      satisfactionRate: 0,
+      weeklyConversations: weekly,
     }) as T;
   }
 

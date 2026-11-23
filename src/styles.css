@@ -54,6 +54,7 @@
    LIGHT MODE — solar, dourado, acolhedor
    ───────────────────────────────────────────── */
 :root {
+  color-scheme: light;
   --radius: 0.875rem;
 
   --background: oklch(0.98 0.018 88);          /* creme-marfim solar */
@@ -67,16 +68,16 @@
   --secondary: oklch(0.94 0.05 75);            /* âmbar claro suave */
   --secondary-foreground: oklch(0.28 0.05 55);
   --muted: oklch(0.95 0.03 78);
-  --muted-foreground: oklch(0.52 0.04 65);
+  --muted-foreground: oklch(0.45 0.045 62);
   --accent: oklch(0.72 0.14 42);              /* terracota-laranja quente */
-  --accent-foreground: oklch(0.99 0.005 0);
-  --destructive: oklch(0.56 0.22 25);
+  --accent-foreground: oklch(0.18 0.04 55);
+  --destructive: oklch(0.52 0.22 25);
   --destructive-foreground: oklch(0.99 0.005 0);
   --success: oklch(0.62 0.15 142);
   --warning: oklch(0.78 0.17 82);
   --info: oklch(0.65 0.1 220);
-  --border: oklch(0.88 0.04 78);
-  --input: oklch(0.95 0.03 80);
+  --border: oklch(0.84 0.04 78);
+  --input: oklch(0.93 0.03 80);
   --ring: oklch(0.78 0.17 82);
   --chart-1: oklch(0.78 0.17 82);
   --chart-2: oklch(0.72 0.14 42);
@@ -103,9 +104,10 @@
    DARK MODE — âmbar noturno, caramelo, profundo
    ───────────────────────────────────────────── */
 .dark {
+  color-scheme: dark;
   --background: oklch(0.14 0.025 55);          /* castanho-escuro profundo */
-  --foreground: oklch(0.95 0.02 85);
-  --card: oklch(0.19 0.03 58 / 0.92);
+  --foreground: oklch(0.93 0.02 85);
+  --card: oklch(0.2 0.03 58 / 0.94);
   --card-foreground: oklch(0.95 0.02 85);
   --popover: oklch(0.19 0.035 58);
   --popover-foreground: oklch(0.95 0.02 85);
@@ -114,16 +116,16 @@
   --secondary: oklch(0.24 0.04 58);
   --secondary-foreground: oklch(0.9 0.02 82);
   --muted: oklch(0.24 0.03 58);
-  --muted-foreground: oklch(0.65 0.03 72);
-  --accent: oklch(0.68 0.16 42);               /* terracota âmbar escuro */
+  --muted-foreground: oklch(0.72 0.03 72);
+  --accent: oklch(0.7 0.15 42);                /* terracota âmbar escuro */
   --accent-foreground: oklch(0.99 0.005 0);
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.99 0.005 0);
   --success: oklch(0.7 0.15 142);
   --warning: oklch(0.82 0.18 82);
   --info: oklch(0.72 0.1 220);
-  --border: oklch(1 0 0 / 8%);
-  --input: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 13%);
+  --input: oklch(1 0 0 / 14%);
   --ring: oklch(0.82 0.18 82);
   --chart-1: oklch(0.82 0.18 82);
   --chart-2: oklch(0.68 0.16 42);
@@ -279,4 +281,35 @@
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+
+/* ─────────────────────────────────────────────
+   LEGIBILIDADE — texto colorido no modo claro
+   O amarelo vibrante serve de fundo (botões), mas como
+   texto some no creme. Aqui ele vira um âmbar escuro.
+   ───────────────────────────────────────────── */
+:root:not(.dark) .text-primary,
+:root:not(.dark) .pill { color: oklch(0.44 0.11 68); }
+:root:not(.dark) .text-accent { color: oklch(0.47 0.14 42); }
+:root:not(.dark) .text-success { color: oklch(0.42 0.13 142); }
+:root:not(.dark) .text-warning { color: oklch(0.47 0.11 70); }
+:root:not(.dark) .text-info { color: oklch(0.42 0.1 220); }
+:root:not(.dark) .gradient-text {
+  background: linear-gradient(135deg, oklch(0.5 0.13 68) 0%, oklch(0.48 0.15 40) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+:root:not(.dark) .pill { background: oklch(0.78 0.17 82 / 0.16); border-color: oklch(0.6 0.12 75 / 0.35); }
+
+/* placeholders legíveis nos dois temas */
+::placeholder { color: var(--muted-foreground); opacity: 0.85; }
+
+/* celular: evita estouro lateral, alvos de toque confortáveis e sem zoom ao digitar */
+img, svg, video { max-width: 100%; }
+@media (max-width: 640px) {
+  table { font-size: 0.8125rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
