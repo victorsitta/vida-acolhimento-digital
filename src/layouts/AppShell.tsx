@@ -369,7 +369,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl safe-top supports-[backdrop-filter]:bg-background/70">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 md:px-6">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4 md:grid-cols-[minmax(0,1fr)_auto] md:px-6 md:py-3">
             <div className="flex items-center gap-1 md:hidden">
               {!isTopLevel && (
                 <Button
@@ -387,17 +387,30 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Logo />
               </Link>
             </div>
-            <div className="hidden items-center md:flex">
-              <span className="rounded-full border bg-card px-3 py-1 text-xs font-medium capitalize text-muted-foreground shadow-sm">
-                Área {routeRole === "usuario" ? "do usuário" : `de ${routeRole}`}
-              </span>
+            <div className="flex min-w-0 items-center justify-end md:justify-start">
+              <CommandPalette items={items} onLogout={handleLogout} />
             </div>
             <div className="flex items-center justify-end gap-2">
-              <CommandPalette items={items} onLogout={handleLogout} />
               <div className="hidden sm:block">
                 <InstallButton />
               </div>
               <ProfileSwitcher />
+              {routeRole === "usuario" && <SosButton />}
+              {["voluntario", "moderador", "administrador"].includes(role) && (
+                <button
+                  type="button"
+                  onClick={() => setChatOpen(!chatOpen)}
+                  aria-label="Chat da equipe"
+                  data-tip="Chat da equipe"
+                  aria-expanded={chatOpen}
+                  className="relative grid h-11 w-11 place-items-center rounded-md transition hover:bg-muted"
+                >
+                  {chatOpen ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
+                  {!chatOpen && hasUnreadTeamMsg && (
+                    <span className="absolute right-2 top-2 h-2.5 w-2.5 animate-pulse rounded-full border-2 border-background bg-green-500" />
+                  )}
+                </button>
+              )}
               <NotificationBell />
               <AccessibilityMenu />
               <ThemeToggle />
@@ -408,8 +421,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="flex-1 px-4 py-6 pb-24 md:px-10 md:py-10 md:pb-12">
           <div className="fade-up mx-auto max-w-6xl">{children}</div>
         </main>
-
-        {routeRole === "usuario" && !pathname.startsWith("/app/chat") && <SosButton />}
 
         {/* Bottom nav mobile */}
         <nav
@@ -486,24 +497,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {["voluntario", "moderador", "administrador"].includes(role) && (
           <>
-            {/* Botão flutuante no canto */}
-            <button
-              onClick={() => setChatOpen(!chatOpen)}
-              className="z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/95 transition-all focus:outline-none cursor-pointer"
-              style={{ position: "fixed", bottom: "24px", right: "24px", left: "auto" }}
-              aria-label="Abrir chat de equipe"
-            >
-              {chatOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-              {!chatOpen && hasUnreadTeamMsg && (
-                <span className="absolute -top-0.5 -right-0.5 block h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-background animate-pulse" />
-              )}
-            </button>
-
             {/* Painel do Chat flutuante */}
             {chatOpen && (
               <div 
-                className="z-50 flex h-[480px] w-80 flex-col rounded-2xl border bg-card text-card-foreground shadow-2xl animate-in fade-in slide-in-from-bottom-5 overflow-hidden"
-                style={{ position: "fixed", bottom: "96px", right: "24px", left: "auto" }}
+                className="z-50 flex h-[min(480px,calc(100dvh-5.5rem))] w-[min(20rem,calc(100vw-1.5rem))] flex-col rounded-2xl border bg-card text-card-foreground shadow-2xl animate-in fade-in slide-in-from-top-3 overflow-hidden"
+                style={{ position: "fixed", top: "4.25rem", right: "0.75rem", left: "auto" }}
               >
                 {chatView === "categories" && (
                   <div className="flex flex-col h-full">
