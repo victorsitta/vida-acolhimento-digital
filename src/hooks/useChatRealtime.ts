@@ -61,6 +61,21 @@ export function useChatRealtime(conversationId: string, enabled = true) {
           }
         }
       })
+      .on("broadcast", { event: "status" }, () => {
+        qc.invalidateQueries({ queryKey: ["conversation", conversationId] });
+        qc.invalidateQueries({ queryKey: ["conversation-status", conversationId] });
+        qc.invalidateQueries({ queryKey: ["conversations"] });
+      })
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        () => qc.invalidateQueries({ queryKey: ["messages", conversationId] }),
+      )
       .subscribe();
 
     return () => {

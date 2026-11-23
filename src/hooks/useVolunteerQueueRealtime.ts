@@ -71,9 +71,17 @@ export function useVolunteerQueueRealtime(enabled = true) {
           }
         } catch {}
       })
+      .on("broadcast", { event: "queue_changed" }, () => refetchQueue())
+      .on("postgres_changes", { event: "*", schema: "public", table: "conversations" }, () =>
+        refetchQueue(),
+      )
       .subscribe();
 
+    // garantia extra: se algum evento se perder, a fila se corrige sozinha
+    const timer = window.setInterval(refetchQueue, 5000);
+
     return () => {
+      window.clearInterval(timer);
       supabase?.removeChannel(channel);
     };
   }, [enabled, qc, refetchQueue]);

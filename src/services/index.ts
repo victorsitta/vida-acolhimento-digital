@@ -68,6 +68,7 @@ function initialsFrom(name: string) {
 function mapUser(input: any, emailFallback = ""): User {
   const name =
     input?.display_name ??
+    input?.name ??
     input?.user_metadata?.display_name ??
     input?.profile?.nickname ??
     input?.email ??

@@ -6,6 +6,7 @@ import { AppShell } from "@/layouts/AppShell";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/common/PageHeader";
 import { chatService, queueService } from "@/services";
+import { useChatRealtime } from "@/hooks/useChatRealtime";
 import { toast } from "sonner";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { API_BASE_URL, getAccessToken } from "@/services/api/client";
@@ -80,8 +81,11 @@ function Page() {
     queryKey: ["conversation-status", conversationId],
     queryFn: () => chatService.getConversation(conversationId!),
     enabled: step === "waiting" && !!conversationId,
-    refetchInterval: 4000,
+    refetchInterval: 2500,
   });
+
+  // Tempo real: avisa na hora quando um voluntário aceita
+  useChatRealtime(conversationId ?? "", step === "waiting" && !!conversationId);
 
   useEffect(() => {
     if (poll.data?.status === "active") {

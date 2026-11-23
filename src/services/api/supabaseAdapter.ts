@@ -18,22 +18,18 @@ function ok<T>(data: T, message = "Sucesso"): Envelope<T> {
   return { status: "success", message, data };
 }
 
-/** Avisa em tempo real quem está no grupo (canal usado por useCommunityRealtime). */
-async function broadcastCommunityMessage(commId: string, row: any) {
+/** Envia um broadcast Realtime reaproveitando o canal já aberto (se houver). */
+async function broadcast(channelName: string, event: string, payload: any) {
   if (!supabase) return;
   try {
-    const topic = `realtime:community:${commId}`;
+    const topic = `realtime:${channelName}`;
     const existing = supabase.getChannels().find((c) => c.topic === topic);
-    const message = {
-      type: "broadcast" as const,
-      event: "message",
-      payload: { ...row, alias: row.alias_snapshot },
-    };
+    const message = { type: "broadcast" as const, event, payload };
     if (existing) {
       await existing.send(message);
       return;
     }
-    const temp = supabase.channel(`community:${commId}`);
+    const temp = supabase.channel(channelName);
     await new Promise<void>((resolve) => {
       temp.subscribe((status) => {
         if (status === "SUBSCRIBED" || status === "CHANNEL_ERROR" || status === "TIMED_OUT") resolve();
@@ -42,8 +38,26 @@ async function broadcastCommunityMessage(commId: string, row: any) {
     await temp.send(message);
     supabase.removeChannel(temp);
   } catch {
-    // o refetch periódico cobre falhas do broadcast
+    // o polling periódico cobre falhas do broadcast
   }
+}
+
+async function broadcastCommunityMessage(commId: string, row: any) {
+  await broadcast(`community:${commId}`, "message", { ...row, alias: row.alias_snapshot });
+}
+
+async function myAlias(): Promise<string> {
+  if (!supabase) return "Participante";
+  const { data } = await supabase.auth.getUser();
+  const u = data?.user;
+  return u?.user_metadata?.nickname || u?.user_metadata?.display_name || "Participante";
+}
+
+const queueChanged = () => broadcast("volunteer:queue", "queue_changed", { at: Date.now() });
+
+const USER_NAME_SELECT = "users:user_id(display_name, user_profiles(nickname))";
+function userAlias(c: any) {
+  return c.users?.user_profiles?.nickname || c.users?.display_name || "Pessoa acolhida";
 }
 
 export async function handleSupabaseRequest<T>(
@@ -207,9 +221,21 @@ export async function handleSupabaseRequest<T>(
 
   // 3. CONVERSATIONS & QUEUE
   if (cleanPath === "/conversations" && method === "POST") {
+    if (payload.targetUserId) {
+      const { data, error } = await supabase
+        .from("conversations")
+        .insert({ user_id: payload.targetUserId, status: "aguardando", priority: "prioritaria" })
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      await queueChanged();
+      return ok(data) as T;
+    }
+
     // Tenta primeiro via RPC join_support_queue
     const { data: rpcData, error: rpcError } = await supabase.rpc("join_support_queue");
     if (!rpcError && rpcData) {
+      await queueChanged();
       return ok(rpcData) as T;
     }
 
@@ -224,6 +250,7 @@ export async function handleSupabaseRequest<T>(
       .select()
       .single();
     if (error) throw new Error(error.message);
+    await queueChanged();
 
     return ok({
       id: data.id,
@@ -235,25 +262,43 @@ export async function handleSupabaseRequest<T>(
   }
 
   if (cleanPath === "/conversations" && method === "GET") {
-    const { data, error } = await supabase
+    const { data: authData } = await supabase.auth.getUser();
+    const uid = authData?.user?.id;
+    const { data: me } = await supabase.from("users").select("role").eq("id", uid).maybeSingle();
+    const role = me?.role;
+
+    let query = supabase
       .from("conversations")
-      .select("*")
+      .select(`*, ${USER_NAME_SELECT}, volunteer:volunteer_id(display_name)`)
       .order("created_at", { ascending: false });
+    if (role === "voluntario") {
+      // voluntário vê o que atendeu (e o que ele mesmo abriu), nunca a fila de outros aqui
+      query = query.or(`volunteer_id.eq.${uid},user_id.eq.${uid}`);
+    } else if (role !== "moderador" && role !== "administrador") {
+      query = query.eq("user_id", uid);
+    }
+    const { data, error } = await query;
     if (error) throw new Error(error.message);
-    return ok(data || []) as T;
+    return ok(
+      (data || []).map((c: any) => ({
+        ...c,
+        anonymous_name: userAlias(c),
+        volunteer_display_name: c.volunteer?.display_name,
+      })),
+    ) as T;
   }
 
   if (cleanPath === "/conversations/volunteer/queue") {
     const { data, error } = await supabase
       .from("conversations")
-      .select("*, users:user_id(display_name)")
+      .select(`*, ${USER_NAME_SELECT}`)
       .eq("status", "aguardando")
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
     return ok(
       (data || []).map((c: any) => ({
         ...c,
-        anonymous_name: c.users?.display_name || "Pessoa aguardando",
+        anonymous_name: userAlias(c),
       }))
     ) as T;
   }
@@ -263,7 +308,7 @@ export async function handleSupabaseRequest<T>(
     const convId = convMatch[1];
     const { data: conv, error: convError } = await supabase
       .from("conversations")
-      .select("*, users:user_id(display_name), volunteer:volunteer_id(display_name)")
+      .select(`*, ${USER_NAME_SELECT}, volunteer:volunteer_id(display_name)`)
       .eq("id", convId)
       .single();
     if (convError) throw new Error(convError.message);
@@ -276,7 +321,7 @@ export async function handleSupabaseRequest<T>(
 
     return ok({
       ...conv,
-      anonymous_name: conv.users?.display_name || "Pessoa acolhida",
+      anonymous_name: userAlias(conv),
       volunteer_display_name: conv.volunteer?.display_name,
       messages: msgs || [],
     }) as T;
@@ -298,7 +343,19 @@ export async function handleSupabaseRequest<T>(
       .select()
       .single();
     if (error) throw new Error(error.message);
+    await broadcast(`conversation:${convId}`, "message", data);
     return ok(data) as T;
+  }
+
+  const typingMatch = cleanPath.match(/^\/conversations\/([a-f0-9-]+)\/typing$/i);
+  if (typingMatch && method === "POST") {
+    const { data: authData } = await supabase.auth.getUser();
+    await broadcast(`conversation:${typingMatch[1]}`, "typing", {
+      userId: authData?.user?.id,
+      alias: await myAlias(),
+      typing: !!payload.typing,
+    });
+    return ok({ ok: true }) as T;
   }
 
   const acceptMatch = cleanPath.match(/^\/conversations\/([a-f0-9-]+)\/accept$/i);
@@ -307,7 +364,11 @@ export async function handleSupabaseRequest<T>(
     const { data: rpcData, error: rpcError } = await supabase.rpc("accept_support_conversation", {
       p_conversation_id: convId,
     });
-    if (!rpcError && rpcData) return ok(rpcData) as T;
+    if (!rpcError && rpcData) {
+      await broadcast(`conversation:${convId}`, "status", { status: "ativa" });
+      await queueChanged();
+      return ok(rpcData) as T;
+    }
 
     const { data: authData } = await supabase.auth.getUser();
     const { data, error } = await supabase
@@ -318,30 +379,52 @@ export async function handleSupabaseRequest<T>(
         started_at: new Date().toISOString(),
       })
       .eq("id", convId)
+      .eq("status", "aguardando")
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throw new Error("Este atendimento já foi aceito por outra pessoa ou não está mais na fila.");
+    await broadcast(`conversation:${convId}`, "status", { status: "ativa" });
+    await queueChanged();
     return ok(data) as T;
   }
 
   const closeMatch = cleanPath.match(/^\/conversations\/([a-f0-9-]+)\/close$/i);
   if (closeMatch && method === "POST") {
     const convId = closeMatch[1];
-    await supabase.rpc("close_support_conversation", {
+    const { data: rpcRes, error: rpcErr } = await supabase.rpc("close_support_conversation", {
       p_conversation_id: convId,
       p_reason: payload.reason || "usuario_encerrou",
       p_notes: payload.notes || null,
     });
 
-    await supabase
-      .from("conversations")
-      .update({
-        status: "encerrada",
-        ended_at: new Date().toISOString(),
-        closed_reason: payload.reason,
-      })
-      .eq("id", convId);
+    if (rpcErr || !rpcRes) {
+      // RPC indisponível: fecha direto e grava o prontuário manualmente
+      const { data: conv } = await supabase
+        .from("conversations")
+        .select("user_id, volunteer_id")
+        .eq("id", convId)
+        .maybeSingle();
+      const { error: updErr } = await supabase
+        .from("conversations")
+        .update({
+          status: "encerrada",
+          ended_at: new Date().toISOString(),
+          closed_reason: payload.reason,
+        })
+        .eq("id", convId);
+      if (updErr) throw new Error(updErr.message);
+      if (payload.notes && conv?.volunteer_id) {
+        await supabase.from("care_records").insert({
+          user_id: conv.user_id,
+          volunteer_id: conv.volunteer_id,
+          conversation_id: convId,
+          summary: payload.notes,
+        });
+      }
+    }
 
+    await broadcast(`conversation:${convId}`, "status", { status: "encerrada" });
+    await queueChanged();
     return ok({ ok: true }) as T;
   }
 
@@ -399,6 +482,7 @@ export async function handleSupabaseRequest<T>(
       .from("community_messages")
       .select("*")
       .eq("community_id", commId)
+      .is("deleted_at", null)
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
     return ok(data || []) as T;
@@ -464,6 +548,330 @@ export async function handleSupabaseRequest<T>(
     return ok({ ok: true }) as T;
   }
 
+  // 5a. CANDIDATURAS (voluntário <- usuário, moderador <- voluntário) & DENÚNCIAS
+  const appKinds: Record<string, "voluntario" | "moderador"> = {
+    "/admin/volunteers": "voluntario",
+    "/admin/moderators": "moderador",
+  };
+  const appMatch = cleanPath.match(
+    /^(\/admin\/(?:volunteers|moderators))\/(applications\/me|applications\/([a-f0-9-]+)|applications|apply|([a-f0-9-]+)\/(approve|reject))$/i,
+  );
+  if (appMatch) {
+    const kind = appKinds[appMatch[1]];
+    const sub = appMatch[2];
+    const { data: authData } = await supabase.auth.getUser();
+    const uid = authData?.user?.id;
+    const sel = "*, users:user_id(display_name)";
+    const kindFilter = (q: any) =>
+      kind === "moderador" ? q.eq("kind", "moderador") : q.or("kind.is.null,kind.eq.voluntario");
+
+    if (sub === "apply" && method === "POST") {
+      const { data: dup } = await kindFilter(
+        supabase.from("volunteer_applications").select("id").eq("user_id", uid).eq("status", "pendente"),
+      ).maybeSingle();
+      if (dup) throw new Error("Você já tem uma candidatura em análise.");
+      const { data, error } = await supabase
+        .from("volunteer_applications")
+        .insert({ user_id: uid, kind, motivation: payload.motivation, experience: payload.experience })
+        .select(sel)
+        .single();
+      if (error) throw new Error(error.message);
+      return ok(data) as T;
+    }
+
+    if (sub === "applications/me") {
+      const { data } = await kindFilter(
+        supabase
+          .from("volunteer_applications")
+          .select(sel)
+          .eq("user_id", uid)
+          .order("created_at", { ascending: false })
+          .limit(1),
+      ).maybeSingle();
+      if (data) return ok(data) as T;
+      const { data: me } = await supabase.from("users").select("role").eq("id", uid).maybeSingle();
+      const already =
+        kind === "voluntario"
+          ? ["voluntario", "moderador", "administrador"].includes(me?.role)
+          : ["moderador", "administrador"].includes(me?.role);
+      if (already) return ok({ id: "self", status: "aprovada", created_at: new Date().toISOString() }) as T;
+      throw new Error("Nenhuma candidatura encontrada.");
+    }
+
+    if (sub === "applications" && method === "GET") {
+      const { data, error } = await kindFilter(
+        supabase.from("volunteer_applications").select(sel).order("created_at", { ascending: false }),
+      );
+      if (error) throw new Error(error.message);
+      return ok(data || []) as T;
+    }
+
+    if (appMatch[3] && method === "GET") {
+      const { data, error } = await supabase
+        .from("volunteer_applications")
+        .select(sel)
+        .eq("id", appMatch[3])
+        .single();
+      if (error) throw new Error(error.message);
+      return ok(data) as T;
+    }
+
+    if (appMatch[4] && method === "POST") {
+      const approved = appMatch[5].toLowerCase() === "approve";
+      const { error } = await supabase.rpc("review_application", {
+        p_application_id: appMatch[4],
+        p_approved: approved,
+        p_decision: payload.decision || null,
+      });
+      if (error) throw new Error(error.message);
+      return ok({ ok: true }) as T;
+    }
+  }
+
+  if (cleanPath === "/admin/volunteers/availability" && method === "PATCH") {
+    const { data: authData } = await supabase.auth.getUser();
+    const { error } = await supabase
+      .from("volunteer_profiles")
+      .upsert({ user_id: authData.user?.id, availability_status: payload.status });
+    if (error) throw new Error(error.message);
+    return ok({ status: payload.status }) as T;
+  }
+
+  const repAdminMatch = cleanPath.match(/^\/reports\/admin\/reports(?:\/([a-f0-9-]+))?$/i);
+  const repSel = "*, reporter:reporter_id(display_name)";
+  const mapRep = (r: any) => ({
+    ...r,
+    reporterAlias: r.reporter?.display_name ?? "Pessoa denunciante",
+    reported_alias: r.reported_alias ?? r.target_id,
+  });
+  if (repAdminMatch && method === "GET") {
+    if (repAdminMatch[1]) {
+      const { data, error } = await supabase
+        .from("reports")
+        .select(repSel)
+        .eq("id", repAdminMatch[1])
+        .single();
+      if (error) throw new Error(error.message);
+      return ok(mapRep(data)) as T;
+    }
+    const { data, error } = await supabase
+      .from("reports")
+      .select(repSel)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return ok((data || []).map(mapRep)) as T;
+  }
+  if (repAdminMatch && repAdminMatch[1] && method === "PATCH") {
+    const { error } = await supabase
+      .from("reports")
+      .update({ status: payload.status, decision: payload.decision || null })
+      .eq("id", repAdminMatch[1]);
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+  if (cleanPath === "/reports/my" && method === "GET") {
+    const { data: authData } = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from("reports")
+      .select("*")
+      .eq("reporter_id", authData.user?.id)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return ok(data || []) as T;
+  }
+
+  // 5b. ADMIN: usuários, grupos e relatórios de voluntários
+  const userAdminMatch = cleanPath.match(/^\/users\/admin\/([a-f0-9-]+)(?:\/(role|ban))?$/i);
+  if (userAdminMatch) {
+    const uid = userAdminMatch[1];
+    const action = userAdminMatch[2];
+    if (action === "role" && method === "PATCH") {
+      const { data, error } = await supabase
+        .from("users")
+        .update({ role: payload.role })
+        .eq("id", uid)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return ok(data) as T;
+    }
+    if (action === "ban" && method === "POST") {
+      const { data, error } = await supabase
+        .from("users")
+        .update({ status: payload.ban ? "banido" : "ativo" })
+        .eq("id", uid)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return ok(data) as T;
+    }
+    if (!action && method === "GET") {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*, user_profiles(*)")
+        .eq("id", uid)
+        .single();
+      if (error) throw new Error(error.message);
+      return ok({ ...data, profile: data.user_profiles }) as T;
+    }
+  }
+
+  if (cleanPath === "/communities/admin" && method === "GET") {
+    const { data, error } = await supabase
+      .from("communities")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const { data: members } = await supabase
+      .from("community_members")
+      .select("community_id")
+      .eq("status", "ativo");
+    const { data: msgs } = await supabase
+      .from("community_messages")
+      .select("community_id")
+      .is("deleted_at", null);
+    const count = (rows: any[] | null, id: string) =>
+      (rows || []).filter((r) => r.community_id === id).length;
+    return ok(
+      (data || []).map((c: any) => ({
+        ...c,
+        member_count: count(members, c.id),
+        message_count: count(msgs, c.id),
+      })),
+    ) as T;
+  }
+
+  if (cleanPath === "/communities/admin" && method === "POST") {
+    const { data, error } = await supabase
+      .from("communities")
+      .insert({ name: payload.name, description: payload.description || "", rules_json: payload.rules || [] })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return ok(data) as T;
+  }
+
+  const commAdminMsg = cleanPath.match(/^\/communities\/admin\/messages\/([a-f0-9-]+)$/i);
+  if (commAdminMsg && method === "DELETE") {
+    const { error } = await supabase
+      .from("community_messages")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", commAdminMsg[1]);
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+
+  const commAdminMember = cleanPath.match(
+    /^\/communities\/admin\/([a-f0-9-]+)\/members\/([a-f0-9-]+)$/i,
+  );
+  if (commAdminMember && method === "PATCH") {
+    const { error } = await supabase
+      .from("community_members")
+      .update({ status: payload.status })
+      .eq("community_id", commAdminMember[1])
+      .eq("user_id", commAdminMember[2]);
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+
+  const commAdmin = cleanPath.match(/^\/communities\/admin\/([a-f0-9-]+)$/i);
+  if (commAdmin && method === "GET") {
+    const id = commAdmin[1];
+    const { data: c, error } = await supabase.from("communities").select("*").eq("id", id).single();
+    if (error) throw new Error(error.message);
+    const { data: members } = await supabase
+      .from("community_members")
+      .select("*, users:user_id(display_name, role)")
+      .eq("community_id", id);
+    const { data: msgs } = await supabase
+      .from("community_messages")
+      .select("sender_id")
+      .eq("community_id", id)
+      .is("deleted_at", null);
+    return ok({
+      ...c,
+      member_count: (members || []).filter((m: any) => m.status === "ativo").length,
+      message_count: (msgs || []).length,
+      members: (members || []).map((m: any) => ({
+        ...m,
+        display_name: m.users?.display_name,
+        platform_role: m.users?.role,
+        messageCount: (msgs || []).filter((x: any) => x.sender_id === m.user_id).length,
+      })),
+    }) as T;
+  }
+  if (commAdmin && method === "PATCH") {
+    const patch: Record<string, any> = {};
+    if (payload.name !== undefined) patch.name = payload.name;
+    if (payload.description !== undefined) patch.description = payload.description;
+    if (payload.status !== undefined) patch.status = payload.status;
+    const { data, error } = await supabase
+      .from("communities")
+      .update(patch)
+      .eq("id", commAdmin[1])
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return ok(data) as T;
+  }
+
+  const vrMatch = cleanPath.match(/^\/admin\/volunteers\/reports(\/me|\/([a-f0-9-]+)\/respond)?$/i);
+  if (vrMatch) {
+    const { data: authData } = await supabase.auth.getUser();
+    const vrSel = "*, volunteer:volunteer_id(display_name), target:target_user_id(display_name)";
+    const mapVr = (r: any) => ({
+      ...r,
+      volunteer_name: r.volunteer?.display_name,
+      target_user_name: r.target?.display_name,
+    });
+    if (!vrMatch[1] && method === "POST") {
+      const { data, error } = await supabase
+        .from("volunteer_reports")
+        .insert({
+          volunteer_id: authData.user?.id,
+          target_user_id: payload.targetUserId || null,
+          conversation_id: payload.conversationId || null,
+          title: payload.title,
+          description: payload.description,
+        })
+        .select(vrSel)
+        .single();
+      if (error) throw new Error(error.message);
+      return ok(mapVr(data)) as T;
+    }
+    if (vrMatch[1] === "/me") {
+      const { data, error } = await supabase
+        .from("volunteer_reports")
+        .select(vrSel)
+        .eq("volunteer_id", authData.user?.id)
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return ok((data || []).map(mapVr)) as T;
+    }
+    if (!vrMatch[1] && method === "GET") {
+      const { data, error } = await supabase
+        .from("volunteer_reports")
+        .select(vrSel)
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return ok((data || []).map(mapVr)) as T;
+    }
+    if (vrMatch[2] && method === "POST") {
+      const { data, error } = await supabase
+        .from("volunteer_reports")
+        .update({
+          admin_feedback: payload.adminFeedback,
+          status: "respondido",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", vrMatch[2])
+        .select(vrSel)
+        .single();
+      if (error) throw new Error(error.message);
+      return ok(mapVr(data)) as T;
+    }
+  }
+
   // 5. VOLUNTEERS & APPLICATIONS
   if (cleanPath === "/admin/volunteers" && method === "GET") {
     const { data, error } = await supabase
@@ -505,7 +913,8 @@ export async function handleSupabaseRequest<T>(
       .insert({
         reporter_id: authData.user?.id,
         target_type: payload.targetType || "usuario",
-        target_id: payload.targetId || authData.user?.id,
+        target_id: payload.targetId ? String(payload.targetId) : null,
+        reported_alias: payload.reportedAlias || null,
         reason: payload.reason || "denuncia",
         description: payload.description || "",
       })
