@@ -448,10 +448,14 @@ export const chatService = {
     });
     return { ok: true };
   },
-  async endConversation(id: string, notes?: string): Promise<{ ok: true }> {
+  async endConversation(
+    id: string,
+    notes?: string,
+    by: "usuario" | "voluntario" = "usuario",
+  ): Promise<{ ok: true }> {
     await apiData<unknown>(`/conversations/${id}/close`, {
       method: "POST",
-      body: JSON.stringify({ reason: "usuario_encerrou", notes }),
+      body: JSON.stringify({ reason: `${by}_encerrou`, notes }),
     });
     return { ok: true };
   },

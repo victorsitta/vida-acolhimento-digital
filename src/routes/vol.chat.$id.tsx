@@ -59,7 +59,7 @@ function Page() {
   const conversation = useQuery({
     queryKey: ["conversation", id],
     queryFn: () => chatService.getConversation(id),
-    refetchInterval: 5000,
+    refetchInterval: 3000,
   });
 
   const { typingUser, isTyping } = useChatRealtime(id);
@@ -81,7 +81,11 @@ function Page() {
     }
     // acabou de encerrar: o voluntário registra o prontuário
     setEnded(true);
-    toast.info("A conversa foi encerrada.");
+    toast.info(
+      conversation.data.topic === "voluntario_encerrou"
+        ? "Você encerrou a conversa."
+        : "A pessoa acolhida encerrou a conversa. Registre o prontuário.",
+    );
   }, [conversation.data?.status, conversation.data?.endedAt, ended]);
 
   const send = useMutation({
@@ -141,7 +145,7 @@ function Page() {
   });
 
   const endConversation = useMutation({
-    mutationFn: (notes?: string) => chatService.endConversation(id, notes),
+    mutationFn: (notes?: string) => chatService.endConversation(id, notes, "voluntario"),
     onSuccess: () => {
       toast.success("Atendimento registrado e encerrado.");
       navigate({ to: "/vol" });

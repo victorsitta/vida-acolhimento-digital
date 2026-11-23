@@ -50,7 +50,7 @@ function Page() {
   const conversation = useQuery({
     queryKey: ["conversation", id],
     queryFn: () => chatService.getConversation(id),
-    refetchInterval: 5000,
+    refetchInterval: 3000,
   });
 
   // Tempo real — recebe mensagens e eventos de digitação em tempo real do voluntário
@@ -62,8 +62,12 @@ function Page() {
 
   useEffect(() => {
     if (conversation.data?.status === "ended") {
-      toast.info("Esta conversa foi encerrada pelo voluntário.");
-      navigate({ to: "/app" });
+      toast.info(
+        conversation.data.topic === "usuario_encerrou"
+          ? "Conversa encerrada."
+          : "O voluntário encerrou a conversa. Você pode relê-la e avaliar no histórico.",
+      );
+      navigate({ to: "/app/historico" });
     }
   }, [conversation.data?.status]);
 
@@ -112,8 +116,8 @@ function Page() {
   const endConversation = useMutation({
     mutationFn: () => chatService.endConversation(id),
     onSuccess: () => {
-      toast.success("Conversa encerrada.");
-      navigate({ to: "/app" });
+      toast.success("Conversa encerrada. Você pode avaliar o atendimento no histórico.");
+      navigate({ to: "/app/historico" });
     },
     onError: () => toast.error("Não foi possível encerrar. Tente novamente."),
   });
