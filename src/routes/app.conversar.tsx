@@ -172,10 +172,10 @@ function Page() {
       />
 
       {step === "intro" && (
-        <div className="grid gap-6 md:grid-cols-[1fr_auto]">
-          <div className="rounded-3xl border bg-card p-6 shadow-soft">
-            <Heart className="h-7 w-7 text-primary" />
-            <h2 className="mt-3 font-display text-2xl font-semibold">Pronto para começar?</h2>
+        <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+          <div className="rounded-xl border bg-card p-4 shadow-soft">
+            <Heart className="h-5 w-5 text-primary" />
+            <h2 className="mt-3 font-display text-base font-semibold">Pronto para começar?</h2>
             <p className="mt-2 text-pretty text-sm text-muted-foreground">
               Sua conversa é anônima e confidencial. Você pode encerrá-la a qualquer momento.
             </p>
@@ -207,11 +207,11 @@ function Page() {
       )}
 
       {step === "waiting" && (
-        <div className="rounded-3xl border bg-card p-8 text-center shadow-soft">
+        <div className="rounded-xl border bg-card p-4 text-center shadow-soft">
           <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-primary/15 text-primary">
             <Clock className="h-9 w-9 animate-pulse" aria-hidden="true" />
           </div>
-          <h2 className="mt-5 font-display text-2xl font-semibold">Aguardando voluntário</h2>
+          <h2 className="mt-5 font-display text-base font-semibold">Aguardando voluntário</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Sua posição na fila: <strong>{pos}</strong>
           </p>
@@ -240,11 +240,11 @@ function Page() {
       )}
 
       {step === "found" && (
-        <div className="rounded-3xl border bg-card p-8 text-center shadow-soft">
+        <div className="rounded-xl border bg-card p-4 text-center shadow-soft">
           <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-primary text-primary-foreground">
             <Heart className="h-9 w-9" aria-hidden="true" />
           </div>
-          <h2 className="mt-5 font-display text-2xl font-semibold">Voluntário encontrado 💚</h2>
+          <h2 className="mt-5 font-display text-base font-semibold">Voluntário encontrado 💚</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {poll.data?.volunteerAlias
               ? `${poll.data.volunteerAlias} está pronto para te escutar.`

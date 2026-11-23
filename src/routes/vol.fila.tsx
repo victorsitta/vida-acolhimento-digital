@@ -69,7 +69,7 @@ function Page() {
         }
       />
 
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Aguardando" icon={Users} tone="primary" value={String(list.length)} />
         <StatCard
           label="Maior espera"
@@ -117,7 +117,7 @@ function QueueRow({
   return (
     <li
       className={cn(
-        "card-lift flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft",
+        "card-lift flex flex-wrap items-center gap-3 rounded-xl border bg-card p-4 shadow-soft",
         crisis && "border-destructive/40 bg-destructive/5",
       )}
     >
@@ -126,7 +126,7 @@ function QueueRow({
       </span>
       <span
         className={cn(
-          "grid h-11 w-11 shrink-0 place-items-center rounded-2xl font-display text-sm font-semibold",
+          "grid h-10 w-10 shrink-0 place-items-center rounded-xl font-display text-sm font-semibold",
           crisis ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary",
         )}
         aria-hidden="true"

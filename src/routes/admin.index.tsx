@@ -140,8 +140,8 @@ function Page() {
 
       <AdminCharts />
 
-      <section className="mt-8 rounded-2xl border bg-card p-5">
-        <h2 className="font-display text-lg font-semibold">Conversas na semana</h2>
+      <section className="mt-6 rounded-xl border bg-card p-4">
+        <h2 className="font-display text-base font-semibold">Conversas na semana</h2>
         <div className="mt-4 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={m?.weekly ?? []}>
@@ -162,14 +162,14 @@ function Page() {
         </div>
       </section>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <StatCard label="Conversas ativas" icon={Activity} tone="success" value={m?.activeConversations.toString() ?? "—"} />
         <StatCard label="Espera média na fila" icon={Clock} tone="primary" value={m ? `${m.avgWaitMinutes} min` : "—"} hint="De quem aguarda agora" />
       </div>
 
-      <div className="mt-8">
+      <div className="mt-6">
         <Tabs defaultValue="relatorios-voluntarios">
-          <TabsList className="mb-6 grid h-auto w-full grid-cols-3">
+          <TabsList className="mb-4 grid h-auto w-full grid-cols-3">
             <TabsTrigger value="relatorios-voluntarios" className="flex-col gap-1 px-1 py-2 text-[11px] sm:flex-row sm:gap-2 sm:px-3 sm:text-sm">
               <FileText className="h-4 w-4" />
               <span className="sm:hidden">Voluntários</span>
@@ -188,7 +188,7 @@ function Page() {
           </TabsList>
 
           <TabsContent value="relatorios-voluntarios" className="space-y-4">
-            <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+            <div className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
               {pgVol.pageItems.map((r) => (
                 <div key={r.id} className="p-4 space-y-2">
                   <div className="flex items-center justify-between">
@@ -235,7 +235,7 @@ function Page() {
           </TabsContent>
 
           <TabsContent value="reportes-moderadores" className="space-y-4">
-            <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+            <div className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
               {pgMod.pageItems.map((r) => (
                 <div key={r.id} className="p-4 space-y-2">
                   <div className="flex items-center justify-between">
@@ -271,7 +271,7 @@ function Page() {
           </TabsContent>
 
           <TabsContent value="historico-atendimentos" className="space-y-4">
-            <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+            <div className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
               {pgEnded.pageItems.map((c) => (
                 <div key={c.id} className="p-4 flex items-center justify-between gap-4">
                   <div className="space-y-1">
@@ -431,7 +431,7 @@ function Page() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border bg-card p-5">
+    <div className="rounded-xl border bg-card p-4">
       <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="mt-1 font-display text-3xl font-semibold">{value}</p>
     </div>

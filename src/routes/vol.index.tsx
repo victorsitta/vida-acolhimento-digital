@@ -176,8 +176,8 @@ function Page() {
       </div>
 
       {(myConversations.data ?? []).some((c) => c.status === "active") && (
-        <section className="mt-8" aria-label="Atendimentos em andamento">
-          <h2 className="mb-3 flex items-center gap-2 font-display text-xl font-semibold">
+        <section className="mt-6" aria-label="Atendimentos em andamento">
+          <h2 className="mb-3 flex items-center gap-2 font-display text-base font-semibold">
             <MessageCircle className="h-5 w-5" /> Atendimentos em andamento
           </h2>
           <ul className="grid gap-3 sm:grid-cols-2">
@@ -186,7 +186,7 @@ function Page() {
               .map((c) => (
                 <li
                   key={c.id}
-                  className="card-lift flex items-center justify-between gap-3 rounded-2xl border bg-card p-4 shadow-soft"
+                  className="card-lift flex items-center justify-between gap-3 rounded-xl border bg-card p-4 shadow-soft"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{c.userAlias}</p>
@@ -205,11 +205,11 @@ function Page() {
         </section>
       )}
 
-      <section className="mt-8">
-        <h2 className="mb-3 flex items-center gap-2 font-display text-xl font-semibold">
+      <section className="mt-6">
+        <h2 className="mb-3 flex items-center gap-2 font-display text-base font-semibold">
           <Users className="h-5 w-5" /> Fila de espera
         </h2>
-        <div className="divide-y rounded-2xl border bg-card">
+        <div className="divide-y rounded-xl border bg-card">
           {q.isPending && (
             <div className="space-y-3 p-4">
               {[1, 2, 3].map((item) => (
@@ -220,7 +220,7 @@ function Page() {
           {(q.data ?? []).map((e) => (
             <div
               key={e.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-4"
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
@@ -254,9 +254,9 @@ function Page() {
         </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="mb-3 font-display text-xl font-semibold">Status da sua candidatura</h2>
-        <div className="flex items-center gap-3 rounded-2xl border bg-card p-4">
+      <section className="mt-6">
+        <h2 className="mb-2.5 font-display text-base font-semibold">Status da sua candidatura</h2>
+        <div className="flex items-center gap-3 rounded-xl border bg-card p-4">
           <StatusBadge status={myApplication.data?.status ?? "pendente"} />
           <p className="text-sm text-muted-foreground">
             {myApplication.data?.status === "aprovado"
@@ -273,9 +273,9 @@ function Page() {
         </div>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 font-display text-xl font-semibold">
+          <h2 className="flex items-center gap-2 font-display text-base font-semibold">
             <FileText className="h-5 w-5" /> Relatórios operacionais
           </h2>
           <Dialog open={reportOpen} onOpenChange={setReportOpen}>
@@ -338,7 +338,7 @@ function Page() {
           </Dialog>
         </div>
 
-        <div className="divide-y rounded-2xl border bg-card">
+        <div className="divide-y rounded-xl border bg-card">
           {pgReports.pageItems.map((r) => (
             <div key={r.id} className="p-4 space-y-2">
               <div className="flex items-center justify-between">
@@ -376,7 +376,7 @@ function Page() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border bg-card p-5">
+    <div className="rounded-xl border bg-card p-4">
       <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="mt-1 font-display text-3xl font-semibold">{value}</p>
     </div>

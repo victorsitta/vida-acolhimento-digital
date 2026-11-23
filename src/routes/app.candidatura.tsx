@@ -60,8 +60,8 @@ function Page() {
         description="Ofereça escuta a quem precisa. Você não precisa ser profissional: precisa de empatia, tempo e vontade de ajudar."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <section className="rounded-3xl border bg-card p-5 shadow-soft sm:p-7">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="rounded-xl border bg-card p-4 shadow-soft sm:p-5">
           {mine.isPending ? (
             <div className="space-y-3">
               <Skeleton className="h-6 w-40" />
@@ -70,7 +70,7 @@ function Page() {
           ) : existing ? (
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <h2 className="font-display text-xl font-semibold">Sua candidatura</h2>
+                <h2 className="font-display text-base font-semibold">Sua candidatura</h2>
                 <StatusBadge status={existing.status} />
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -106,7 +106,7 @@ function Page() {
             </div>
           ) : (
             <form onSubmit={handleSubmit((v) => m.mutate(v))} className="space-y-4" noValidate>
-              <h2 className="font-display text-xl font-semibold">Conte um pouco sobre você</h2>
+              <h2 className="font-display text-base font-semibold">Conte um pouco sobre você</h2>
               <Field label="Como gostaria de ser chamado(a)?" id="alias" error={errors.candidateAlias?.message}>
                 <Input id="alias" {...register("candidateAlias")} />
               </Field>
@@ -127,8 +127,8 @@ function Page() {
         </section>
 
         <aside className="space-y-4">
-          <section className="rounded-3xl border bg-card p-5 shadow-soft">
-            <h2 className="font-display text-lg font-semibold">Como funciona</h2>
+          <section className="rounded-xl border bg-card p-4 shadow-soft">
+            <h2 className="font-display text-base font-semibold">Como funciona</h2>
             <ol className="mt-4 space-y-4">
               {STEPS.map((s, i) => (
                 <li key={s.title} className="flex gap-3">
@@ -145,7 +145,7 @@ function Page() {
               ))}
             </ol>
           </section>
-          <section className="rounded-3xl border border-primary/20 bg-primary/5 p-5">
+          <section className="rounded-xl border border-primary/20 bg-primary/5 p-4">
             <ShieldCheck className="h-5 w-5 text-primary" />
             <h3 className="mt-2 text-sm font-semibold">Cuidamos de quem cuida</h3>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">

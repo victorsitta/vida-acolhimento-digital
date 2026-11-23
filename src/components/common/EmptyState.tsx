@@ -16,11 +16,11 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-card/50 p-10 text-center">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed bg-card/50 p-6 text-center">
       {illustration ? (
         <Illustration kind={illustration} className="float-y h-32" />
       ) : (
-        <div className="float-y grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
+        <div className="float-y grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary ring-8 ring-primary/5">
           <Icon className="h-6 w-6" aria-hidden="true" />
         </div>
       )}

@@ -68,7 +68,7 @@ function Page() {
       />
 
       {showCreate && (
-        <section className="mb-6 rounded-2xl border bg-card p-5">
+        <section className="mb-6 rounded-xl border bg-card p-4">
           <h2 className="font-semibold">Criar grupo</h2>
           <div className="mt-3 grid gap-3">
             <Input
@@ -108,13 +108,13 @@ function Page() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         {pg.pageItems.map((group) => (
-          <article key={group.id} className="card-lift rounded-3xl border bg-card p-5 shadow-soft">
+          <article key={group.id} className="card-lift rounded-xl border bg-card p-4 shadow-soft">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {group.status}
                 </span>
-                <h2 className="mt-1 font-display text-xl font-semibold">{group.name}</h2>
+                <h2 className="mt-1 font-display text-base font-semibold">{group.name}</h2>
               </div>
               <StatusDot status={group.status} />
             </div>

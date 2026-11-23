@@ -101,7 +101,7 @@ export function NotificationBell() {
         <div className="max-h-[60dvh] overflow-y-auto">
           {list.length === 0 ? (
             <div className="flex flex-col items-center px-6 py-10 text-center">
-              <span className="float-y grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
+              <span className="float-y grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary ring-8 ring-primary/5">
                 <Inbox className="h-5 w-5" />
               </span>
               <p className="mt-3 text-sm font-medium">Nenhuma notificação</p>

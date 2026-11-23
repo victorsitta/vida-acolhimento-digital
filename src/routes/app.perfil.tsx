@@ -55,11 +55,11 @@ function Page() {
         <span className="blob blob-a" aria-hidden="true" />
         <span className="blob blob-b" aria-hidden="true" />
         <div className="relative z-10 flex flex-wrap items-center gap-4">
-          <span className="grid h-20 w-20 shrink-0 place-items-center rounded-3xl bg-gradient-to-br from-primary to-accent font-display text-3xl font-semibold text-primary-foreground shadow-glow">
+          <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary to-accent font-display text-2xl font-semibold text-primary-foreground shadow-glow">
             {u?.initials ?? "··"}
           </span>
           <div className="min-w-0">
-            <h1 className="truncate font-display text-2xl font-semibold">{u?.nickname ?? "Seu perfil"}</h1>
+            <h1 className="truncate font-display text-base font-semibold">{u?.nickname ?? "Seu perfil"}</h1>
             <p className="flex items-center gap-1.5 truncate text-sm text-muted-foreground">
               <Mail className="h-3.5 w-3.5" /> {u?.email}
             </p>
@@ -72,7 +72,7 @@ function Page() {
         </div>
       </section>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Conversas" icon={MessagesSquare} tone="primary" value={String((convs.data ?? []).filter((c) => !c.isTeamChat).length)} />
         <StatCard label="Grupos" icon={UsersRound} tone="info" value={String((groups.data ?? []).filter((g) => g.joined).length)} />
         <StatCard label="Check-ins" icon={HeartPulse} tone="success" value={String((mood.data ?? []).length)} />
@@ -85,8 +85,8 @@ function Page() {
         />
       </div>
 
-      <form onSubmit={handleSubmit((v) => update.mutate(v))} className="max-w-xl space-y-4 rounded-3xl border bg-card p-5 shadow-soft sm:p-6" noValidate>
-        <h2 className="font-display text-lg font-semibold">Seus dados</h2>
+      <form onSubmit={handleSubmit((v) => update.mutate(v))} className="max-w-xl space-y-4 rounded-xl border bg-card p-4 shadow-soft sm:p-5" noValidate>
+        <h2 className="font-display text-base font-semibold">Seus dados</h2>
         <Field label="Apelido público" id="name" error={errors.name?.message}>
           <IconInput id="name" icon={Smile} aria-invalid={!!errors.name} {...register("name")} />
           <p className="mt-1 text-xs text-muted-foreground">

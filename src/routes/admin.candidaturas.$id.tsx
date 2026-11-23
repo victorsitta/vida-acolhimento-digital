@@ -60,13 +60,13 @@ function Page() {
         description={`Candidatura enviada em ${fmtDateTime(a.submittedAt)}`}
         actions={<StatusBadge status={a.status} />}
       />
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className="space-y-4">
           <Section title="Motivação">{a.motivation}</Section>
           <Section title="Disponibilidade">{a.availability}</Section>
           <Section title="Experiência">{a.experience}</Section>
         </div>
-        <aside className="space-y-2 rounded-2xl border bg-card p-5">
+        <aside className="space-y-2 rounded-xl border bg-card p-4">
           <h2 className="text-sm font-semibold">Ações</h2>
           <Confirm label="Aprovar" onConfirm={() => m.mutate("aprovado")} />
           <Confirm
@@ -83,7 +83,7 @@ function Page() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-card p-5">
+    <section className="rounded-xl border bg-card p-4">
       <h3 className="text-sm font-semibold">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground text-pretty">{children}</p>
     </section>

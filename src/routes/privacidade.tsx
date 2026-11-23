@@ -6,8 +6,8 @@ export const Route = createFileRoute("/privacidade")({
   head: () => ({ meta: [{ title: "Política de privacidade — VIDA+" }] }),
   component: () => (
     <PublicLayout>
-      <article className="mx-auto max-w-4xl px-4 py-12">
-        <h1 className="font-display text-4xl font-semibold tracking-tight">Política de privacidade</h1>
+      <article className="mx-auto max-w-4xl px-4 py-10">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Política de privacidade</h1>
         <p className="mt-2 text-sm text-muted-foreground">Última atualização: novembro de 2026.</p>
 
         <p className="mt-6 text-pretty text-muted-foreground">
@@ -15,12 +15,12 @@ export const Route = createFileRoute("/privacidade")({
           tempo limitado. Abaixo está exatamente o que guardamos, quem pode ver e por quanto tempo.
         </p>
 
-        <section className="mt-8">
-          <h2 className="mb-3 font-display text-xl font-semibold">O que guardamos e por quanto tempo</h2>
+        <section className="mt-6">
+          <h2 className="mb-2.5 font-display text-base font-semibold">O que guardamos e por quanto tempo</h2>
           <DataPolicy />
         </section>
 
-        <section className="mt-10 space-y-5 text-sm text-muted-foreground text-pretty">
+        <section className="mt-6 space-y-5 text-sm text-muted-foreground text-pretty">
           <div>
             <h2 className="font-display text-xl font-semibold text-foreground">Por que guardamos</h2>
             <p className="mt-1">

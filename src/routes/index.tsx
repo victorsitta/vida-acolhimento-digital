@@ -151,7 +151,7 @@ function Landing() {
             initial={{ opacity: 0, y: -16, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.55, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 pill mb-8"
+            className="inline-flex items-center gap-2 pill mb-5"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-70" />
@@ -178,7 +178,7 @@ function Landing() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-8 mx-auto max-w-2xl text-lg text-muted-foreground leading-relaxed sm:text-xl"
+            className="mt-6 mx-auto max-w-2xl text-lg text-muted-foreground leading-relaxed sm:text-xl"
           >
             O <strong className="text-foreground">VIDA+</strong> conecta você a voluntários
             treinados para uma conversa de escuta emocional anônima. Sem julgamentos, sem pressa, no
@@ -190,7 +190,7 @@ function Landing() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.45 }}
-            className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
+            className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center"
           >
             <Link to="/cadastro">
               <Button
@@ -222,7 +222,7 @@ function Landing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.65 }}
-            className="mt-10 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground"
+            className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-muted-foreground"
           >
             {[
               { icon: BadgeCheck, label: "100% Gratuito" },
@@ -306,7 +306,7 @@ function Landing() {
                 <motion.div
                   key={step.num}
                   variants={fadeUp}
-                  className="group relative flex gap-8 md:gap-12"
+                  className="group relative flex gap-5 md:gap-12"
                 >
                   {/* Ícone */}
                   <div className="relative flex-shrink-0">
@@ -315,7 +315,7 @@ function Landing() {
                                   flex items-center justify-center
                                   group-hover:bg-primary group-hover:border-primary group-hover:scale-110 transition-all duration-300"
                     >
-                      <step.icon className="h-7 w-7 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
+                      <step.icon className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
                     </div>
                     {i < STEPS.length - 1 && (
                       <div className="absolute top-16 left-1/2 -translate-x-1/2 h-10 w-px bg-gradient-to-b from-border to-transparent md:hidden" />
@@ -364,7 +364,7 @@ function Landing() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid gap-6 md:grid-cols-3"
+            className="grid gap-4 md:grid-cols-3"
           >
             {PILLARS.map((p) => (
               <motion.div
@@ -462,7 +462,7 @@ function Landing() {
               <p className="mt-5 text-lg text-muted-foreground max-w-xl mx-auto">
                 Não existe hora certa para pedir ajuda. Você merece ser ouvido.
               </p>
-              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Link to="/cadastro">
                   <Button
                     size="lg"
@@ -658,18 +658,18 @@ function AudienceAndCta() {
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             variants={staggerContainer}
-            className="mt-10 grid gap-5 md:grid-cols-3"
+            className="mt-6 grid gap-5 md:grid-cols-3"
           >
             {AUDIENCES.map((a) => (
               <motion.li key={a.title} variants={fadeUp}>
                 <Link
                   to={a.to}
-                  className={`card-lift group relative flex h-full flex-col overflow-hidden rounded-3xl border bg-gradient-to-br ${a.tone} p-7`}
+                  className={`card-lift group relative flex h-full flex-col overflow-hidden rounded-xl border bg-gradient-to-br ${a.tone} p-4`}
                 >
-                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-background/80 text-primary shadow-sm transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-background/80 text-primary shadow-sm transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
                     <a.icon className="h-6 w-6" aria-hidden="true" />
                   </span>
-                  <h3 className="mt-5 font-display text-xl font-semibold">{a.title}</h3>
+                  <h3 className="mt-5 font-display text-base font-semibold">{a.title}</h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{a.text}</p>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
                     {a.cta}

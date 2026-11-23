@@ -54,7 +54,7 @@ export function TracksPanel() {
                     className={cn("card-lift group flex h-full w-full flex-col rounded-3xl border bg-gradient-to-br p-5 text-left shadow-soft", t.tone)}
                   >
                     <span className="text-4xl transition-transform group-hover:scale-110">{t.emoji}</span>
-                    <h2 className="mt-3 font-display text-lg font-semibold">{t.title}</h2>
+                    <h2 className="mt-3 font-display text-base font-semibold">{t.title}</h2>
                     <p className="mt-1 flex-1 text-sm text-muted-foreground">{t.subtitle}</p>
                     <div className="mt-4">
                       <div className="h-1.5 overflow-hidden rounded-full bg-background/60">
@@ -85,7 +85,7 @@ export function TracksPanel() {
           </Button>
           <div className={cn("mb-5 rounded-3xl border bg-gradient-to-br p-5 shadow-soft", track.tone)}>
             <span className="text-4xl">{track.emoji}</span>
-            <h2 className="mt-2 font-display text-xl font-semibold">{track.title}</h2>
+            <h2 className="mt-2 font-display text-base font-semibold">{track.title}</h2>
             <p className="text-sm text-muted-foreground">{track.subtitle}</p>
           </div>
 
@@ -97,7 +97,7 @@ export function TracksPanel() {
               // libera o próximo dia depois de concluir o anterior (sem prazo: não existe atraso)
               const unlocked = day === 1 || set.has(day - 1) || isDone;
               return (
-                <li key={day} className={cn("rounded-2xl border bg-card p-4 shadow-soft transition", !unlocked && "opacity-60", isDone && "border-success/40")}>
+                <li key={day} className={cn("rounded-xl border bg-card p-4 shadow-soft transition", !unlocked && "opacity-60", isDone && "border-success/40")}>
                   <div className="flex items-start gap-3">
                     <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-xl font-display text-base font-semibold", isDone ? "bg-success/20 text-success" : unlocked ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground")}>
                       {isDone ? <Check className="h-5 w-5" /> : unlocked ? day : <Lock className="h-4 w-4" />}

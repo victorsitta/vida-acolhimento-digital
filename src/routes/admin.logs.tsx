@@ -188,7 +188,7 @@ function Page() {
         }
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Registros" value={String(all.length)} icon={ScrollText} tone="primary" />
         <StatCard label="Hoje" value={String(today.length)} icon={ScrollText} tone="success" />
         <StatCard
@@ -246,13 +246,13 @@ function Page() {
           description="Ajuste os filtros ou aguarde novas atividades na plataforma."
         />
       ) : (
-        <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+        <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
           {pg.pageItems.map((l) => (
             <li key={l.id}>
               <button
                 type="button"
                 onClick={() => setSelected(l)}
-                className="row-hover flex w-full flex-wrap items-center gap-3 px-4 py-3.5 text-left"
+                className="row-hover flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left"
               >
                 <span
                   className={cn(

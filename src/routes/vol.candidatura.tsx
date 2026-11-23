@@ -36,7 +36,7 @@ function Journey({ stage }: { stage: 0 | 1 | 2 }) {
             <div className="flex flex-col items-center gap-1.5">
               <span
                 className={cn(
-                  "grid h-12 w-12 place-items-center rounded-2xl border transition-all",
+                  "grid h-9 w-9 place-items-center rounded-lg border transition-all",
                   done && "border-success/40 bg-success/15 text-success",
                   current && "border-primary bg-primary text-primary-foreground shadow-glow",
                   !done && !current && "bg-muted text-muted-foreground",
@@ -94,13 +94,13 @@ function Page() {
         description="Acompanhe seu caminho na plataforma e peça para crescer: voluntários podem se candidatar a moderador."
       />
 
-      <section className="mb-6 rounded-3xl border bg-card p-6 shadow-soft sm:p-8">
+      <section className="mb-6 rounded-xl border bg-card p-4 shadow-soft sm:p-5">
         <Journey stage={stage} />
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-3xl border bg-card p-6 shadow-soft">
-          <h2 className="font-display text-xl font-semibold">Como voluntário</h2>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-xl border bg-card p-4 shadow-soft">
+          <h2 className="font-display text-base font-semibold">Como voluntário</h2>
           {q.isPending ? (
             <div className="mt-4 space-y-3">
               <Skeleton className="h-6 w-32" />
@@ -130,8 +130,8 @@ function Page() {
           )}
         </section>
 
-        <section className="rounded-3xl border bg-card p-6 shadow-soft">
-          <h2 className="font-display text-xl font-semibold">Quero ser moderador</h2>
+        <section className="rounded-xl border bg-card p-4 shadow-soft">
+          <h2 className="font-display text-base font-semibold">Quero ser moderador</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Moderadores cuidam dos grupos e das denúncias. Somente administradores aprovam.
           </p>

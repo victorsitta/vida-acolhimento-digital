@@ -623,3 +623,26 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appe
 .chat-tail-r::after { right: -0.32rem; clip-path: polygon(0 0, 0 100%, 100% 100%); border-bottom-left-radius: 0.1rem; }
 .chat-tail-l::after { left: -0.32rem; clip-path: polygon(100% 0, 0 100%, 100% 100%); }
 .chat-tail-l:not([style])::after { background: var(--card); }
+
+
+/* ─────────────────────────────────────────────
+   DENSIDADE — telas mais compactas, mais informação por tela
+   O Tailwind usa rem: reduzir a base encolhe textos, espaços e cartões juntos.
+   No celular mantém 16px (toque confortável).
+   ───────────────────────────────────────────── */
+@media (min-width: 768px) {
+  html { font-size: 92.5%; }
+}
+@media (min-width: 1440px) {
+  html { font-size: 93.75%; }
+}
+/* o ajuste de tamanho de texto da acessibilidade continua mandando */
+@media (min-width: 768px) {
+  html[data-a11y-font="lg"]  { font-size: 108%; }
+  html[data-a11y-font="xl"]  { font-size: 120%; }
+  html[data-a11y-font="xxl"] { font-size: 145%; }
+}
+
+/* cantos menos "balão" nas seções grandes e listas mais justas */
+main .rounded-3xl { border-radius: 1.1rem; }
+main .divide-y > li, main ul.divide-y > li > a { min-height: 0; }

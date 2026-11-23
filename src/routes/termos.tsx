@@ -5,10 +5,10 @@ export const Route = createFileRoute("/termos")({
   head: () => ({ meta: [{ title: "Termos de uso — VIDA+" }] }),
   component: () => (
     <PublicLayout>
-      <article className="prose mx-auto max-w-3xl px-4 py-12 prose-headings:font-display prose-headings:tracking-tight">
-        <h1 className="font-display text-4xl font-semibold">Termos de uso</h1>
+      <article className="prose mx-auto max-w-3xl px-4 py-10 prose-headings:font-display prose-headings:tracking-tight">
+        <h1 className="font-display text-3xl font-semibold">Termos de uso</h1>
         <p className="text-muted-foreground">Última atualização: junho de 2026.</p>
-        <h2 className="mt-8 text-xl font-semibold">1. Finalidade</h2>
+        <h2 className="mt-6 text-xl font-semibold">1. Finalidade</h2>
         <p className="text-sm text-muted-foreground">
           O VIDA+ oferece acolhimento e escuta emocional, sem caráter médico ou diagnóstico.
         </p>

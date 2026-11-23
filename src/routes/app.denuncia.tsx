@@ -125,7 +125,7 @@ function Page() {
           </Button>
         </div>
 
-        <p className="rounded-xl bg-muted/50 p-4 text-xs text-muted-foreground">
+        <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
           Sua identidade não será revelada ao denunciado. A moderação tem acesso apenas ao
           necessário para a investigação.
         </p>

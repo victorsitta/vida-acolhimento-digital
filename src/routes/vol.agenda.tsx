@@ -22,10 +22,10 @@ const pad = (n: number) => String(n).padStart(2, "0");
 function Slot({ a, mine, children }: { a: Appointment; mine: boolean; children: React.ReactNode }) {
   const d = new Date(a.startsAt);
   return (
-    <li className={cn("card-lift flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft", mine && "border-success/40")}>
+    <li className={cn("card-lift flex flex-wrap items-center gap-3 rounded-xl border bg-card p-4 shadow-soft", mine && "border-success/40")}>
       <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-primary/15 text-center leading-none text-primary">
         <div>
-          <p className="font-display text-xl font-semibold">{d.getDate()}</p>
+          <p className="font-display text-base font-semibold">{d.getDate()}</p>
           <p className="text-[10px] font-semibold uppercase">{d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}</p>
         </div>
       </div>
@@ -95,10 +95,10 @@ function AvailabilityEditor() {
   });
 
   return (
-    <section className="mb-8 rounded-3xl border bg-card p-5 shadow-soft sm:p-6" aria-labelledby="disp">
+    <section className="mb-5 rounded-xl border bg-card p-4 shadow-soft sm:p-5" aria-labelledby="disp">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 id="disp" className="font-display text-lg font-semibold">
+          <h2 id="disp" className="font-display text-base font-semibold">
             Meus horários disponíveis
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -182,9 +182,9 @@ function Page() {
       {q.isPending ? (
         <Skeleton className="h-24 w-full" />
       ) : (
-        <div className={cn("grid gap-8", open.length > 0 && "lg:grid-cols-2")}>
+        <div className={cn("grid gap-5", open.length > 0 && "lg:grid-cols-2")}>
           <section aria-labelledby="meus">
-            <h2 id="meus" className="mb-3 flex items-center gap-2 font-display text-lg font-semibold">
+            <h2 id="meus" className="mb-3 flex items-center gap-2 font-display text-base font-semibold">
               <CalendarCheck className="h-5 w-5 text-success" /> Meus horários
             </h2>
             {mine.length === 0 ? (
@@ -209,7 +209,7 @@ function Page() {
 
           {open.length > 0 && (
           <section aria-labelledby="abertos">
-            <h2 id="abertos" className="mb-3 flex items-center gap-2 font-display text-lg font-semibold">
+            <h2 id="abertos" className="mb-3 flex items-center gap-2 font-display text-base font-semibold">
               <CalendarClock className="h-5 w-5 text-primary" /> Pedidos sem voluntário
             </h2>
             {open.length === 0 ? (

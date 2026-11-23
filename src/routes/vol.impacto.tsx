@@ -71,7 +71,7 @@ function Page() {
           }
         />
 
-        <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard label="Pessoas acolhidas" icon={HeartHandshake} tone="primary" value={String(done.length)} />
           <StatCard label="Horas de escuta" icon={Clock} tone="info" value={fmtHours(minutes)} />
           <StatCard label="Nota média" icon={Star} tone="accent" value={r.length ? avg.toFixed(1).replace(".", ",") : "—"} hint={r.length ? `${r.length} avaliações` : "Sem avaliações"} />
@@ -79,13 +79,13 @@ function Page() {
         </div>
 
         <section aria-labelledby="selos">
-          <h2 id="selos" className="mb-3 flex items-center gap-2 font-display text-lg font-semibold">
+          <h2 id="selos" className="mb-3 flex items-center gap-2 font-display text-base font-semibold">
             Selos <span className="text-sm font-normal text-muted-foreground">({earned} de {BADGES.length})</span>
           </h2>
           <ul className="stagger grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {BADGES.map((b) => (
               <li key={b.id} className={cn("rounded-2xl border p-4 text-center shadow-soft transition", b.ok ? "card-lift bg-card" : "bg-muted/40 opacity-60")}>
-                <span className={cn("mx-auto grid h-14 w-14 place-items-center rounded-2xl", b.ok ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-glow" : "bg-muted text-muted-foreground")}>
+                <span className={cn("mx-auto grid h-11 w-11 place-items-center rounded-xl", b.ok ? "bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-glow" : "bg-muted text-muted-foreground")}>
                   <b.icon className="h-7 w-7" aria-hidden="true" />
                 </span>
                 <p className="mt-3 text-sm font-semibold">{b.title}</p>
@@ -101,14 +101,14 @@ function Page() {
         <div className="mx-auto max-w-3xl border-8 border-double border-amber-500 p-12 text-center text-black">
           <p className="text-sm uppercase tracking-[0.3em]">VIDA+ · Acolhimento digital</p>
           <h1 className="mt-6 font-display text-5xl font-semibold">Certificado de Voluntariado</h1>
-          <p className="mt-10 text-lg">Certificamos que</p>
+          <p className="mt-6 text-lg">Certificamos que</p>
           <p className="mt-2 font-display text-4xl font-semibold">{name}</p>
-          <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed">
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed">
             atuou como voluntário(a) de escuta emocional, acolhendo <strong>{done.length}</strong>{" "}
             {done.length === 1 ? "pessoa" : "pessoas"} em <strong>{fmtHours(minutes)}</strong> de atendimento
             {r.length ? `, com nota média ${avg.toFixed(1).replace(".", ",")} de 5` : ""}.
           </p>
-          <p className="mt-10 text-sm">
+          <p className="mt-6 text-sm">
             Emitido em {new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
           </p>
           <p className="mt-12 text-xs text-neutral-600">Documento gerado pela plataforma VIDA+. Os números refletem os atendimentos registrados no sistema.</p>

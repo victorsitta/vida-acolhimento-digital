@@ -118,7 +118,7 @@ function Page() {
         <StatCard label="Denúncias" icon={ShieldAlert} tone="accent" value={String(cur.reports)} hint={`${cur.resolved} resolvidas`} />
       </div>
 
-      <section className="mt-6 overflow-hidden rounded-2xl border bg-card shadow-soft">
+      <section className="mt-6 overflow-hidden rounded-xl border bg-card shadow-soft">
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>

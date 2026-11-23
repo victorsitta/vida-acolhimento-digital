@@ -59,12 +59,12 @@ export function WelcomeCarousel() {
   const last = i === slides.length - 1;
   return (
     <div className="fixed inset-0 z-[300] grid place-items-center bg-black/60 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-      <div className="pop-in relative w-full max-w-md overflow-hidden rounded-3xl border bg-card p-6 text-center shadow-2xl sm:p-8">
+      <div className="pop-in relative w-full max-w-md overflow-hidden rounded-xl border bg-card p-4 text-center shadow-2xl sm:p-8">
         <button type="button" onClick={close} aria-label="Pular" className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-muted">
           <X className="h-4 w-4" />
         </button>
         <Illustration kind={s.kind} className="mx-auto h-40" />
-        <h2 id="welcome-title" className="mt-2 font-display text-2xl font-semibold text-balance">
+        <h2 id="welcome-title" className="mt-2 font-display text-lg font-semibold text-balance">
           {s.title}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">{s.text}</p>

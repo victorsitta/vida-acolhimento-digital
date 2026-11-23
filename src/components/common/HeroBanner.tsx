@@ -30,27 +30,27 @@ export function HeroBanner({
 }) {
   const g = greeting();
   return (
-    <section className="hero relative mb-6 overflow-hidden rounded-2xl border p-5 shadow-soft sm:p-6">
+    <section className="hero relative mb-4 overflow-hidden rounded-2xl border p-3.5 shadow-soft sm:p-4">
       <span className="blob blob-a" aria-hidden="true" />
       <span className="blob blob-b" aria-hidden="true" />
       <span className="hero-dots" aria-hidden="true" />
 
       <Icon
-        className="float-y pointer-events-none absolute -right-2 -top-3 h-24 w-24 text-primary/15 sm:h-32 sm:w-32"
+        className="float-y pointer-events-none absolute -right-2 -top-3 h-16 w-16 text-primary/15 sm:h-20 sm:w-20"
         aria-hidden="true"
       />
 
-      <div className="relative z-10 flex flex-wrap items-end justify-between gap-5">
+      <div className="relative z-10 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0 max-w-2xl">
-          <p className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+          <p className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground backdrop-blur">
             <g.Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
             {eyebrow ?? g.text}
           </p>
-          <h1 className="mt-2.5 font-display text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+          <h1 className="mt-1.5 font-display text-xl font-semibold tracking-tight text-balance sm:text-2xl">
             {title}
           </h1>
           {description && (
-            <p className="mt-1.5 max-w-xl text-sm text-muted-foreground text-pretty">
+            <p className="mt-1 max-w-xl text-[0.82rem] leading-snug text-muted-foreground text-pretty">
               {description}
             </p>
           )}

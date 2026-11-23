@@ -6,7 +6,7 @@ export function DataPolicy() {
     <div>
       <ul className="space-y-3 md:hidden">
         {DATA_POLICY.map((r) => (
-          <li key={r.what} className="rounded-2xl border bg-card p-4">
+          <li key={r.what} className="rounded-xl border bg-card p-4">
             <p className="text-sm font-semibold">{r.what}</p>
             <dl className="mt-2 space-y-1.5 text-xs text-muted-foreground">
               <div>
@@ -22,7 +22,7 @@ export function DataPolicy() {
         ))}
       </ul>
 
-      <div className="hidden overflow-hidden rounded-2xl border bg-card md:block">
+      <div className="hidden overflow-hidden rounded-xl border bg-card md:block">
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>

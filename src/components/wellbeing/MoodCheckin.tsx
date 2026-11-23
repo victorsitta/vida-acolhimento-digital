@@ -83,10 +83,10 @@ export function MoodCheckin() {
   const lowToday = (picked ?? 0) > 0 && (picked ?? 0) <= 2;
 
   return (
-    <section className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6" aria-labelledby="mood-title">
+    <section className="rounded-xl border bg-card p-4 shadow-soft sm:p-5" aria-labelledby="mood-title">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 id="mood-title" className="font-display text-lg font-semibold">
+          <h2 id="mood-title" className="font-display text-base font-semibold">
             Como você está agora?
           </h2>
           <p className="text-sm text-muted-foreground">

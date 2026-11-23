@@ -114,7 +114,7 @@ function Page() {
       />
 
       {editing && (
-        <section className="mb-6 rounded-2xl border bg-card p-5">
+        <section className="mb-6 rounded-xl border bg-card p-4">
           <h2 className="font-semibold">Editar grupo</h2>
           <div className="mt-3 grid gap-3">
             <Input value={name} onChange={(event) => setName(event.target.value)} />
@@ -147,10 +147,10 @@ function Page() {
         </div>
       </section>
 
-      <div className="grid gap-8">
+      <div className="grid gap-5">
         <section>
-          <h2 className="font-display text-xl font-semibold">Participantes</h2>
-          <div className="mt-3 overflow-x-auto rounded-2xl border bg-card">
+          <h2 className="font-display text-base font-semibold">Participantes</h2>
+          <div className="mt-3 overflow-x-auto rounded-xl border bg-card">
             <table className="w-full min-w-[640px] text-sm">
               <thead className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
@@ -206,8 +206,8 @@ function Page() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-semibold">Conversa do grupo</h2>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card p-4 shadow-soft">
+          <h2 className="font-display text-base font-semibold">Conversa do grupo</h2>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4 shadow-soft">
             <div className="min-w-0">
               <p className="text-sm font-medium">
                 {group.data.messages.length} mensagens ·{" "}

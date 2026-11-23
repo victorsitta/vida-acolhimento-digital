@@ -126,7 +126,7 @@ export function MyReports({ newReportTo = "/app/denuncia" }: { newReportTo?: str
       />
 
       {justSent && (
-        <div className="mb-5 flex gap-3 rounded-2xl border border-success/30 bg-success/10 p-4">
+        <div className="mb-5 flex gap-3 rounded-xl border border-success/30 bg-success/10 p-4">
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-success" />
           <div>
             <p className="text-sm font-medium">Denúncia registrada</p>
@@ -149,7 +149,7 @@ export function MyReports({ newReportTo = "/app/denuncia" }: { newReportTo?: str
 
       <ul className="stagger space-y-3">
         {pg.pageItems.map((r) => (
-          <li key={r.id} className="rounded-2xl border bg-card p-4 shadow-soft">
+          <li key={r.id} className="rounded-xl border bg-card p-4 shadow-soft">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-sm font-semibold">{r.reason}</p>
@@ -184,7 +184,7 @@ export function MyReports({ newReportTo = "/app/denuncia" }: { newReportTo?: str
       </ul>
       <Pager {...pg} onPageChange={pg.setPage} />
 
-      <div className="mt-6 flex items-start gap-3 rounded-xl bg-muted/50 p-4">
+      <div className="mt-6 flex items-start gap-3 rounded-xl bg-muted/50 p-3">
         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
         <p className="text-xs text-muted-foreground">
           Sua identidade é protegida: a moderação analisa cada caso sem revelar quem denunciou ao denunciado.

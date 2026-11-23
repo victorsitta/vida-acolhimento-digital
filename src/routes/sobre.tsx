@@ -14,8 +14,8 @@ export const Route = createFileRoute("/sobre")({
 function Page() {
   return (
     <PublicLayout>
-      <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="font-display text-4xl font-semibold tracking-tight">Sobre o VIDA+</h1>
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Sobre o VIDA+</h1>
         <div className="mt-6 space-y-5 text-muted-foreground text-pretty">
           <p>
             VIDA+ nasceu da convicção de que escutar com cuidado pode mudar o dia (e a vida) de
@@ -30,14 +30,14 @@ function Page() {
             profissional habilitado.
           </p>
         </div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {[
             { t: "Empatia", d: "Pessoas no centro." },
             { t: "Anonimato", d: "Privacidade por padrão." },
             { t: "Cuidado", d: "Voluntários orientados." },
           ].map((c) => (
-            <div key={c.t} className="rounded-2xl border bg-card p-5 shadow-soft">
-              <h3 className="font-display text-lg font-semibold">{c.t}</h3>
+            <div key={c.t} className="rounded-xl border bg-card p-4 shadow-soft">
+              <h3 className="font-display text-base font-semibold">{c.t}</h3>
               <p className="text-sm text-muted-foreground">{c.d}</p>
             </div>
           ))}

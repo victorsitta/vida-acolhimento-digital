@@ -185,13 +185,13 @@ function Page() {
             />
           </div>
 
-          <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+          <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
             {pgReports.pageItems.map((r) => (
               <li key={r.id}>
                 <Link
                   to="/mod/$id"
                   params={{ id: r.id }}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-4 row-hover"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 row-hover"
                 >
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -223,7 +223,7 @@ function Page() {
             onChange={(e) => setUserSearch(e.target.value)}
           />
 
-          <div className="overflow-x-auto rounded-2xl border bg-card">
+          <div className="overflow-x-auto rounded-xl border bg-card">
             <table className="w-full text-sm text-left">
               <thead className="border-b text-xs uppercase tracking-wider text-muted-foreground bg-muted/40">
                 <tr>
@@ -274,7 +274,7 @@ function Page() {
 
         {/* TAB 3: Meus Reportes Enviados */}
         <TabsContent value="meus-reportes" className="space-y-4">
-          <ul className="divide-y rounded-2xl border bg-card">
+          <ul className="divide-y rounded-xl border bg-card">
             {(myReportsQuery.data ?? []).map((r) => (
               <li key={r.id} className="p-4 space-y-2 hover:bg-muted/10">
                 <div className="flex items-center justify-between">

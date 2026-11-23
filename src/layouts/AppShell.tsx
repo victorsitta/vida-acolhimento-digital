@@ -326,7 +326,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <span className="app-bg-dots" />
       </div>
       {/* Sidebar desktop */}
-      <aside className="hidden w-64 shrink-0 border-r bg-sidebar/80 text-sidebar-foreground backdrop-blur-xl md:flex md:flex-col">
+      <aside className="hidden w-56 shrink-0 lg:w-60 border-r bg-sidebar/80 text-sidebar-foreground backdrop-blur-xl md:flex md:flex-col">
         <div className="px-4 py-4">
           <Link to="/app">
             <Logo />
@@ -418,8 +418,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 pb-24 md:px-10 md:py-10 md:pb-12">
-          <div className="fade-up mx-auto max-w-6xl">{children}</div>
+        <main className="flex-1 px-3 py-4 pb-24 sm:px-4 md:px-6 md:py-5 md:pb-8 xl:px-8">
+          <div className="fade-up mx-auto max-w-[88rem]">{children}</div>
         </main>
 
         {/* Bottom nav mobile */}

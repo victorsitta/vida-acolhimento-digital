@@ -121,7 +121,7 @@ export function VolunteerStats() {
   const r = ratings.data ?? [];
   const avg = r.length ? r.reduce((a, b) => a + b.rating, 0) / r.length : 0;
   return (
-    <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
       <StatCard label="Atendimentos hoje" icon={CalendarCheck} tone="primary" value={String(today)} />
       <StatCard label="Total de atendimentos" icon={CheckCircle2} tone="success" value={String(mine.length)} />
       <StatCard
@@ -146,7 +146,7 @@ export function ModeratorStats() {
   const solved = list.filter((r) => r.status === "resolvido" && new Date(r.resolvedAt ?? r.createdAt).getTime() > weekAgo).length;
   const oldest = pending.length ? pending.reduce((a, b) => (a.createdAt < b.createdAt ? a : b)) : null;
   return (
-    <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
       <StatCard label="Pendentes" icon={ShieldAlert} tone="accent" value={String(pending.length)} hint={oldest ? `Mais antiga: ${fmtRelative(oldest.createdAt)}` : "Nada na fila"} />
       <StatCard label="Em análise" icon={Hourglass} tone="primary" value={String(analysing)} />
       <StatCard label="Resolvidas (7 dias)" icon={CheckCircle2} tone="success" value={String(solved)} />
@@ -180,8 +180,8 @@ export function AdminCharts() {
 
   if (!list.length) return null;
   return (
-    <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-      <section className="rounded-2xl border bg-card p-5 shadow-soft">
+    <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <section className="rounded-xl border bg-card p-4 shadow-soft">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold">Horários de pico</h2>
@@ -204,7 +204,7 @@ export function AdminCharts() {
         </div>
       </section>
 
-      <section className="rounded-2xl border bg-card p-5 shadow-soft">
+      <section className="rounded-xl border bg-card p-4 shadow-soft">
         <h2 className="text-sm font-semibold">Atendimentos por situação</h2>
         <p className="text-xs text-muted-foreground">{list.length} no total</p>
         <div className="mt-2 h-36">

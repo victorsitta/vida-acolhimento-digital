@@ -18,13 +18,13 @@ export const Route = createFileRoute("/seguranca")({
 function Page() {
   return (
     <PublicLayout>
-      <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="font-display text-4xl font-semibold tracking-tight">
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           Segurança e privacidade
         </h1>
         <p className="mt-3 text-muted-foreground">Princípios e práticas que orientam o VIDA+.</p>
 
-        <div className="mt-8 grid gap-4">
+        <div className="mt-4 grid gap-3">
           <Item icon={Lock} title="Anonimato">
             Você não precisa informar nome real, telefone ou endereço.
           </Item>
@@ -36,7 +36,7 @@ function Page() {
           </Item>
         </div>
 
-        <div className="mt-10 rounded-2xl border bg-destructive/5 p-6">
+        <div className="mt-6 rounded-2xl border bg-destructive/5 p-6">
           <div className="flex items-start gap-3">
             <Phone className="mt-0.5 h-5 w-5 text-destructive" aria-hidden="true" />
             <div>
@@ -73,7 +73,7 @@ function Item({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border bg-card p-5 shadow-soft">
+    <div className="flex items-start gap-3 rounded-xl border bg-card p-4 shadow-soft">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
         <Icon className="h-5 w-5" />
       </div>

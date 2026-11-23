@@ -80,7 +80,7 @@ function Page() {
   if (tokenError) {
     return (
       <AuthShell>
-        <h1 className="font-display text-3xl font-semibold tracking-tight">Link inválido</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight">Link inválido</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Este link de recuperação expirou ou já foi usado.
         </p>
@@ -96,11 +96,11 @@ function Page() {
 
   return (
     <AuthShell>
-      <h1 className="font-display text-3xl font-semibold tracking-tight">Nova senha</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight">Nova senha</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Escolha uma senha forte para proteger sua conta.
       </p>
-      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
+      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-6 space-y-4" noValidate>
         <Field label="Nova senha" id="password" error={errors.password?.message}>
           <PasswordInput
             id="password"

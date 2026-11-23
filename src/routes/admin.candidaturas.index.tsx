@@ -187,7 +187,7 @@ function Page() {
           description="Quando alguém se candidatar, aparece aqui para você aprovar ou recusar."
         />
       ) : (
-        <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+        <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
           {pg.pageItems.map((application) => (
             <li key={`${application.kind}-${application.id}`} className="flex items-center">
               {application.status === "pendente" ? (
@@ -208,7 +208,7 @@ function Page() {
                     : "/admin/candidaturas/$id"
                 }
                 params={{ id: application.id }}
-                className="row-hover flex min-w-0 flex-1 flex-wrap items-center gap-3 px-4 py-4"
+                className="row-hover flex min-w-0 flex-1 flex-wrap items-center gap-3 px-4 py-3"
               >
                 <div className="min-w-0 flex-1 basis-52">
                   <p className="truncate text-sm font-medium">{application.candidateAlias}</p>

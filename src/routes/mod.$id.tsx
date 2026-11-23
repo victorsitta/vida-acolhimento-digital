@@ -134,9 +134,9 @@ function Page() {
         actions={<StatusBadge status={r.status} />}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
-          <section className="rounded-2xl border bg-card p-5">
+          <section className="rounded-xl border bg-card p-4">
             <h2 className="text-sm font-semibold">Detalhes</h2>
             <p className="mt-2 text-sm text-muted-foreground text-pretty">{r.details}</p>
             <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -155,7 +155,7 @@ function Page() {
             </dl>
           </section>
 
-          <section className="rounded-2xl border bg-card p-5">
+          <section className="rounded-xl border bg-card p-4">
             <h2 className="text-sm font-semibold">Registro de decisão</h2>
             <Textarea
               className="mt-3"
@@ -212,7 +212,7 @@ function Page() {
         </div>
 
         <aside className="space-y-4">
-          <section className="rounded-2xl border bg-card p-5">
+          <section className="rounded-xl border bg-card p-4">
             <h2 className="text-sm font-semibold">Medidas de moderação</h2>
             <p className="mt-1 text-xs text-muted-foreground">Cada medida fica registrada nos logs.</p>
             <div className="mt-3 grid gap-2">
@@ -243,7 +243,7 @@ function Page() {
             </div>
           </section>
 
-          <section className="rounded-2xl border bg-card p-5">
+          <section className="rounded-xl border bg-card p-4">
             <h2 className="text-sm font-semibold">Ações</h2>
             <div className="mt-3 grid gap-2">
               <Confirm label="Marcar em análise" onConfirm={() => m.mutate("em_analise")} />
@@ -251,7 +251,7 @@ function Page() {
               <Confirm label="Arquivar" variant="outline" onConfirm={() => m.mutate("arquivado")} />
             </div>
           </section>
-          <section className="rounded-2xl border bg-card p-5">
+          <section className="rounded-xl border bg-card p-4">
             <h2 className="text-sm font-semibold">Histórico</h2>
             <ol className="mt-3 space-y-3 text-sm">
               {r.history.map((h, i) => (

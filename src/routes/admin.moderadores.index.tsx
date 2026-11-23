@@ -21,7 +21,7 @@ function Page() {
         title="Candidaturas a moderador"
         description="Aprovação exclusiva do administrador."
       />
-      <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+      <div className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
         {pg.pageItems.map((item) => (
           <Link
             key={item.id}

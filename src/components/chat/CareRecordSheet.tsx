@@ -275,7 +275,7 @@ export function CareRecordSheet({
             </Button>
           ) : (
             <form
-              className="space-y-4 rounded-2xl border bg-card p-4 shadow-sm"
+              className="space-y-4 rounded-xl border bg-card p-4 shadow-sm"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (summary.trim() && !add.isPending) add.mutate();
@@ -439,7 +439,7 @@ export function CareRecordSheet({
                 Não foi possível carregar o prontuário. Rode o SQL de prontuário no Supabase e tente de novo.
               </p>
             ) : records.length === 0 ? (
-              <div className="rounded-xl border border-dashed p-6 text-center">
+              <div className="rounded-xl border border-dashed p-4 text-center">
                 <ClipboardList className="mx-auto h-7 w-7 text-muted-foreground" />
                 <p className="mt-2 text-sm font-medium">Nenhum registro ainda</p>
                 <p className="text-xs text-muted-foreground">

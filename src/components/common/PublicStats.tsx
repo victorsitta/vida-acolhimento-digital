@@ -50,7 +50,7 @@ export function PublicStats() {
   ];
 
   return (
-    <section className="relative -mt-8 pb-6">
+    <section className="relative -mt-6 pb-6">
       <div className="mx-auto max-w-5xl px-6">
         <motion.ul
           initial={{ opacity: 0, y: 24 }}
@@ -65,7 +65,7 @@ export function PublicStats() {
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </span>
               <span className="min-w-0">
-                <span className="block font-display text-2xl font-semibold tabular-nums leading-none">
+                <span className="block font-display text-lg font-semibold tabular-nums leading-none">
                   <CountUp value={value} />
                 </span>
                 <span className="mt-1 block text-xs text-muted-foreground">{label}</span>

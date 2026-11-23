@@ -260,7 +260,7 @@ function Page() {
         </ChatRoom>
 
         <aside className="space-y-4">
-          <section className="rounded-2xl border bg-card p-4 shadow-soft">
+          <section className="rounded-xl border bg-card p-4 shadow-soft">
             <div className="flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-sm font-semibold">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -301,7 +301,7 @@ function Page() {
               ocorre apenas em denúncia ou risco, com justificativa e registro de auditoria.
             </p>
           </section>
-          <section className="rounded-2xl border bg-card p-4">
+          <section className="rounded-xl border bg-card p-4">
             <h2 className="text-sm font-semibold">Combinados do grupo</h2>
             <ul className="mt-3 space-y-2 text-xs text-muted-foreground">
               {group.data.rules.map((rule) => (

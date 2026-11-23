@@ -56,7 +56,7 @@ export function GettingStarted({ storageKey, title, items }: { storageKey: strin
   const pct = Math.round((doneCount / items.length) * 100);
 
   return (
-    <section className="mb-6 rounded-2xl border bg-card p-4 shadow-soft sm:p-5" aria-labelledby={`${storageKey}-t`}>
+    <section className="mb-4 rounded-xl border bg-card p-3 shadow-soft sm:p-4" aria-labelledby={`${storageKey}-t`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 id={`${storageKey}-t`} className="font-display text-base font-semibold">
@@ -80,7 +80,7 @@ export function GettingStarted({ storageKey, title, items }: { storageKey: strin
         <div className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-700" style={{ width: `${pct}%` }} />
       </div>
 
-      <ul className="stagger mt-4 grid gap-2 sm:grid-cols-2">
+      <ul className="stagger mt-3 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((i) => {
           const done = isDone(i);
           return (
@@ -89,13 +89,13 @@ export function GettingStarted({ storageKey, title, items }: { storageKey: strin
                 to={i.to as never}
                 onClick={() => !done && i.done === undefined && mark(i.id)}
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl border p-3 transition-all hover:-translate-y-0.5 hover:border-primary/50",
+                  "group flex items-center gap-2.5 rounded-lg border p-2 transition-all hover:-translate-y-0.5 hover:border-primary/50",
                   done ? "bg-success/5 opacity-70" : "bg-background/60",
                 )}
               >
                 <span
                   className={cn(
-                    "grid h-9 w-9 shrink-0 place-items-center rounded-lg",
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-lg",
                     done ? "bg-success/20 text-success" : "bg-primary/15 text-primary",
                   )}
                 >

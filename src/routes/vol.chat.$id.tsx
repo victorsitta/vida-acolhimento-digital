@@ -170,7 +170,7 @@ function Page() {
     return (
       <AppShell>
         <div className="mx-auto max-w-xl pt-8">
-          <div className="rounded-3xl border bg-card p-8 shadow-soft">
+          <div className="rounded-xl border bg-card p-4 shadow-soft">
             <h3 className="text-lg font-semibold">Registro do atendimento</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Descreva brevemente a acao tomada (sem dados sensiveis). Este registro fica salvo para consulta futura.

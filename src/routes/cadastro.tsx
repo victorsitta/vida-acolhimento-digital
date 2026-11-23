@@ -59,10 +59,10 @@ function Page() {
   });
   return (
     <AuthShell>
-      <h1 className="font-display text-3xl font-semibold tracking-tight">Criar conta</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight">Criar conta</h1>
       <p className="mt-2 text-sm text-muted-foreground">Leva menos de um minuto.</p>
 
-      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
+      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-6 space-y-4" noValidate>
         <Field label="Nome completo" id="name" error={errors.name?.message}>
           <IconInput id="name" icon={UserRound} autoComplete="name" placeholder="Seu nome" aria-invalid={!!errors.name} valid={!!watch("name") && !errors.name} {...register("name")} />
           <p className="mt-1 text-xs text-muted-foreground">

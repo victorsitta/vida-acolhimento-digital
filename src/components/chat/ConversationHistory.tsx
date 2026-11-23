@@ -169,10 +169,10 @@ export function ConversationHistory({
           description="Quando voluntários atenderem usuários, as conversas aparecem aqui."
         />
       ) : (
-        <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+        <ul className="divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
           {pg.pageItems.map((c) => (
             <li key={c.id} className="row-hover">
-              <div className="flex flex-wrap items-center gap-3 px-4 py-4">
+              <div className="flex flex-wrap items-center gap-3 px-4 py-3">
                 <button
                   type="button"
                   onClick={() => setOpen(c.id)}

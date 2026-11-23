@@ -57,7 +57,7 @@ function VolunteerCard({ s }: { s: Summary }) {
   const [all, setAll] = useState(false);
   const shown = all ? s.comments : s.comments.slice(0, 2);
   return (
-    <article className="card-lift rounded-3xl border bg-card p-5 shadow-soft">
+    <article className="card-lift rounded-xl border bg-card p-4 shadow-soft">
       <header className="flex items-start gap-3">
         <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/15 font-display text-lg font-semibold text-primary">
           {s.name.split(" ").filter(Boolean).map((p) => p[0]).slice(0, 2).join("").toUpperCase()}
@@ -157,7 +157,7 @@ export function VolunteerRatings({
         }
       />
 
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Nota média" icon={Star} tone="primary" value={total ? avg.toFixed(1).replace(".", ",") : "—"} hint={total ? "de 5 estrelas" : "Ainda sem avaliações"} />
         <StatCard label="Avaliações" icon={Smile} tone="info" value={String(total)} />
         <StatCard label="Notas 4 e 5" icon={ThumbsUp} tone="success" value={total ? `${good}%` : "—"} hint="Atendimentos bem avaliados" />

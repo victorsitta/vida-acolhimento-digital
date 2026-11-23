@@ -36,7 +36,7 @@ export function FilterChips<T extends string>({
             onClick={() => onChange(o.value)}
             aria-pressed={active}
             className={cn(
-              "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all",
               active
                 ? "border-primary bg-primary text-primary-foreground shadow-sm"
                 : "bg-background/70 text-muted-foreground hover:border-primary/50 hover:text-foreground",

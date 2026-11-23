@@ -78,7 +78,7 @@ function Page() {
           }}
         >
           {FIELDS.map((f) => (
-            <section key={f.key} className="rounded-2xl border bg-card p-5 shadow-soft">
+            <section key={f.key} className="rounded-xl border bg-card p-4 shadow-soft">
               <label htmlFor={f.key} className="font-display text-base font-semibold">
                 {f.title}
               </label>
@@ -87,7 +87,7 @@ function Page() {
             </section>
           ))}
 
-          <section className="rounded-2xl border bg-card p-5 shadow-soft">
+          <section className="rounded-xl border bg-card p-4 shadow-soft">
             <h2 className="font-display text-base font-semibold">5. Pessoas em quem eu confio</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">Quem posso chamar quando precisar? Até 5 pessoas.</p>
             <ul className="mt-3 space-y-2">
@@ -115,7 +115,7 @@ function Page() {
             )}
           </section>
 
-          <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
+          <section className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
             <h2 className="flex items-center gap-2 font-display text-base font-semibold">
               <HandHeart className="h-4 w-4 text-destructive" /> Se eu estiver em perigo agora
             </h2>

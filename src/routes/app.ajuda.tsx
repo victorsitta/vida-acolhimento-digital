@@ -38,14 +38,14 @@ function Page() {
       />
 
       <section aria-labelledby="ligue">
-        <h2 id="ligue" className="mb-3 font-display text-lg font-semibold">
+        <h2 id="ligue" className="mb-3 font-display text-base font-semibold">
           Ligue agora
         </h2>
         <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {CALLS.map((c) => (
-            <li key={c.num} className={`card-lift rounded-2xl border bg-card p-4 shadow-soft ${c.main ? "border-destructive/30" : ""}`}>
+            <li key={c.num} className={`card-lift rounded-xl border bg-card p-4 shadow-soft ${c.main ? "border-destructive/30" : ""}`}>
               <div className="flex items-start gap-3">
-                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${c.tone}`}>
+                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${c.tone}`}>
                   <c.icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -63,14 +63,14 @@ function Page() {
         </ul>
       </section>
 
-      <section className="mt-8" aria-labelledby="locais">
-        <h2 id="locais" className="mb-3 font-display text-lg font-semibold">
+      <section className="mt-6" aria-labelledby="locais">
+        <h2 id="locais" className="mb-3 font-display text-base font-semibold">
           Onde ir pessoalmente
         </h2>
         <ul className="stagger grid gap-3 md:grid-cols-3">
           {PLACES.map((p) => (
-            <li key={p.title} className="rounded-2xl border bg-card p-4 shadow-soft">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/15 text-primary">
+            <li key={p.title} className="rounded-xl border bg-card p-4 shadow-soft">
+              <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary/15 text-primary">
                 <p.icon className="h-5 w-5" aria-hidden="true" />
               </span>
               <h3 className="mt-3 text-sm font-semibold">{p.title}</h3>
@@ -80,7 +80,7 @@ function Page() {
         </ul>
       </section>
 
-      <section className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-gradient-to-br from-primary/10 to-transparent p-5">
+      <section className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-gradient-to-br from-primary/10 to-transparent p-4">
         <div>
           <p className="font-display text-base font-semibold">Quer um plano para os momentos difíceis?</p>
           <p className="text-sm text-muted-foreground">Monte o seu plano de segurança pessoal, só você vê.</p>

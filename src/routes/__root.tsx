@@ -42,7 +42,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="grid min-h-dvh place-items-center bg-background px-4">
       <div className="max-w-md text-center">
         <Illustration kind="oops" className="mx-auto h-44" />
-        <h1 className="mt-2 font-display text-2xl font-semibold">Algo deu errado</h1>
+        <h1 className="mt-2 font-display text-base font-semibold">Algo deu errado</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Não foi culpa sua. Tente de novo em alguns instantes. Se precisar de ajuda agora, ligue 188 (CVV) ou 192 (SAMU).
         </p>

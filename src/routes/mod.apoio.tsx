@@ -54,8 +54,8 @@ function Page() {
       ) : (
         <ul className="stagger space-y-3">
           {pg.pageItems.map((r) => (
-            <li key={r.id} className={cn("card-lift flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft", r.urgent && r.status === "aberto" && "border-destructive/40 bg-destructive/5")}>
-              <span className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-xl", r.urgent ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary")}>
+            <li key={r.id} className={cn("card-lift flex flex-wrap items-center gap-3 rounded-xl border bg-card p-4 shadow-soft", r.urgent && r.status === "aberto" && "border-destructive/40 bg-destructive/5")}>
+              <span className={cn("grid h-10 w-10 shrink-0 place-items-center rounded-lg", r.urgent ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary")}>
                 {r.urgent ? <Siren className="h-5 w-5" /> : <LifeBuoy className="h-5 w-5" />}
               </span>
               <div className="min-w-0 flex-1 basis-56">

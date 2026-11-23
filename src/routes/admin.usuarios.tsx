@@ -180,7 +180,7 @@ function Page() {
       </div>
       <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {pg.pageItems.map((u) => (
-          <li key={u.id} className="card-lift rounded-2xl border bg-card p-4 shadow-soft">
+          <li key={u.id} className="card-lift rounded-xl border bg-card p-4 shadow-soft">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 shrink-0">
                 <AvatarFallback>{u.initials}</AvatarFallback>

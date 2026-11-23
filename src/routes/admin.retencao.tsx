@@ -54,7 +54,7 @@ function Page() {
         }
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Mensagens de atendimento vencidas" icon={ShieldCheck} tone="primary" value={String(p?.chatMessages ?? 0)} hint={`Mais de ${RETENTION.chatDays} dias após encerrar`} />
         <StatCard label="Mensagens de grupos vencidas" icon={ShieldCheck} tone="info" value={String(p?.groupMessages ?? 0)} hint={`Mais de ${RETENTION.groupDays} dias`} />
         <StatCard label="Logs vencidos" icon={History} tone="accent" value={String(p?.logs ?? 0)} hint={`Mais de ${RETENTION.logDays} dias`} />
@@ -66,7 +66,7 @@ function Page() {
         {preview.isError && "Não foi possível consultar. Rode o SQL de retenção no Supabase."}
       </p>
 
-      <h2 className="mb-3 font-display text-lg font-semibold">Política que os usuários veem</h2>
+      <h2 className="mb-3 font-display text-base font-semibold">Política que os usuários veem</h2>
       <DataPolicy />
     </AppShell>
   );

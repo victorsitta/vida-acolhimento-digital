@@ -53,7 +53,7 @@ function Page() {
       </section>
 
       {groups.isError && (
-        <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-center">
+        <section className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-center">
           <p className="text-sm">Não foi possível carregar os grupos.</p>
           <Button className="mt-3" variant="outline" onClick={() => groups.refetch()}>
             Tentar novamente
@@ -67,14 +67,14 @@ function Page() {
         {pg.pageItems.map((group) => (
           <article
             key={group.id}
-            className="flex flex-col rounded-3xl border bg-card p-5 shadow-soft"
+            className="flex flex-col rounded-xl border bg-card p-4 shadow-soft"
           >
             <div className="flex items-start justify-between gap-3">
               <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium">
                 {group.topic}
               </span>
             </div>
-            <h2 className="mt-4 font-display text-xl font-semibold">{group.name}</h2>
+            <h2 className="mt-4 font-display text-base font-semibold">{group.name}</h2>
             <p className="mt-2 flex-1 text-sm text-muted-foreground">{group.description}</p>
             <div className="mt-5 flex items-center gap-2 text-xs text-muted-foreground">
               <UsersRound className="h-4 w-4" />

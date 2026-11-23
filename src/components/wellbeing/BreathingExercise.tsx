@@ -87,8 +87,8 @@ export function BreathingExercise() {
   const dur = running ? phase.seconds : 0.6;
 
   return (
-    <section className="rounded-3xl border bg-card p-5 shadow-soft sm:p-6" aria-labelledby="resp-title">
-      <h2 id="resp-title" className="font-display text-lg font-semibold">
+    <section className="rounded-xl border bg-card p-4 shadow-soft sm:p-5" aria-labelledby="resp-title">
+      <h2 id="resp-title" className="font-display text-base font-semibold">
         Respiração guiada
       </h2>
       <p className="text-sm text-muted-foreground">{tech.hint}</p>
@@ -131,7 +131,7 @@ export function BreathingExercise() {
           aria-hidden="true"
         />
         <div className="relative z-10 text-center" aria-live="polite">
-          <p className="font-display text-2xl font-semibold">{running ? phase.label : "Pronto?"}</p>
+          <p className="font-display text-base font-semibold">{running ? phase.label : "Pronto?"}</p>
           <p className="mt-1 font-display text-5xl font-semibold tabular-nums">{running ? left : "·"}</p>
         </div>
       </div>

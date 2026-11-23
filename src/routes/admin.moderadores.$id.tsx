@@ -32,7 +32,7 @@ function Page() {
         description="Promoção de voluntário para moderador"
       />
       {item && (
-        <div className="max-w-2xl rounded-2xl border bg-card p-6">
+        <div className="max-w-2xl rounded-xl border bg-card p-4">
           <p>
             <strong>Motivação:</strong> {item.motivation}
           </p>

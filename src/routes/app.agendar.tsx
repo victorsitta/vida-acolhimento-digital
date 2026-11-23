@@ -84,9 +84,9 @@ function Page() {
         description="Escolha um horário livre. O sistema escolhe um voluntário disponível e avisa vocês dois. Você recebe um lembrete antes de começar."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">
         <section aria-labelledby="proximas">
-          <h2 id="proximas" className="mb-3 font-display text-lg font-semibold">
+          <h2 id="proximas" className="mb-3 font-display text-base font-semibold">
             Próximas conversas
           </h2>
           {q.isPending ? (
@@ -99,10 +99,10 @@ function Page() {
                 const s = STATUS[a.status];
                 const d = new Date(a.startsAt);
                 return (
-                  <li key={a.id} className="card-lift flex flex-wrap items-center gap-3 rounded-2xl border bg-card p-4 shadow-soft">
+                  <li key={a.id} className="card-lift flex flex-wrap items-center gap-3 rounded-xl border bg-card p-4 shadow-soft">
                     <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-primary/15 text-center leading-none text-primary">
                       <div>
-                        <p className="font-display text-xl font-semibold">{d.getDate()}</p>
+                        <p className="font-display text-base font-semibold">{d.getDate()}</p>
                         <p className="text-[10px] font-semibold uppercase">{d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "")}</p>
                       </div>
                     </div>
@@ -129,7 +129,7 @@ function Page() {
 
           {past.length > 0 && (
             <>
-              <h3 className="mb-2 mt-8 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Anteriores</h3>
+              <h3 className="mb-2 mt-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Anteriores</h3>
               <ul className="space-y-2">
                 {past.map((a) => (
                   <li key={a.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card/60 px-4 py-2.5 text-sm">
@@ -142,15 +142,15 @@ function Page() {
           )}
         </section>
 
-        <section className="h-fit space-y-4 rounded-3xl border bg-card p-5 shadow-soft sm:p-6" aria-labelledby="escolher">
-          <h2 id="escolher" className="flex items-center gap-2 font-display text-lg font-semibold">
+        <section className="h-fit space-y-4 rounded-xl border bg-card p-4 shadow-soft sm:p-5" aria-labelledby="escolher">
+          <h2 id="escolher" className="flex items-center gap-2 font-display text-base font-semibold">
             <CalendarPlus className="h-5 w-5 text-primary" /> Escolha um horário
           </h2>
 
           {slots.isPending ? (
             <Skeleton className="h-40 w-full" />
           ) : days.length === 0 ? (
-            <div className="rounded-2xl border border-dashed p-5 text-center">
+            <div className="rounded-xl border border-dashed p-4 text-center">
               <p className="text-sm font-medium">Ainda não há horários disponíveis</p>
               <p className="mt-1 text-xs text-muted-foreground">Os voluntários definem quando podem atender. Volte mais tarde ou use Conversar agora.</p>
             </div>

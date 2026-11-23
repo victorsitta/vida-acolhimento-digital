@@ -72,14 +72,14 @@ function Page() {
         title="Privacidade & LGPD"
         description="Você controla o uso dos seus dados. Você pode revogar consentimentos a qualquer momento."
       />
-      <section className="mb-8 max-w-4xl">
-        <h2 className="mb-1 font-display text-lg font-semibold">O que guardamos e por quanto tempo</h2>
+      <section className="mb-5 max-w-4xl">
+        <h2 className="mb-1 font-display text-base font-semibold">O que guardamos e por quanto tempo</h2>
         <p className="mb-3 text-sm text-muted-foreground">Transparência total sobre os seus dados.</p>
         <DataPolicy />
       </section>
 
       <div className="max-w-2xl space-y-4">
-        <section className="rounded-2xl border bg-card p-5 shadow-soft">
+        <section className="rounded-xl border bg-card p-4 shadow-soft">
           <h2 className="font-semibold">Seus dados</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Baixe uma cópia dos seus dados ou peça a exclusão da sua conta. A exclusão é definitiva:

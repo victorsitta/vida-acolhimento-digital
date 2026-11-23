@@ -17,13 +17,13 @@ export const Route = createFileRoute("/como-funciona")({
 function Page() {
   return (
     <PublicLayout>
-      <div className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="font-display text-4xl font-semibold tracking-tight">Como funciona</h1>
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Como funciona</h1>
         <p className="mt-3 text-muted-foreground text-pretty">
           VIDA+ é uma plataforma simples e segura. Veja o passo a passo.
         </p>
 
-        <div className="mt-10 space-y-6">
+        <div className="mt-6 space-y-6">
           {[
             {
               t: "1. Crie sua conta",
@@ -46,7 +46,7 @@ function Page() {
               d: "Sua conversa fica no histórico (sem conteúdo das mensagens). Você pode avaliar a experiência.",
             },
           ].map((s) => (
-            <div key={s.t} className="rounded-2xl border bg-card p-6 shadow-soft">
+            <div key={s.t} className="rounded-xl border bg-card p-4 shadow-soft">
               <h2 className="text-lg font-semibold">{s.t}</h2>
               <p className="mt-1 text-sm text-muted-foreground text-pretty">{s.d}</p>
             </div>

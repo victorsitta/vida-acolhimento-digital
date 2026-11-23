@@ -55,13 +55,13 @@ function Tile({
     <Link
       to={to}
       className={cn(
-        "tile card-lift group flex items-center gap-3 rounded-2xl border p-4 shadow-soft",
+        "tile card-lift group flex items-center gap-2.5 rounded-xl border p-3 shadow-soft",
         featured ? "bg-gradient-to-br from-primary/90 to-primary/70 text-primary-foreground" : "bg-card",
       )}
     >
       <span
         className={cn(
-          "tile-icon grid h-11 w-11 shrink-0 place-items-center rounded-xl",
+          "tile-icon grid h-9 w-9 shrink-0 place-items-center rounded-lg",
           featured ? "bg-primary-foreground/20" : tone,
         )}
       >
@@ -111,7 +111,7 @@ function Page() {
             params={live ? { id: live.id } : undefined}
             className="card-lift mb-6 flex items-center gap-3 rounded-2xl border border-success/40 bg-success/10 p-4 shadow-soft"
           >
-            <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-success/20 text-success">
+            <span className="relative grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-success/20 text-success">
               <MessageCircleHeart className="h-5 w-5" />
               <span className="live-dot absolute -right-0.5 -top-0.5" aria-hidden="true" />
             </span>
@@ -140,12 +140,12 @@ function Page() {
         <Tile to="/app/bem-estar" icon={HeartPulse} title="Bem-estar" text="Humor, respiração e dicas" tone="bg-success/15 text-success" />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section aria-labelledby="recentes">
-          <h2 id="recentes" className="mb-3 font-display text-lg font-semibold">
+          <h2 id="recentes" className="mb-3 font-display text-base font-semibold">
             Atividade recente
           </h2>
-          <div className="overflow-hidden rounded-2xl border bg-card shadow-soft">
+          <div className="overflow-hidden rounded-xl border bg-card shadow-soft">
             {conv.isPending && (
               <div className="space-y-2 p-4" aria-label="Carregando atividade recente">
                 {[1, 2, 3].map((i) => (
@@ -155,7 +155,7 @@ function Page() {
             )}
             {!conv.isPending && recent.length === 0 && (
               <div className="flex flex-col items-center p-8 text-center">
-                <span className="float-y grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
+                <span className="float-y grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary ring-8 ring-primary/5">
                   <Inbox className="h-5 w-5" />
                 </span>
                 <p className="mt-3 text-sm font-medium">Sem conversas ainda</p>
@@ -187,14 +187,14 @@ function Page() {
         </section>
 
         <aside className="space-y-4">
-          <section className="rounded-2xl border bg-card p-4 shadow-soft">
+          <section className="rounded-xl border bg-card p-4 shadow-soft">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Lightbulb className="h-4 w-4 text-primary" /> Dica de hoje
             </p>
             <p className="mt-2 text-sm leading-relaxed text-pretty">{tip}</p>
           </section>
 
-          <section className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+          <section className="rounded-xl border border-destructive/20 bg-destructive/5 p-4">
             <p className="flex items-center gap-2 text-sm font-semibold">
               <Phone className="h-4 w-4 text-destructive" /> Precisa de ajuda agora?
             </p>

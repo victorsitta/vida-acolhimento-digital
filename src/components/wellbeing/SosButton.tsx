@@ -61,7 +61,7 @@ export function SosButton() {
               </Link>
             </Button>
 
-            <div className="rounded-2xl border bg-card p-4">
+            <div className="rounded-xl border bg-card p-4">
               <p className="flex items-center gap-2 text-sm font-semibold">
                 <Wind className="h-4 w-4 text-primary" /> Técnica 5-4-3-2-1 (voltar ao presente)
               </p>

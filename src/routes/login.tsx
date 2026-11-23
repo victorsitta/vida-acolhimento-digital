@@ -57,10 +57,10 @@ function Page() {
 
   return (
     <AuthShell>
-      <h1 className="font-display text-3xl font-semibold tracking-tight">Entrar</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight">Entrar</h1>
       <p className="mt-2 text-sm text-muted-foreground">Bem-vindo(a) de volta ao VIDA+.</p>
 
-      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
+      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-6 space-y-4" noValidate>
         <Field label="E-mail" id="email" error={errors.email?.message}>
           <IconInput
             id="email"
@@ -124,10 +124,10 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         aria-hidden="true"
       />
       <div className="relative z-10 w-full max-w-md fade-up">
-        <Link to="/" className="mb-8 flex justify-center" aria-label="VIDA+ — início">
+        <Link to="/" className="mb-5 flex justify-center" aria-label="VIDA+ — início">
           <Logo />
         </Link>
-        <div className="rounded-3xl border bg-card/90 p-7 shadow-soft backdrop-blur-xl sm:p-9">
+        <div className="rounded-xl border bg-card/90 p-4 shadow-soft backdrop-blur-xl sm:p-9">
           {children}
         </div>
         <p className="mt-6 text-center text-xs text-muted-foreground">

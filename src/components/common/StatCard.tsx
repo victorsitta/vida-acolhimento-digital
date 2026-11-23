@@ -71,7 +71,7 @@ export function StatCard({
   }[tone];
 
   return (
-    <div className="card-lift group relative overflow-hidden rounded-2xl border bg-card p-4 shadow-soft">
+    <div className="card-lift group relative overflow-hidden rounded-xl border bg-card p-3 shadow-soft">
       <div
         className={cn(
           "pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-60 blur-2xl transition-all duration-500 group-hover:scale-125 group-hover:opacity-100",
@@ -81,22 +81,22 @@ export function StatCard({
       />
       <div className="relative flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             {label}
           </p>
-          <p className="mt-1 font-display text-2xl font-semibold tabular-nums">
+          <p className="mt-0.5 font-display text-xl font-semibold tabular-nums leading-tight">
             <CountUp value={value} />
           </p>
-          {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+          {hint && <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground">{hint}</p>}
         </div>
         {Icon && (
           <span
             className={cn(
-              "grid h-9 w-9 shrink-0 place-items-center rounded-xl transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110",
+              "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110",
               toneClass,
             )}
           >
-            <Icon className="h-4 w-4" aria-hidden="true" />
+            <Icon className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
         )}
       </div>

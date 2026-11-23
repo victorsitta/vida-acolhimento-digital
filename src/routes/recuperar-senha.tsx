@@ -38,9 +38,9 @@ function Page() {
 
   return (
     <AuthShell>
-      <h1 className="font-display text-3xl font-semibold tracking-tight">Recuperar senha</h1>
+      <h1 className="font-display text-2xl font-semibold tracking-tight">Recuperar senha</h1>
       <p className="mt-2 text-sm text-muted-foreground">Enviaremos um link para o seu e-mail.</p>
-      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-8 space-y-4" noValidate>
+      <form onSubmit={handleSubmit((v) => m.mutate(v))} className="mt-6 space-y-4" noValidate>
         <Field label="E-mail" id="email" error={errors.email?.message}>
           <IconInput
             id="email"

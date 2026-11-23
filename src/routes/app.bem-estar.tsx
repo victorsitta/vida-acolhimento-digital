@@ -65,7 +65,7 @@ function Page() {
         </TabsList>
 
         <TabsContent value="hoje">
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <MoodCheckin />
             <BreathingExercise />
           </div>
@@ -78,8 +78,8 @@ function Page() {
         <TabsContent value="tecnicas">
           <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {TECHNIQUES.map((t) => (
-              <li key={t.title} className="card-lift rounded-2xl border bg-card p-4 shadow-soft">
-                <span className={`grid h-10 w-10 place-items-center rounded-xl ${t.tone}`}>
+              <li key={t.title} className="card-lift rounded-xl border bg-card p-4 shadow-soft">
+                <span className={`grid h-9 w-9 place-items-center rounded-lg ${t.tone}`}>
                   <t.icon className="h-5 w-5" aria-hidden="true" />
                 </span>
                 <h3 className="mt-3 text-sm font-semibold">{t.title}</h3>

@@ -23,7 +23,7 @@ function Page() {
   return (
     <AppShell>
       <PageHeader title="Preferências" description="Personalize a sua experiência." />
-      <div className="max-w-xl divide-y rounded-2xl border bg-card">
+      <div className="max-w-xl divide-y rounded-xl border bg-card">
         <Row
           id="theme"
           label="Modo escuro"
