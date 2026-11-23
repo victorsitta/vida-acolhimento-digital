@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { auditService, type AuditLog } from "@/services";
+import { logAudit } from "@/services/audit";
 import { fmtDateTime, fmtRelative } from "@/utils/format";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { cn } from "@/lib/utils";
@@ -59,15 +60,26 @@ const LABELS: Record<string, string> = {
   "relatorio.enviado": "Enviou relatório de voluntário",
   "relatorio.respondido": "Respondeu relatório de voluntário",
   "prontuario.criado": "Registrou no prontuário",
+  "prontuario.consultado": "Consultou um prontuário",
+  "prontuario.anexo_aberto": "Abriu um anexo do prontuário",
+  "atendimento.mensagem": "Enviou mensagem em atendimento",
+  "atendimento.conversa_lida": "Leu uma conversa de atendimento",
+  "grupo.mensagem": "Enviou mensagem em grupo",
+  "grupo.conversa_lida": "Leu a conversa de um grupo",
+  "login.anonimo": "Entrou como anônimo",
+  logout: "Saiu do sistema",
+  "cadastro.reenvio_confirmacao": "Pediu reenvio de confirmação",
+  "disponibilidade.alterada": "Alterou a disponibilidade",
+  "logs.exportado": "Exportou os logs",
 };
 
 const CATEGORIES: Array<{ value: string; label: string; prefix: string[] }> = [
   { value: "todos", label: "Todas as categorias", prefix: [] },
-  { value: "acesso", label: "Acesso e conta", prefix: ["login", "cadastro", "senha"] },
-  { value: "atendimento", label: "Atendimentos e fila", prefix: ["fila", "atendimento", "risco", "prontuario"] },
+  { value: "acesso", label: "Acesso e conta", prefix: ["login", "logout", "cadastro", "senha"] },
+  { value: "atendimento", label: "Atendimentos, fila e prontuário", prefix: ["fila", "atendimento", "risco", "prontuario", "disponibilidade"] },
   { value: "grupos", label: "Grupos", prefix: ["grupo"] },
   { value: "moderacao", label: "Denúncias e moderação", prefix: ["denuncia", "relatorio"] },
-  { value: "equipe", label: "Equipe e candidaturas", prefix: ["candidatura", "usuario"] },
+  { value: "equipe", label: "Equipe e candidaturas", prefix: ["candidatura", "usuario", "logs"] },
 ];
 
 function tone(action: string) {
@@ -84,6 +96,7 @@ function csvCell(v: unknown) {
 }
 
 function exportCsv(rows: AuditLog[]) {
+  void logAudit("logs.exportado", "logs", null, { linhas: rows.length });
   const head = ["Data", "Quem", "Papel", "Ação", "Entidade", "ID da entidade", "Detalhes"];
   const lines = rows.map((l) =>
     [

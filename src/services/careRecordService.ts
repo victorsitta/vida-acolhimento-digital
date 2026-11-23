@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { logAudit } from "./audit";
 import type { CareRecord, CareAttachment } from "@/types";
 
 const BUCKET = "prontuarios";
@@ -41,7 +42,10 @@ export const careRecordService = {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    if (!error) return (data || []).map(mapRecord);
+    if (!error) {
+      void logAudit("prontuario.consultado", "prontuario", userId, { registros: (data || []).length }, 5 * 60_000);
+      return (data || []).map(mapRecord);
+    }
 
     // fallback: RPC antiga (sem anexos/título)
     const { data: rpcData, error: rpcError } = await supabase.rpc("get_patient_care_history", {
@@ -83,6 +87,7 @@ export const careRecordService = {
     if (!supabase) throw new Error("Supabase indisponível");
     const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 600);
     if (error || !data?.signedUrl) throw new Error(error?.message || "Não foi possível abrir o anexo.");
+    void logAudit("prontuario.anexo_aberto", "prontuario", null, { arquivo: path.split("/").pop() });
     return data.signedUrl;
   },
 

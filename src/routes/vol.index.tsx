@@ -1,3 +1,4 @@
+import { Pager, usePagination } from "@/components/common/Pager";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, CheckCircle2, FileText, MessageCircle } from "lucide-react";
@@ -102,6 +103,8 @@ function Page() {
     queryKey: ["my-volunteer-reports"],
     queryFn: () => volunteerReportService.getMyReports(),
   });
+
+  const pgReports = usePagination(myReports.data ?? [], 5);
 
   const myConversations = useQuery({
     queryKey: ["my-conversations"],
@@ -326,7 +329,7 @@ function Page() {
         </div>
 
         <div className="divide-y rounded-2xl border bg-card">
-          {(myReports.data ?? []).map((r) => (
+          {pgReports.pageItems.map((r) => (
             <div key={r.id} className="p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-sm">{r.title}</p>
@@ -355,6 +358,7 @@ function Page() {
             </p>
           )}
         </div>
+        <Pager {...pgReports} onPageChange={pgReports.setPage} />
       </section>
       </AppShell>
   );

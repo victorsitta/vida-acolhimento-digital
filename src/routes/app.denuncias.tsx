@@ -1,3 +1,4 @@
+import { Pager, usePagination } from "@/components/common/Pager";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -54,6 +55,7 @@ function Page() {
   });
 
   const list = q.data ?? [];
+  const pg = usePagination(list, 5);
 
   return (
     <AppShell>
@@ -105,8 +107,8 @@ function Page() {
 
       {/* Lista de denúncias */}
       {list.length > 0 && (
-        <ul className="divide-y rounded-2xl border bg-card">
-          {list.map((r) => (
+        <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+          {pg.pageItems.map((r) => (
             <li key={r.id} className="px-4 py-5">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
                 <div className="min-w-0 space-y-1">
@@ -158,6 +160,7 @@ function Page() {
           ))}
         </ul>
       )}
+      <Pager {...pg} onPageChange={pg.setPage} />
 
       {/* Nota de privacidade */}
       <div className="mt-6 flex items-start gap-3 rounded-xl bg-muted/50 p-4">

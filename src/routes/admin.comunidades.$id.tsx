@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { Pager, usePagination } from "@/components/common/Pager";
 import { ChatBubble } from "@/components/chat/ChatBubble";
+import { TranscriptDialog } from "@/components/chat/TranscriptDialog";
+import { logAudit } from "@/services/audit";
 import {
   Mail,
   MessageCircle,
@@ -33,16 +36,14 @@ function Page() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const feedRef = useRef<HTMLDivElement>(null);
+  const [feedOpen, setFeedOpen] = useState(false);
   const group = useQuery({
     queryKey: ["admin-community", id],
     queryFn: () => adminCommunityService.get(id),
     refetchInterval: 5000,
   });
-  const messageCount = group.data?.messages.length ?? 0;
-  useEffect(() => {
-    feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight });
-  }, [messageCount]);
+  const pgMembers = usePagination(group.data?.members ?? [], 10);
+
   const member = useMutation({
     mutationFn: ({ userId, status }: { userId: string; status: "ativo" | "removido" }) =>
       adminCommunityService.updateMember(id, userId, status),
@@ -146,11 +147,11 @@ function Page() {
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
+      <div className="grid gap-8">
         <section>
           <h2 className="font-display text-xl font-semibold">Participantes</h2>
           <div className="mt-3 overflow-x-auto rounded-2xl border bg-card">
-            <table className="w-full min-w-[720px] text-sm">
+            <table className="w-full min-w-[640px] text-sm">
               <thead className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3">Pessoa</th>
@@ -161,7 +162,7 @@ function Page() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {group.data.members.map((item) => (
+                {pgMembers.pageItems.map((item) => (
                   <tr key={item.userId}>
                     <td className="px-4 py-3">
                       <p className="font-medium">{item.name}</p>
@@ -201,20 +202,43 @@ function Page() {
               </tbody>
             </table>
           </div>
+          <Pager {...pgMembers} onPageChange={pgMembers.setPage} />
         </section>
 
         <section>
-          <div className="flex items-end justify-between gap-3">
-            <h2 className="font-display text-xl font-semibold">Conversa do grupo</h2>
-            <span className="text-xs text-muted-foreground">
-              Atualiza sozinha · {group.data.messages.length} mensagens
-            </span>
+          <h2 className="font-display text-xl font-semibold">Conversa do grupo</h2>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border bg-card p-4 shadow-soft">
+            <div className="min-w-0">
+              <p className="text-sm font-medium">
+                {group.data.messages.length} mensagens ·{" "}
+                {group.data.members.filter((m) => m.status === "ativo").length} participantes
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                {group.data.messages.length
+                  ? `Última: ${group.data.messages[group.data.messages.length - 1].alias}, ${fmtDateTime(group.data.messages[group.data.messages.length - 1].createdAt)}`
+                  : "Ainda sem mensagens."}
+              </p>
+            </div>
+            <Button
+              className="gap-2"
+              onClick={() => {
+                setFeedOpen(true);
+                void logAudit("grupo.conversa_lida", "grupo", id, { mensagens: group.data?.messages.length ?? 0 }, 5 * 60_000);
+              }}
+            >
+              <MessageCircle className="h-4 w-4" /> Abrir conversa
+            </Button>
           </div>
-          <div
-            ref={feedRef}
-            className="mt-3 max-h-[60dvh] min-h-48 space-y-3 overflow-y-auto rounded-2xl border bg-card p-3 shadow-soft sm:p-4"
-            aria-live="polite"
-          >
+        </section>
+
+        <TranscriptDialog
+          open={feedOpen}
+          onOpenChange={setFeedOpen}
+          title={group.data.name}
+          subtitle="Atualiza sozinha. Você pode remover mensagens inadequadas."
+          scrollKey={group.data.messages.length}
+        >
+          <div className="space-y-3 px-3 sm:px-5" aria-live="polite">
             {group.data.messages.map((message) => (
               <ChatBubble
                 key={message.id}
@@ -243,7 +267,7 @@ function Page() {
               </p>
             )}
           </div>
-        </section>
+        </TranscriptDialog>
       </div>
     </AppShell>
   );

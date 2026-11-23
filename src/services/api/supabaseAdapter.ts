@@ -7,6 +7,7 @@
 
 import { supabase } from "@/lib/supabase";
 import { APP_URL } from "./client";
+import { logAudit } from "../audit";
 
 type Envelope<T> = {
   status: string;
@@ -153,6 +154,12 @@ async function handleInner<T>(
       }
       throw new Error(error.message);
     }
+    return ok({ ok: true }) as T;
+  }
+
+  if (cleanPath === "/auth/logout" && method === "POST") {
+    await logAudit("logout", "sessao");
+    await supabase.auth.signOut();
     return ok({ ok: true }) as T;
   }
 
@@ -1082,7 +1089,7 @@ async function handleInner<T>(
 
 // ───────────────────────── AUDITORIA ─────────────────────────
 const UUID = "[a-f0-9-]{36}";
-const AUDIT_RULES: Array<{ method: string; re: RegExp; action: string; entity: string }> = [
+const AUDIT_RULES: Array<{ method: string; re: RegExp; action: string; entity: string; skip?: (payload: any) => boolean }> = [
   { method: "POST", re: /^\/auth\/login$/, action: "login", entity: "sessao" },
   { method: "POST", re: /^\/auth\/register$/, action: "cadastro", entity: "usuario" },
   { method: "POST", re: /^\/auth\/password\/reset$/, action: "senha.recuperacao", entity: "usuario" },
@@ -1106,34 +1113,28 @@ const AUDIT_RULES: Array<{ method: string; re: RegExp; action: string; entity: s
   { method: "DELETE", re: new RegExp(`^/communities/admin/messages/(${UUID})$`), action: "grupo.mensagem_removida", entity: "mensagem" },
   { method: "POST", re: /^\/admin\/volunteers\/reports$/, action: "relatorio.enviado", entity: "relatorio" },
   { method: "POST", re: new RegExp(`^/admin/volunteers/reports/(${UUID})/respond$`), action: "relatorio.respondido", entity: "relatorio" },
+  { method: "POST", re: new RegExp(`^/conversations/(${UUID})/messages$`), action: "atendimento.mensagem", entity: "atendimento" },
+  { method: "POST", re: new RegExp(`^/communities/(${UUID})/messages$`), action: "grupo.mensagem", entity: "grupo" },
+  { method: "POST", re: /^\/auth\/anonymous$/, action: "login.anonimo", entity: "sessao" },
+  { method: "POST", re: /^\/auth\/resend-confirmation$/, action: "cadastro.reenvio_confirmacao", entity: "usuario" },
+  { method: "PATCH", re: /^\/admin\/volunteers\/availability$/, action: "disponibilidade.alterada", entity: "voluntario", skip: (p: any) => !!p?.heartbeat },
 ];
 
 function auditMetadata(payload: any): Record<string, unknown> {
   const keep = ["role", "status", "ban", "reason", "name", "decision", "level", "title", "targetType"];
   const meta: Record<string, unknown> = {};
   for (const k of keep) if (payload && payload[k] !== undefined) meta[k] = payload[k];
+  // mensagens: registra só o tamanho, nunca o conteúdo (privacidade)
+  if (typeof payload?.text === "string") meta.caracteres = payload.text.length;
   return meta;
 }
 
 async function writeAudit(cleanPath: string, method: string, payload: any) {
-  if (!supabase) return;
   const rule = AUDIT_RULES.find((r) => r.method === method && r.re.test(cleanPath));
-  if (!rule) return;
-  try {
-    const { data } = await supabase.auth.getSession();
-    const actor = data.session?.user?.id ?? null;
-    const m = cleanPath.match(rule.re);
-    const entityId = m && m[1] && /^[a-f0-9-]{36}$/i.test(m[1]) ? m[1] : null;
-    await supabase.from("audit_logs").insert({
-      actor_id: actor,
-      action: rule.action,
-      entity_type: rule.entity,
-      entity_id: entityId,
-      metadata_json: { ...auditMetadata(payload), path: cleanPath },
-    });
-  } catch {
-    // log nunca pode quebrar a ação do usuário
-  }
+  if (!rule || rule.skip?.(payload)) return;
+  const m = cleanPath.match(rule.re);
+  const entityId = m && m[1] && /^[a-f0-9-]{36}$/i.test(m[1]) ? m[1] : null;
+  await logAudit(rule.action, rule.entity, entityId, { ...auditMetadata(payload), path: cleanPath });
 }
 
 export async function handleSupabaseRequest<T>(

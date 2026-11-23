@@ -1,3 +1,4 @@
+import { Pager, usePagination } from "@/components/common/Pager";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ShieldCheck, UsersRound, Wifi } from "lucide-react";
@@ -27,6 +28,8 @@ function Page() {
     },
     onError: (error) => toast.error(error.message),
   });
+
+  const pg = usePagination(groups.data ?? [], 6);
 
   return (
     <AppShell>
@@ -61,7 +64,7 @@ function Page() {
       <div className="grid gap-4 md:grid-cols-2">
         {groups.isPending &&
           [1, 2, 3].map((item) => <Skeleton key={item} className="h-64 rounded-3xl" />)}
-        {(groups.data ?? []).map((group) => (
+        {pg.pageItems.map((group) => (
           <article
             key={group.id}
             className="flex flex-col rounded-3xl border bg-card p-5 shadow-soft"
@@ -101,6 +104,7 @@ function Page() {
           </article>
         ))}
       </div>
+      <Pager {...pg} onPageChange={pg.setPage} />
     </AppShell>
   );
 }

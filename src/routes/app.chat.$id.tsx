@@ -21,7 +21,8 @@ import type { ChatMessage } from "@/types";
 import { toast } from "sonner";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useChatRealtime } from "@/hooks/useChatRealtime";
-import { ChatBubble, ChatNotice } from "@/components/chat/ChatBubble";
+import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
+import { ChatRoom } from "@/components/chat/ChatRoom";
 
 export const Route = createFileRoute("/app/chat/$id")({
   head: () => ({ meta: [{ title: "Conversa — VIDA+" }] }),
@@ -154,137 +155,82 @@ function Page() {
     send.mutate({ text: t, replyToId: replyingTo?.id });
   };
 
+  const volunteerName = conversation.data?.volunteerAlias || "Voluntário";
+
   return (
     <AppShell>
-      <div className="-mx-4 -my-6 flex h-[calc(100dvh-56px)] flex-col md:-mx-8 md:-my-6 md:h-[calc(100dvh-72px)]">
-        {/* Status bar */}
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b bg-card px-4 py-3">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">
-              {conversation.data?.volunteerAlias
-                ? `VOLUNTARIO ${conversation.data.volunteerAlias.replace(/^voluntário$/i, "")}`.trim()
-                : "VOLUNTARIO"}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              Conversa em andamento · confidencial
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate({ to: "/app/denuncia" })}
-              className="h-9 gap-1.5 text-destructive"
-            >
-              <ShieldAlert className="h-4 w-4" />
-              <span className="hidden sm:inline">Denunciar</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setEndOpen(true)}
-              className="h-9 gap-1.5"
-            >
-              <X className="h-4 w-4" /> Encerrar
-            </Button>
-          </div>
-        </div>
-
-        {/* Privacy note */}
-        <p role="note" className="bg-muted/50 px-4 py-2 text-center text-xs text-muted-foreground">
-          Esta conversa é confidencial. VIDA+ oferece escuta, não diagnóstico médico.
-        </p>
-
-        {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4" aria-live="polite">
-          <div className="mx-auto flex max-w-2xl flex-col gap-2.5">
-            {(messages.data ?? []).map((m) => {
-              const replyToMessage = m.replyToId
-                ? (messages.data ?? []).find((msg) => msg.id === m.replyToId)
-                : undefined;
-              return (
-                <Bubble
-                  key={m.id}
-                  message={m}
-                  replyToMessage={replyToMessage}
-                  onRetry={() => send.mutate({ text: m.text, replyToId: m.replyToId })}
-                  onReply={() => setReplyingTo(m)}
-                />
-              );
-            })}
-            {messages.isPending && (
-              <p className="text-center text-xs text-muted-foreground">Carregando…</p>
-            )}
-          </div>
-        </div>
-
-        {/* Composer */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="border-t bg-card p-3 safe-bottom"
-        >
-          {isTyping && (
-            <div className="mx-auto mb-2 flex max-w-2xl items-center gap-2 rounded-xl bg-primary/10 px-3 py-1.5 text-xs text-primary animate-in fade-in slide-in-from-bottom-1">
-              <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" />
-              </span>
-              <span className="font-medium">{typingUser || "Voluntário"} está digitando...</span>
+      <ChatRoom
+        title={volunteerName}
+        subtitle="Conversa em andamento · confidencial"
+        avatarText={volunteerName}
+        onEnd={() => setEndOpen(true)}
+        endLabel="Encerrar conversa"
+        notice="Esta conversa é confidencial. VIDA+ oferece escuta, não diagnóstico médico."
+        scrollKey={(messages.data ?? []).length}
+        actions={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => navigate({ to: "/app/denuncia" })}
+            className="gap-1.5"
+          >
+            <ShieldAlert className="h-4 w-4 text-destructive" />
+            <span className="hidden sm:inline">Denunciar</span>
+          </Button>
+        }
+        typing={
+          isTyping ? (
+            <div className="mb-2">
+              <TypingDots label={`${typingUser || volunteerName} está digitando…`} />
             </div>
-          )}
-          {replyingTo && (
-            <div className="mx-auto mb-2 flex max-w-2xl items-center justify-between gap-2 rounded-xl border bg-muted/40 px-3 py-2 text-xs text-muted-foreground animate-in fade-in slide-in-from-bottom-1">
-              <div className="border-l-2 border-primary pl-2">
-                <span className="block font-semibold text-[10px] text-primary">
-                  Respondendo a {replyingTo.author === "user" ? "Você" : "Voluntário"}
+          ) : undefined
+        }
+        replyBar={
+          replyingTo ? (
+            <div className="mb-2 flex items-center justify-between rounded-xl border-l-2 border-primary bg-muted/60 px-3 py-2 text-xs animate-in fade-in slide-in-from-bottom-1">
+              <div className="min-w-0">
+                <span className="block font-semibold text-primary">
+                  Respondendo a {replyingTo.author === "user" ? "você" : volunteerName}
                 </span>
-                <span className="line-clamp-1">{replyingTo.text}</span>
+                <span className="line-clamp-1 text-muted-foreground">{replyingTo.text}</span>
               </div>
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 hover:bg-muted"
                 onClick={() => setReplyingTo(null)}
+                className="ml-2 text-muted-foreground hover:text-foreground"
+                aria-label="Cancelar resposta"
               >
-                <X className="h-3 w-3" />
-              </Button>
+                <X className="h-4 w-4" />
+              </button>
             </div>
-          )}
-          <div className="mx-auto flex max-w-2xl items-end gap-2">
-            <label htmlFor="msg" className="sr-only">
-              Mensagem
-            </label>
-            <textarea
-              id="msg"
-              value={text}
-              onChange={handleTextChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              rows={1}
-              placeholder="Escreva como está se sentindo…"
-              className="max-h-32 min-h-[44px] flex-1 resize-none rounded-2xl border bg-background px-4 py-3 text-base outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          ) : undefined
+        }
+        composer={{
+          value: text,
+          onChange: handleTextChange,
+          onSubmit: handleSend,
+          placeholder: "Escreva como está se sentindo…",
+        }}
+      >
+        {messages.isPending && (
+          <p className="text-center text-xs text-muted-foreground">Carregando…</p>
+        )}
+        {(messages.data ?? []).map((m) => {
+          const replyToMessage = m.replyToId
+            ? (messages.data ?? []).find((msg) => msg.id === m.replyToId)
+            : undefined;
+          return (
+            <Bubble
+              key={m.id}
+              message={m}
+              replyToMessage={replyToMessage}
+              onRetry={() => send.mutate({ text: m.text, replyToId: m.replyToId })}
+              onReply={() => setReplyingTo(m)}
             />
-            <Button
-              type="submit"
-              size="icon"
-              className="h-11 w-11 shrink-0"
-              aria-label="Enviar mensagem"
-              disabled={!text.trim()}
-            >
-              <Send className="h-5 w-5" />
-            </Button>
-          </div>
-        </form>
-      </div>
+          );
+        })}
+      </ChatRoom>
 
       <AlertDialog open={endOpen} onOpenChange={setEndOpen}>
         <AlertDialogContent>

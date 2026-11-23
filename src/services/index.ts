@@ -468,10 +468,14 @@ export const volunteerService = {
     const data = await apiData<any[]>("/admin/volunteers");
     return data.map(mapVolunteer);
   },
-  async setStatus(_id: string, status: VolunteerStatus): Promise<{ status: VolunteerStatus }> {
+  async setStatus(
+    _id: string,
+    status: VolunteerStatus,
+    heartbeat = false,
+  ): Promise<{ status: VolunteerStatus }> {
     await apiData<unknown>("/admin/volunteers/availability", {
       method: "PATCH",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, heartbeat }),
     });
     return { status };
   },

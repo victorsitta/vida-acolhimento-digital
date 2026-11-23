@@ -11,7 +11,8 @@ import { fmtRelative } from "@/utils/format";
 import { cn } from "@/lib/utils";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useCommunityRealtime } from "@/hooks/useCommunityRealtime";
-import { ChatBubble } from "@/components/chat/ChatBubble";
+import { ChatBubble, TypingDots } from "@/components/chat/ChatBubble";
+import { ChatRoom } from "@/components/chat/ChatRoom";
 import { useProfile } from "@/contexts/ProfileContext";
 import { Input } from "@/components/ui/input";
 import {
@@ -151,45 +152,44 @@ function Page() {
   return (
     <AppShell>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-        <section className="overflow-hidden rounded-3xl border bg-card shadow-soft">
-          <header className="border-b bg-secondary/30 p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <Link
-                  to="/app/comunidades"
-                  className="text-xs font-medium text-primary hover:underline"
-                >
-                  ← Todos os grupos
-                </Link>
-                <h1 className="mt-2 font-display text-2xl font-semibold">{group.data.name}</h1>
-                <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <UsersRound className="h-3.5 w-3.5" />
-                    {group.data.memberCount} participantes
-                  </span>
-                  <span>·</span>
-                  <span className="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
-                    <Wifi className="h-3.5 w-3.5 text-emerald-500" />
-                    {onlineCount || 1} online
-                  </span>
-                  <span>·</span>
-                  <span>
-                    você é <strong className="text-foreground">{group.data.myAlias}</strong>
-                  </span>
-                </p>
+        <ChatRoom
+          className="h-[calc(100dvh-13rem)]"
+          title={group.data.name}
+          avatarText={group.data.name}
+          back={
+            <Link to="/app/comunidades" className="hover:underline">
+              ← Todos os grupos
+            </Link>
+          }
+          subtitle={
+            <>
+              {group.data.memberCount} participantes · {onlineCount || 1} online · você é{" "}
+              <strong className="text-foreground">{group.data.myAlias}</strong>
+            </>
+          }
+          onEnd={() => leave.mutate()}
+          endLabel="Sair do grupo"
+          scrollKey={(messages.data ?? []).length}
+          typing={
+            isTyping ? (
+              <div className="mb-2">
+                <TypingDots label={typingText} />
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => leave.mutate()}
-                aria-label="Sair do grupo"
-              >
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </div>
-          </header>
-
-          <div ref={scrollRef} className="h-[55dvh] min-h-80 space-y-3 overflow-y-auto p-3 sm:p-5">
+            ) : undefined
+          }
+          composer={{
+            value: text,
+            onChange: handleTextChange,
+            onSubmit: () => {
+              const message = text.trim();
+              if (message) send.mutate(message);
+            },
+            sending: send.isPending,
+            disabled: !group.data.joined,
+            placeholder: `Escreva como ${group.data.myAlias}...`,
+            hint: "Não compartilhe nome, telefone, endereço ou redes sociais.",
+          }}
+        >
             {(messages.data ?? []).map((message) => (
               <ChatBubble
                 key={message.id}
@@ -254,38 +254,7 @@ function Page() {
                 Ainda não há mensagens. Você pode começar com um oi.
               </p>
             )}
-          </div>
-
-          <form onSubmit={submit} className="border-t p-3 sm:p-4">
-            {isTyping && (
-              <div className="mb-2 flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-1.5 text-xs text-primary animate-in fade-in slide-in-from-bottom-1">
-                <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.3s]" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary [animation-delay:-0.15s]" />
-                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-primary" />
-                </span>
-                <span className="font-medium">{typingText}</span>
-              </div>
-            )}
-            <div className="flex items-end gap-2">
-              <Textarea
-                value={text}
-                onChange={handleTextChange}
-                placeholder={`Escreva como ${group.data.myAlias}...`}
-                rows={2}
-                maxLength={2000}
-                disabled={!group.data.joined}
-              />
-              <Button type="submit" size="icon" disabled={!text.trim() || send.isPending}>
-                <Send className="h-4 w-4" />
-                <span className="sr-only">Enviar</span>
-              </Button>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Não compartilhe nome, telefone, endereço ou redes sociais.
-            </p>
-          </form>
-        </section>
+        </ChatRoom>
 
         <aside className="space-y-4">
           <section className="rounded-2xl border bg-card p-4 shadow-soft">

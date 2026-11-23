@@ -1,17 +1,19 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp, Inbox, MessageCircle, Search, Star } from "lucide-react";
+import { Inbox, MessageCircle, Search, Star } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { ChatBubble, ChatNotice } from "@/components/chat/ChatBubble";
+import { TranscriptDialog } from "@/components/chat/TranscriptDialog";
 import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
 import { Pager, usePagination } from "@/components/common/Pager";
 import { Input } from "@/components/ui/input";
 import { chatService } from "@/services";
+import { logAudit } from "@/services/audit";
 import { fmtDateTime } from "@/utils/format";
 import type { Conversation } from "@/types";
 import { cn } from "@/lib/utils";
@@ -52,7 +54,11 @@ function Rating({ conversationId, value }: { conversationId: string; value?: num
 function Transcript({ conversation }: { conversation: Conversation }) {
   const q = useQuery({
     queryKey: ["messages", conversation.id],
-    queryFn: () => chatService.getMessages(conversation.id),
+    queryFn: async () => {
+      const list = await chatService.getMessages(conversation.id);
+      void logAudit("atendimento.conversa_lida", "atendimento", conversation.id, { mensagens: list.length }, 5 * 60_000);
+      return list;
+    },
   });
   if (q.isPending) return <p className="px-4 pb-4 text-sm text-muted-foreground">Carregando…</p>;
   const list = q.data ?? [];
@@ -141,9 +147,9 @@ export function ConversationHistory({
               <div className="flex flex-wrap items-center gap-3 px-4 py-4">
                 <button
                   type="button"
-                  onClick={() => setOpen(open === c.id ? null : c.id)}
+                  onClick={() => setOpen(c.id)}
                   className="min-w-0 flex-1 basis-48 text-left"
-                  aria-expanded={open === c.id}
+                  aria-haspopup="dialog"
                 >
                   <p className="truncate text-sm font-medium">
                     {c.userAlias} <span className="text-muted-foreground">↔</span>{" "}
@@ -177,19 +183,42 @@ export function ConversationHistory({
                     />
                   )}
                   <StatusBadge status={c.status} />
-                  {open === c.id ? (
-                    <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => setOpen(c.id)}
+                  >
+                    <MessageCircle className="h-4 w-4" /> Abrir conversa
+                  </Button>
                 </div>
               </div>
-              {open === c.id && <Transcript conversation={c} />}
             </li>
           ))}
         </ul>
       )}
       <Pager {...pg} onPageChange={pg.setPage} />
+
+      {(() => {
+        const c = (q.data ?? []).find((x) => x.id === open);
+        return (
+          <TranscriptDialog
+            open={!!c}
+            onOpenChange={(o) => !o && setOpen(null)}
+            title={c ? `${c.userAlias} ↔ ${c.volunteerAlias ?? "sem voluntário"}` : ""}
+            subtitle={c ? `Iniciada em ${fmtDateTime(c.startedAt)}` : undefined}
+            scrollKey={c?.id}
+            actions={
+              c && resume !== "app" ? (
+                <CareRecordSheet userId={c.userId} userAlias={c.userAlias} conversationId={c.id} />
+              ) : undefined
+            }
+          >
+            {c && <Transcript conversation={c} />}
+          </TranscriptDialog>
+        );
+      })()}
     </>
   );
 }

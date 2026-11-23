@@ -22,6 +22,7 @@ import { useChatRealtime } from "@/hooks/useChatRealtime";
 import { http } from "@/services/api/client";
 import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
 import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
+import { ChatRoom } from "@/components/chat/ChatRoom";
 
 export const Route = createFileRoute("/vol/chat/$id")({
   head: () => ({ meta: [{ title: "Atendimento — VIDA+" }] }),
@@ -206,44 +207,35 @@ function Page() {
 
   return (
     <AppShell>
-      <div className="mx-auto flex max-w-2xl flex-col gap-3 pb-8">
-        <div className="flex h-[calc(100dvh-13rem)] min-h-[26rem] flex-col overflow-hidden rounded-3xl border bg-card shadow-soft">
-          {/* Cabeçalho */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-gradient-to-b from-primary/10 to-transparent px-4 py-3 sm:px-5">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                {personInitials}
-                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{personAlias}</p>
-                <p className="text-xs text-muted-foreground">
-                  em atendimento · você pode sair e voltar quando quiser
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CareRecordSheet
-                userId={conversation.data?.userId}
-                userAlias={conversation.data?.userAlias}
-                conversationId={id}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => setShowRisk(!showRisk)}
-                aria-label="Sinalizar risco"
-                aria-expanded={showRisk}
-              >
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Painel de risco */}
-          {showRisk && (
+      <ChatRoom
+        title={personAlias}
+        subtitle="em atendimento · você pode sair e voltar quando quiser"
+        avatarText={personAlias}
+        onEnd={() => setEnded(true)}
+        endLabel="Encerrar atendimento"
+        scrollKey={(messages.data ?? []).length}
+        actions={
+          <>
+            <CareRecordSheet
+              userId={conversation.data?.userId}
+              userAlias={conversation.data?.userAlias}
+              conversationId={id}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5"
+              onClick={() => setShowRisk(!showRisk)}
+              aria-expanded={showRisk}
+            >
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
+              <span className="hidden sm:inline">Risco</span>
+            </Button>
+          </>
+        }
+        panel={
+          showRisk ? (
             <div className="space-y-2 border-b bg-muted/40 px-4 py-4 animate-in fade-in slide-in-from-top-2 sm:px-5">
               <p className="flex items-center gap-2 text-sm font-semibold">
                 <AlertTriangle className="h-4 w-4 text-amber-500" /> Sinalizar risco
@@ -266,129 +258,79 @@ function Page() {
                 placeholder="Descreva o sinal observado..."
                 className="resize-none"
               />
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1"
-                  disabled={riskReason.trim().length < 5 || flagRisk.isPending}
-                  onClick={() => flagRisk.mutate()}
-                >
-                  {flagRisk.isPending ? "Registrando..." : "Registrar sinalização"}
-                </Button>
-                <Button size="sm" variant="destructive" className="flex-1" onClick={() => setEnded(true)}>
-                  Encerrar atendimento
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Mensagens */}
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto px-3 py-4 sm:px-5"
-            aria-live="polite"
-          >
-            <div className="flex flex-col gap-3">
-              {messages.isPending && (
-                <p className="pt-8 text-center text-xs text-muted-foreground">Carregando conversa…</p>
-              )}
-              {(messages.data ?? []).map((message) => {
-                if (message.author === "system") {
-                  return <ChatNotice key={message.id}>{message.text}</ChatNotice>;
-                }
-                const replyToMessage = message.replyToId
-                  ? (messages.data ?? []).find((msg) => msg.id === message.replyToId)
-                  : undefined;
-                return (
-                  <ChatBubble
-                    key={message.id}
-                    mine={message.author === "user"}
-                    text={message.text}
-                    createdAt={message.createdAt}
-                    name={message.author === "user" ? undefined : personAlias}
-                    showAvatar
-                    status={message.status}
-                    reply={
-                      replyToMessage
-                        ? {
-                            author: replyToMessage.author === "user" ? "Você" : personAlias,
-                            text: replyToMessage.text,
-                          }
-                        : undefined
-                    }
-                    onReply={() => setReplyingTo(message)}
-                  />
-                );
-              })}
-              {isTyping && <TypingDots label={`${typingUser || personAlias} está digitando…`} />}
-            </div>
-          </div>
-
-          {/* Composer */}
-          <div className="border-t bg-card px-3 py-3 sm:px-4">
-            {replyingTo && (
-              <div className="mb-2 flex items-center justify-between rounded-xl border-l-2 border-primary bg-muted/60 px-3 py-2 text-xs animate-in fade-in slide-in-from-bottom-1">
-                <div className="min-w-0">
-                  <span className="block font-semibold text-primary">
-                    Respondendo a {replyingTo.author === "user" ? "você" : personAlias}
-                  </span>
-                  <span className="line-clamp-1 text-muted-foreground">{replyingTo.text}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setReplyingTo(null)}
-                  className="ml-2 text-muted-foreground hover:text-foreground"
-                  aria-label="Cancelar resposta"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const value = text.trim();
-                if (value) send.mutate({ text: value, replyToId: replyingTo?.id });
-              }}
-              className="flex items-end gap-2"
-            >
-              <label htmlFor="volunteer-message" className="sr-only">
-                Mensagem
-              </label>
-              <Textarea
-                id="volunteer-message"
-                rows={1}
-                value={text}
-                onChange={handleTextChange}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    const value = text.trim();
-                    if (value) send.mutate({ text: value, replyToId: replyingTo?.id });
-                  }
-                }}
-                placeholder="Escreva uma mensagem…"
-                className="max-h-32 min-h-10 flex-1 resize-none rounded-2xl"
-              />
-              <Button type="submit" disabled={!text.trim() || send.isPending} className="h-10 rounded-2xl px-5">
-                Enviar
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full"
+                disabled={riskReason.trim().length < 5 || flagRisk.isPending}
+                onClick={() => flagRisk.mutate()}
+              >
+                {flagRisk.isPending ? "Registrando..." : "Registrar sinalização"}
               </Button>
-            </form>
-          </div>
-        </div>
-
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-muted-foreground hover:text-destructive"
-            onClick={() => setEnded(true)}
-          >
-            Encerrar atendimento
-          </Button>
-        </div>
-      </div>
+            </div>
+          ) : undefined
+        }
+        typing={isTyping ? <div className="mb-2"><TypingDots label={`${typingUser || personAlias} está digitando…`} /></div> : undefined}
+        replyBar={
+          replyingTo ? (
+            <div className="mb-2 flex items-center justify-between rounded-xl border-l-2 border-primary bg-muted/60 px-3 py-2 text-xs animate-in fade-in slide-in-from-bottom-1">
+              <div className="min-w-0">
+                <span className="block font-semibold text-primary">
+                  Respondendo a {replyingTo.author === "user" ? "você" : personAlias}
+                </span>
+                <span className="line-clamp-1 text-muted-foreground">{replyingTo.text}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReplyingTo(null)}
+                className="ml-2 text-muted-foreground hover:text-foreground"
+                aria-label="Cancelar resposta"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ) : undefined
+        }
+        composer={{
+          value: text,
+          onChange: handleTextChange,
+          onSubmit: () => send.mutate({ text: text.trim(), replyToId: replyingTo?.id }),
+          sending: send.isPending,
+          placeholder: "Escreva uma mensagem…",
+        }}
+      >
+        {messages.isPending && (
+          <p className="pt-8 text-center text-xs text-muted-foreground">Carregando conversa…</p>
+        )}
+        {(messages.data ?? []).map((message) => {
+          if (message.author === "system") {
+            return <ChatNotice key={message.id}>{message.text}</ChatNotice>;
+          }
+          const replyToMessage = message.replyToId
+            ? (messages.data ?? []).find((msg) => msg.id === message.replyToId)
+            : undefined;
+          return (
+            <ChatBubble
+              key={message.id}
+              mine={message.author === "user"}
+              text={message.text}
+              createdAt={message.createdAt}
+              name={message.author === "user" ? undefined : personAlias}
+              showAvatar
+              status={message.status}
+              reply={
+                replyToMessage
+                  ? {
+                      author: replyToMessage.author === "user" ? "Você" : personAlias,
+                      text: replyToMessage.text,
+                    }
+                  : undefined
+              }
+              onReply={() => setReplyingTo(message)}
+            />
+          );
+        })}
+      </ChatRoom>
     </AppShell>
   );
 }

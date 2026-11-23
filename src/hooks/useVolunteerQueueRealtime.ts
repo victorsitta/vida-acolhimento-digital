@@ -82,7 +82,7 @@ export function useVolunteerQueueRealtime(enabled = true) {
     const timer = window.setInterval(refetchQueue, 5000);
 
     // presença real: enquanto a tela está aberta, o voluntário conta como disponível
-    const beat = () => volunteerService.setStatus("me", "online").catch(() => {});
+    const beat = () => volunteerService.setStatus("me", "online", true).catch(() => {});
     beat();
     const heartbeat = window.setInterval(beat, 30000);
 
