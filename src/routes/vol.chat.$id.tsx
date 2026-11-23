@@ -24,6 +24,7 @@ import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
 import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
 import { ChatRoom } from "@/components/chat/ChatRoom";
 import { QuickReplies } from "@/components/chat/QuickReplies";
+import { SupervisorButton } from "@/components/chat/SupervisorDialog";
 import { detectRisk } from "@/lib/risk";
 
 export const Route = createFileRoute("/vol/chat/$id")({
@@ -227,6 +228,7 @@ function Page() {
               userAlias={conversation.data?.userAlias}
               conversationId={id}
             />
+            <SupervisorButton conversationId={id} />
             <Button
               type="button"
               variant="outline"

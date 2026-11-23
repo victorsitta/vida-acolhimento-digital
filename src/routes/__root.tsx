@@ -9,20 +9,22 @@ import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PwaManager } from "@/components/pwa/PwaManager";
 import { Toaster } from "@/components/ui/sonner";
 import { GlobalTooltips } from "@/components/common/GlobalTooltips";
+import { Illustration } from "@/components/common/Illustration";
 import { applyA11y, loadA11y } from "@/lib/a11y";
 
 function NotFoundComponent() {
   return (
     <div className="grid min-h-dvh place-items-center bg-background px-4">
       <div className="max-w-md text-center">
-        <p className="font-display text-7xl font-semibold text-primary">404</p>
-        <h1 className="mt-3 text-xl font-semibold">Página não encontrada</h1>
+        <Illustration kind="lost" className="mx-auto h-44" />
+        <p className="mt-2 font-display text-6xl font-semibold text-primary">404</p>
+        <h1 className="mt-2 text-xl font-semibold">Página não encontrada</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          A página que você procura não existe ou foi movida.
+          A página que você procura não existe ou foi movida. Mas você não está perdido(a): vamos voltar.
         </p>
         <Link
           to="/"
-          className="mt-6 inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+          className="mt-6 inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground shadow-md transition hover:opacity-90"
         >
           Voltar para o início
         </Link>
@@ -39,19 +41,22 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="grid min-h-dvh place-items-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-xl font-semibold">Algo deu errado</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Tente novamente em alguns instantes.</p>
+        <Illustration kind="oops" className="mx-auto h-44" />
+        <h1 className="mt-2 font-display text-2xl font-semibold">Algo deu errado</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Não foi culpa sua. Tente de novo em alguns instantes. Se precisar de ajuda agora, ligue 188 (CVV) ou 192 (SAMU).
+        </p>
         <div className="mt-6 flex justify-center gap-2">
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90"
+            className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md hover:opacity-90"
           >
             Tentar de novo
           </button>
-          <a href="/" className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted">
+          <a href="/" className="rounded-full border px-5 py-2.5 text-sm font-medium hover:bg-muted">
             Ir para o início
           </a>
         </div>

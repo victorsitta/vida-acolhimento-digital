@@ -24,6 +24,7 @@ import { useChatRealtime } from "@/hooks/useChatRealtime";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
+import { celebrate } from "@/lib/celebrate";
 import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
 import { ChatRoom } from "@/components/chat/ChatRoom";
 
@@ -82,6 +83,7 @@ function Page() {
   const rate = useMutation({
     mutationFn: () => chatService.rate(id, stars, comment.trim() || undefined),
     onSuccess: () => {
+      if (stars === 5) celebrate();
       toast.success("Obrigado pela avaliação!");
       setRateOpen(false);
       navigate({ to: "/app/historico" });

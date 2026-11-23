@@ -144,7 +144,7 @@ export function MyReports({ newReportTo = "/app/denuncia" }: { newReportTo?: str
       )}
 
       {!q.isPending && list.length === 0 && (
-        <EmptyState icon={ShieldAlert} title="Nenhuma denúncia enviada" description="Quando você enviar uma denúncia, ela aparece aqui com o andamento." />
+        <EmptyState icon={ShieldAlert} illustration="calm" title="Nenhuma denúncia enviada" description="Quando você enviar uma denúncia, ela aparece aqui com o andamento." />
       )}
 
       <ul className="stagger space-y-3">

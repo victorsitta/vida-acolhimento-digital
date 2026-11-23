@@ -164,6 +164,7 @@ export function ConversationHistory({
       ) : list.length === 0 ? (
         <EmptyState
           icon={Inbox}
+          illustration="chat"
           title="Nenhuma conversa encontrada"
           description="Quando voluntários atenderem usuários, as conversas aparecem aqui."
         />

@@ -8,6 +8,7 @@
 import { supabase } from "@/lib/supabase";
 import { APP_URL } from "./client";
 import { logAudit } from "../audit";
+import { handleFeatureRequest } from "./featuresAdapter";
 
 type Envelope<T> = {
   status: string;
@@ -74,6 +75,10 @@ async function handleInner<T>(
 
   const cleanPath = path.replace(/^\/api/, "").replace(/\/$/, "");
   const payload = typeof body === "string" ? JSON.parse(body || "{}") : body || {};
+
+  // 0. Funcionalidades de cuidado (plano de segurança, apoio, agenda, trilhas)
+  const featureResult = await handleFeatureRequest(cleanPath, method, payload);
+  if (featureResult !== undefined) return featureResult as T;
 
   // 1. AUTH
   if (cleanPath === "/auth/login" && method === "POST") {

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { wellbeingService, type MoodEntry } from "@/services";
 import { cn } from "@/lib/utils";
+import { celebrate } from "@/lib/celebrate";
 
 export const MOODS = [
   { value: 1, emoji: "😞", label: "Muito mal", bar: "bg-destructive/70" },
@@ -56,23 +57,29 @@ function streakOf(entries: MoodEntry[]) {
 export function MoodCheckin() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["mood"], queryFn: wellbeingService.list, retry: false });
+  const entries = q.data ?? [];
+  const streak = streakOf(entries);
+  const todayDone = lastDays(entries)[6].avg !== null;
   const [picked, setPicked] = useState<number | null>(null);
   const [note, setNote] = useState("");
 
   const save = useMutation({
     mutationFn: () => wellbeingService.save(picked!, note.trim() || undefined),
     onSuccess: () => {
-      toast.success("Check-in registrado. Obrigado por se cuidar 💛");
+      const next = streak + (todayDone ? 0 : 1);
+      if (!todayDone && [3, 7, 14, 30].includes(next)) {
+        celebrate();
+        toast.success(`${next} dias seguidos cuidando de você! 🎉`);
+      } else {
+        toast.success("Check-in registrado. Obrigado por se cuidar 💛");
+      }
       setNote("");
       qc.invalidateQueries({ queryKey: ["mood"] });
     },
     onError: (e: any) => toast.error(e?.message || "Não foi possível registrar. Tente de novo."),
   });
 
-  const entries = q.data ?? [];
   const week = lastDays(entries);
-  const streak = streakOf(entries);
-  const todayDone = week[week.length - 1].avg !== null;
   const lowToday = (picked ?? 0) > 0 && (picked ?? 0) <= 2;
 
   return (

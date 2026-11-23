@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { celebrate } from "@/lib/celebrate";
 
 type Phase = { id: "in" | "hold" | "out"; label: string; seconds: number; scale: number };
 
@@ -50,6 +51,10 @@ export function BreathingExercise() {
   const timer = useRef<number | null>(null);
 
   const phase = tech.phases[step % tech.phases.length];
+
+  useEffect(() => {
+    if (cycles === 3) celebrate();
+  }, [cycles]);
 
   useEffect(() => {
     if (!running) return;

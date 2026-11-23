@@ -1,5 +1,11 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
+  Award,
+  CalendarClock,
+  FileBarChart,
+  LifeBuoy,
+  ShieldHalf,
+  Sparkles,
   ShieldCheck,
   HeartPulse,
   Star,
@@ -28,6 +34,7 @@ import { AccessibilityMenu } from "@/components/common/AccessibilityMenu";
 import { NotificationBell } from "@/components/common/NotificationBell";
 import { SosButton } from "@/components/wellbeing/SosButton";
 import { CommandPalette } from "@/components/common/CommandPalette";
+import { WelcomeCarousel } from "@/components/common/WelcomeCarousel";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { ProfileSwitcher } from "@/components/common/ProfileSwitcher";
 import { InstallButton } from "@/components/pwa/InstallButton";
@@ -49,6 +56,10 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/app/conversar", label: "Conversar", icon: MessageCircle },
     { to: "/app/comunidades", label: "Grupos", icon: UsersRound },
     { to: "/app/bem-estar", label: "Bem-estar", icon: HeartPulse },
+    { to: "/app/trilhas", label: "Trilhas", icon: Sparkles },
+    { to: "/app/agendar", label: "Agendar", icon: CalendarClock },
+    { to: "/app/plano-seguranca", label: "Meu plano", icon: ShieldHalf },
+    { to: "/app/ajuda", label: "Onde buscar ajuda", icon: LifeBuoy },
     { to: "/app/historico", label: "Histórico", icon: History },
     { to: "/app/denuncias", label: "Denúncias", icon: FileWarning },
     { to: "/app/candidatura", label: "Ser voluntário", icon: ClipboardList },
@@ -58,7 +69,9 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/vol", label: "Painel", icon: Heart },
     { to: "/vol/fila", label: "Fila", icon: Users },
     { to: "/vol/historico", label: "Histórico", icon: History },
+    { to: "/vol/agenda", label: "Agenda", icon: CalendarClock },
     { to: "/vol/avaliacoes", label: "Avaliações", icon: Star },
+    { to: "/vol/impacto", label: "Meu impacto", icon: Award },
     { to: "/vol/denuncias", label: "Denúncias", icon: FileWarning },
     { to: "/vol/candidatura", label: "Candidatura", icon: ClipboardList },
   ],
@@ -66,6 +79,7 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/mod", label: "Denúncias", icon: Shield },
     { to: "/admin/comunidades", label: "Grupos", icon: UsersRound },
     { to: "/mod/historico", label: "Conversas", icon: History },
+    { to: "/mod/apoio", label: "Pedidos de apoio", icon: LifeBuoy },
     { to: "/mod/avaliacoes", label: "Avaliações", icon: Star },
   ],
   administrador: [
@@ -75,6 +89,7 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/admin/comunidades", label: "Grupos", icon: UsersRound },
     { to: "/admin/historico", label: "Conversas", icon: History },
     { to: "/admin/avaliacoes", label: "Avaliações", icon: Star },
+    { to: "/admin/relatorios", label: "Relatório mensal", icon: FileBarChart },
     { to: "/admin/logs", label: "Logs", icon: ScrollText },
     { to: "/admin/retencao", label: "Privacidade", icon: ShieldCheck },
   ],
@@ -307,6 +322,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="relative isolate flex min-h-dvh">
+      <WelcomeCarousel />
       <div className="app-bg" aria-hidden="true">
         <span className="app-bg-dots" />
       </div>

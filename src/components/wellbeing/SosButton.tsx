@@ -73,9 +73,17 @@ export function SosButton() {
                   </li>
                 ))}
               </ol>
-              <Button asChild variant="outline" size="sm" className="mt-3" onClick={() => setOpen(false)}>
-                <Link to="/app/bem-estar">Abrir respiração guiada</Link>
-              </Button>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button asChild variant="outline" size="sm" onClick={() => setOpen(false)}>
+                  <Link to="/app/bem-estar">Respiração guiada</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" onClick={() => setOpen(false)}>
+                  <Link to="/app/plano-seguranca">Meu plano de segurança</Link>
+                </Button>
+                <Button asChild variant="outline" size="sm" onClick={() => setOpen(false)}>
+                  <Link to="/app/ajuda">Onde buscar ajuda</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

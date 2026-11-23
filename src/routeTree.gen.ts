@@ -24,16 +24,21 @@ import { Route as ModIndexRouteImport } from './routes/mod.index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as VolModeradorRouteImport } from './routes/vol.moderador'
+import { Route as VolImpactoRouteImport } from './routes/vol.impacto'
 import { Route as VolHistoricoRouteImport } from './routes/vol.historico'
 import { Route as VolFilaRouteImport } from './routes/vol.fila'
 import { Route as VolDenunciasRouteImport } from './routes/vol.denuncias'
 import { Route as VolCandidaturaRouteImport } from './routes/vol.candidatura'
 import { Route as VolAvaliacoesRouteImport } from './routes/vol.avaliacoes'
+import { Route as VolAgendaRouteImport } from './routes/vol.agenda'
 import { Route as ModHistoricoRouteImport } from './routes/mod.historico'
 import { Route as ModAvaliacoesRouteImport } from './routes/mod.avaliacoes'
+import { Route as ModApoioRouteImport } from './routes/mod.apoio'
 import { Route as ModIdRouteImport } from './routes/mod.$id'
+import { Route as AppTrilhasRouteImport } from './routes/app.trilhas'
 import { Route as AppPrivacidadeRouteImport } from './routes/app.privacidade'
 import { Route as AppPreferenciasRouteImport } from './routes/app.preferencias'
+import { Route as AppPlanoSegurancaRouteImport } from './routes/app.plano-seguranca'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppHistoricoRouteImport } from './routes/app.historico'
 import { Route as AppDenunciasRouteImport } from './routes/app.denuncias'
@@ -42,8 +47,11 @@ import { Route as AppConversarRouteImport } from './routes/app.conversar'
 import { Route as AppComunidadesRouteImport } from './routes/app.comunidades'
 import { Route as AppCandidaturaRouteImport } from './routes/app.candidatura'
 import { Route as AppBemEstarRouteImport } from './routes/app.bem-estar'
+import { Route as AppAjudaRouteImport } from './routes/app.ajuda'
+import { Route as AppAgendarRouteImport } from './routes/app.agendar'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminRetencaoRouteImport } from './routes/admin.retencao'
+import { Route as AdminRelatoriosRouteImport } from './routes/admin.relatorios'
 import { Route as AdminModeradoresRouteImport } from './routes/admin.moderadores'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHistoricoRouteImport } from './routes/admin.historico'
@@ -136,6 +144,11 @@ const VolModeradorRoute = VolModeradorRouteImport.update({
   path: '/vol/moderador',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VolImpactoRoute = VolImpactoRouteImport.update({
+  id: '/vol/impacto',
+  path: '/vol/impacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VolHistoricoRoute = VolHistoricoRouteImport.update({
   id: '/vol/historico',
   path: '/vol/historico',
@@ -161,6 +174,11 @@ const VolAvaliacoesRoute = VolAvaliacoesRouteImport.update({
   path: '/vol/avaliacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VolAgendaRoute = VolAgendaRouteImport.update({
+  id: '/vol/agenda',
+  path: '/vol/agenda',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModHistoricoRoute = ModHistoricoRouteImport.update({
   id: '/mod/historico',
   path: '/mod/historico',
@@ -171,9 +189,19 @@ const ModAvaliacoesRoute = ModAvaliacoesRouteImport.update({
   path: '/mod/avaliacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModApoioRoute = ModApoioRouteImport.update({
+  id: '/mod/apoio',
+  path: '/mod/apoio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModIdRoute = ModIdRouteImport.update({
   id: '/mod/$id',
   path: '/mod/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppTrilhasRoute = AppTrilhasRouteImport.update({
+  id: '/app/trilhas',
+  path: '/app/trilhas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppPrivacidadeRoute = AppPrivacidadeRouteImport.update({
@@ -184,6 +212,11 @@ const AppPrivacidadeRoute = AppPrivacidadeRouteImport.update({
 const AppPreferenciasRoute = AppPreferenciasRouteImport.update({
   id: '/app/preferencias',
   path: '/app/preferencias',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppPlanoSegurancaRoute = AppPlanoSegurancaRouteImport.update({
+  id: '/app/plano-seguranca',
+  path: '/app/plano-seguranca',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppPerfilRoute = AppPerfilRouteImport.update({
@@ -226,6 +259,16 @@ const AppBemEstarRoute = AppBemEstarRouteImport.update({
   path: '/app/bem-estar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppAjudaRoute = AppAjudaRouteImport.update({
+  id: '/app/ajuda',
+  path: '/app/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppAgendarRoute = AppAgendarRouteImport.update({
+  id: '/app/agendar',
+  path: '/app/agendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/admin/usuarios',
   path: '/admin/usuarios',
@@ -234,6 +277,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
 const AdminRetencaoRoute = AdminRetencaoRouteImport.update({
   id: '/admin/retencao',
   path: '/admin/retencao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRelatoriosRoute = AdminRelatoriosRouteImport.update({
+  id: '/admin/relatorios',
+  path: '/admin/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminModeradoresRoute = AdminModeradoresRouteImport.update({
@@ -334,8 +382,11 @@ export interface FileRoutesByFullPath {
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
+  '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/retencao': typeof AdminRetencaoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/app/agendar': typeof AppAgendarRoute
+  '/app/ajuda': typeof AppAjudaRoute
   '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/comunidades': typeof AppComunidadesRouteWithChildren
@@ -344,16 +395,21 @@ export interface FileRoutesByFullPath {
   '/app/denuncias': typeof AppDenunciasRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/plano-seguranca': typeof AppPlanoSegurancaRoute
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
+  '/app/trilhas': typeof AppTrilhasRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/apoio': typeof ModApoioRoute
   '/mod/avaliacoes': typeof ModAvaliacoesRoute
   '/mod/historico': typeof ModHistoricoRoute
+  '/vol/agenda': typeof VolAgendaRoute
   '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/denuncias': typeof VolDenunciasRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
+  '/vol/impacto': typeof VolImpactoRoute
   '/vol/moderador': typeof VolModeradorRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -384,8 +440,11 @@ export interface FileRoutesByTo {
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/retencao': typeof AdminRetencaoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/app/agendar': typeof AppAgendarRoute
+  '/app/ajuda': typeof AppAjudaRoute
   '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/conversar': typeof AppConversarRoute
@@ -393,16 +452,21 @@ export interface FileRoutesByTo {
   '/app/denuncias': typeof AppDenunciasRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/plano-seguranca': typeof AppPlanoSegurancaRoute
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
+  '/app/trilhas': typeof AppTrilhasRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/apoio': typeof ModApoioRoute
   '/mod/avaliacoes': typeof ModAvaliacoesRoute
   '/mod/historico': typeof ModHistoricoRoute
+  '/vol/agenda': typeof VolAgendaRoute
   '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/denuncias': typeof VolDenunciasRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
+  '/vol/impacto': typeof VolImpactoRoute
   '/vol/moderador': typeof VolModeradorRoute
   '/admin': typeof AdminIndexRoute
   '/app': typeof AppIndexRoute
@@ -437,8 +501,11 @@ export interface FileRoutesById {
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
+  '/admin/relatorios': typeof AdminRelatoriosRoute
   '/admin/retencao': typeof AdminRetencaoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/app/agendar': typeof AppAgendarRoute
+  '/app/ajuda': typeof AppAjudaRoute
   '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/comunidades': typeof AppComunidadesRouteWithChildren
@@ -447,16 +514,21 @@ export interface FileRoutesById {
   '/app/denuncias': typeof AppDenunciasRoute
   '/app/historico': typeof AppHistoricoRoute
   '/app/perfil': typeof AppPerfilRoute
+  '/app/plano-seguranca': typeof AppPlanoSegurancaRoute
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
+  '/app/trilhas': typeof AppTrilhasRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/apoio': typeof ModApoioRoute
   '/mod/avaliacoes': typeof ModAvaliacoesRoute
   '/mod/historico': typeof ModHistoricoRoute
+  '/vol/agenda': typeof VolAgendaRoute
   '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/denuncias': typeof VolDenunciasRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
+  '/vol/impacto': typeof VolImpactoRoute
   '/vol/moderador': typeof VolModeradorRoute
   '/admin/': typeof AdminIndexRoute
   '/app/': typeof AppIndexRoute
@@ -492,8 +564,11 @@ export interface FileRouteTypes {
     | '/admin/historico'
     | '/admin/logs'
     | '/admin/moderadores'
+    | '/admin/relatorios'
     | '/admin/retencao'
     | '/admin/usuarios'
+    | '/app/agendar'
+    | '/app/ajuda'
     | '/app/bem-estar'
     | '/app/candidatura'
     | '/app/comunidades'
@@ -502,16 +577,21 @@ export interface FileRouteTypes {
     | '/app/denuncias'
     | '/app/historico'
     | '/app/perfil'
+    | '/app/plano-seguranca'
     | '/app/preferencias'
     | '/app/privacidade'
+    | '/app/trilhas'
     | '/mod/$id'
+    | '/mod/apoio'
     | '/mod/avaliacoes'
     | '/mod/historico'
+    | '/vol/agenda'
     | '/vol/avaliacoes'
     | '/vol/candidatura'
     | '/vol/denuncias'
     | '/vol/fila'
     | '/vol/historico'
+    | '/vol/impacto'
     | '/vol/moderador'
     | '/admin/'
     | '/app/'
@@ -542,8 +622,11 @@ export interface FileRouteTypes {
     | '/admin/avaliacoes'
     | '/admin/historico'
     | '/admin/logs'
+    | '/admin/relatorios'
     | '/admin/retencao'
     | '/admin/usuarios'
+    | '/app/agendar'
+    | '/app/ajuda'
     | '/app/bem-estar'
     | '/app/candidatura'
     | '/app/conversar'
@@ -551,16 +634,21 @@ export interface FileRouteTypes {
     | '/app/denuncias'
     | '/app/historico'
     | '/app/perfil'
+    | '/app/plano-seguranca'
     | '/app/preferencias'
     | '/app/privacidade'
+    | '/app/trilhas'
     | '/mod/$id'
+    | '/mod/apoio'
     | '/mod/avaliacoes'
     | '/mod/historico'
+    | '/vol/agenda'
     | '/vol/avaliacoes'
     | '/vol/candidatura'
     | '/vol/denuncias'
     | '/vol/fila'
     | '/vol/historico'
+    | '/vol/impacto'
     | '/vol/moderador'
     | '/admin'
     | '/app'
@@ -594,8 +682,11 @@ export interface FileRouteTypes {
     | '/admin/historico'
     | '/admin/logs'
     | '/admin/moderadores'
+    | '/admin/relatorios'
     | '/admin/retencao'
     | '/admin/usuarios'
+    | '/app/agendar'
+    | '/app/ajuda'
     | '/app/bem-estar'
     | '/app/candidatura'
     | '/app/comunidades'
@@ -604,16 +695,21 @@ export interface FileRouteTypes {
     | '/app/denuncias'
     | '/app/historico'
     | '/app/perfil'
+    | '/app/plano-seguranca'
     | '/app/preferencias'
     | '/app/privacidade'
+    | '/app/trilhas'
     | '/mod/$id'
+    | '/mod/apoio'
     | '/mod/avaliacoes'
     | '/mod/historico'
+    | '/vol/agenda'
     | '/vol/avaliacoes'
     | '/vol/candidatura'
     | '/vol/denuncias'
     | '/vol/fila'
     | '/vol/historico'
+    | '/vol/impacto'
     | '/vol/moderador'
     | '/admin/'
     | '/app/'
@@ -648,8 +744,11 @@ export interface RootRouteChildren {
   AdminHistoricoRoute: typeof AdminHistoricoRoute
   AdminLogsRoute: typeof AdminLogsRoute
   AdminModeradoresRoute: typeof AdminModeradoresRouteWithChildren
+  AdminRelatoriosRoute: typeof AdminRelatoriosRoute
   AdminRetencaoRoute: typeof AdminRetencaoRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
+  AppAgendarRoute: typeof AppAgendarRoute
+  AppAjudaRoute: typeof AppAjudaRoute
   AppBemEstarRoute: typeof AppBemEstarRoute
   AppCandidaturaRoute: typeof AppCandidaturaRoute
   AppComunidadesRoute: typeof AppComunidadesRouteWithChildren
@@ -658,16 +757,21 @@ export interface RootRouteChildren {
   AppDenunciasRoute: typeof AppDenunciasRoute
   AppHistoricoRoute: typeof AppHistoricoRoute
   AppPerfilRoute: typeof AppPerfilRoute
+  AppPlanoSegurancaRoute: typeof AppPlanoSegurancaRoute
   AppPreferenciasRoute: typeof AppPreferenciasRoute
   AppPrivacidadeRoute: typeof AppPrivacidadeRoute
+  AppTrilhasRoute: typeof AppTrilhasRoute
   ModIdRoute: typeof ModIdRoute
+  ModApoioRoute: typeof ModApoioRoute
   ModAvaliacoesRoute: typeof ModAvaliacoesRoute
   ModHistoricoRoute: typeof ModHistoricoRoute
+  VolAgendaRoute: typeof VolAgendaRoute
   VolAvaliacoesRoute: typeof VolAvaliacoesRoute
   VolCandidaturaRoute: typeof VolCandidaturaRoute
   VolDenunciasRoute: typeof VolDenunciasRoute
   VolFilaRoute: typeof VolFilaRoute
   VolHistoricoRoute: typeof VolHistoricoRoute
+  VolImpactoRoute: typeof VolImpactoRoute
   VolModeradorRoute: typeof VolModeradorRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -784,6 +888,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VolModeradorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vol/impacto': {
+      id: '/vol/impacto'
+      path: '/vol/impacto'
+      fullPath: '/vol/impacto'
+      preLoaderRoute: typeof VolImpactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vol/historico': {
       id: '/vol/historico'
       path: '/vol/historico'
@@ -819,6 +930,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VolAvaliacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vol/agenda': {
+      id: '/vol/agenda'
+      path: '/vol/agenda'
+      fullPath: '/vol/agenda'
+      preLoaderRoute: typeof VolAgendaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mod/historico': {
       id: '/mod/historico'
       path: '/mod/historico'
@@ -833,11 +951,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ModAvaliacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mod/apoio': {
+      id: '/mod/apoio'
+      path: '/mod/apoio'
+      fullPath: '/mod/apoio'
+      preLoaderRoute: typeof ModApoioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mod/$id': {
       id: '/mod/$id'
       path: '/mod/$id'
       fullPath: '/mod/$id'
       preLoaderRoute: typeof ModIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/trilhas': {
+      id: '/app/trilhas'
+      path: '/app/trilhas'
+      fullPath: '/app/trilhas'
+      preLoaderRoute: typeof AppTrilhasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/privacidade': {
@@ -852,6 +984,13 @@ declare module '@tanstack/react-router' {
       path: '/app/preferencias'
       fullPath: '/app/preferencias'
       preLoaderRoute: typeof AppPreferenciasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/plano-seguranca': {
+      id: '/app/plano-seguranca'
+      path: '/app/plano-seguranca'
+      fullPath: '/app/plano-seguranca'
+      preLoaderRoute: typeof AppPlanoSegurancaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/perfil': {
@@ -910,6 +1049,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBemEstarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/ajuda': {
+      id: '/app/ajuda'
+      path: '/app/ajuda'
+      fullPath: '/app/ajuda'
+      preLoaderRoute: typeof AppAjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app/agendar': {
+      id: '/app/agendar'
+      path: '/app/agendar'
+      fullPath: '/app/agendar'
+      preLoaderRoute: typeof AppAgendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/usuarios': {
       id: '/admin/usuarios'
       path: '/admin/usuarios'
@@ -922,6 +1075,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/retencao'
       fullPath: '/admin/retencao'
       preLoaderRoute: typeof AdminRetencaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/relatorios': {
+      id: '/admin/relatorios'
+      path: '/admin/relatorios'
+      fullPath: '/admin/relatorios'
+      preLoaderRoute: typeof AdminRelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/moderadores': {
@@ -1109,8 +1269,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminHistoricoRoute: AdminHistoricoRoute,
   AdminLogsRoute: AdminLogsRoute,
   AdminModeradoresRoute: AdminModeradoresRouteWithChildren,
+  AdminRelatoriosRoute: AdminRelatoriosRoute,
   AdminRetencaoRoute: AdminRetencaoRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
+  AppAgendarRoute: AppAgendarRoute,
+  AppAjudaRoute: AppAjudaRoute,
   AppBemEstarRoute: AppBemEstarRoute,
   AppCandidaturaRoute: AppCandidaturaRoute,
   AppComunidadesRoute: AppComunidadesRouteWithChildren,
@@ -1119,16 +1282,21 @@ const rootRouteChildren: RootRouteChildren = {
   AppDenunciasRoute: AppDenunciasRoute,
   AppHistoricoRoute: AppHistoricoRoute,
   AppPerfilRoute: AppPerfilRoute,
+  AppPlanoSegurancaRoute: AppPlanoSegurancaRoute,
   AppPreferenciasRoute: AppPreferenciasRoute,
   AppPrivacidadeRoute: AppPrivacidadeRoute,
+  AppTrilhasRoute: AppTrilhasRoute,
   ModIdRoute: ModIdRoute,
+  ModApoioRoute: ModApoioRoute,
   ModAvaliacoesRoute: ModAvaliacoesRoute,
   ModHistoricoRoute: ModHistoricoRoute,
+  VolAgendaRoute: VolAgendaRoute,
   VolAvaliacoesRoute: VolAvaliacoesRoute,
   VolCandidaturaRoute: VolCandidaturaRoute,
   VolDenunciasRoute: VolDenunciasRoute,
   VolFilaRoute: VolFilaRoute,
   VolHistoricoRoute: VolHistoricoRoute,
+  VolImpactoRoute: VolImpactoRoute,
   VolModeradorRoute: VolModeradorRoute,
   AdminIndexRoute: AdminIndexRoute,
   AppIndexRoute: AppIndexRoute,
