@@ -823,11 +823,15 @@ async function handleInner<T>(
       .eq("community_id", id);
     const { data: msgs } = await supabase
       .from("community_messages")
-      .select("sender_id")
+      .select("id, community_id, sender_id, alias_snapshot, body, body_encrypted, created_at")
       .eq("community_id", id)
-      .is("deleted_at", null);
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false })
+      .limit(300);
+    const feed = [...(msgs || [])].reverse();
     return ok({
       ...c,
+      messages: feed,
       member_count: (members || []).filter((m: any) => m.status === "ativo").length,
       message_count: (msgs || []).length,
       members: (members || []).map((m: any) => ({

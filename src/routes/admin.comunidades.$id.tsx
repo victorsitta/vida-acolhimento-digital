@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChatBubble } from "@/components/chat/ChatBubble";
 import {
   Mail,
   MessageCircle,
@@ -32,10 +33,16 @@ function Page() {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const feedRef = useRef<HTMLDivElement>(null);
   const group = useQuery({
     queryKey: ["admin-community", id],
     queryFn: () => adminCommunityService.get(id),
+    refetchInterval: 5000,
   });
+  const messageCount = group.data?.messages.length ?? 0;
+  useEffect(() => {
+    feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight });
+  }, [messageCount]);
   const member = useMutation({
     mutationFn: ({ userId, status }: { userId: string; status: "ativo" | "removido" }) =>
       adminCommunityService.updateMember(id, userId, status),
@@ -197,33 +204,42 @@ function Page() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-semibold">Mensagens recentes</h2>
-          <div className="mt-3 space-y-3">
+          <div className="flex items-end justify-between gap-3">
+            <h2 className="font-display text-xl font-semibold">Conversa do grupo</h2>
+            <span className="text-xs text-muted-foreground">
+              Atualiza sozinha · {group.data.messages.length} mensagens
+            </span>
+          </div>
+          <div
+            ref={feedRef}
+            className="mt-3 max-h-[60dvh] min-h-48 space-y-3 overflow-y-auto rounded-2xl border bg-card p-3 shadow-soft sm:p-4"
+            aria-live="polite"
+          >
             {group.data.messages.map((message) => (
-              <article key={message.id} className="rounded-2xl border bg-card p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <strong className="text-sm">{message.alias}</strong>
-                  <span className="text-xs text-muted-foreground">
-                    {fmtDateTime(message.createdAt)}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">{message.text}</p>
-                <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-                  <MessageCircle className="h-3 w-3" /> ID {message.id}
-                </p>
-                <Button
-                  className="mt-3 gap-2"
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => removeMessage.mutate(message.id)}
-                >
-                  <Trash2 className="h-4 w-4" /> Remover mensagem
-                </Button>
-              </article>
+              <ChatBubble
+                key={message.id}
+                mine={false}
+                text={message.text}
+                createdAt={message.createdAt}
+                name={message.alias}
+                showAvatar
+                footer={
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm("Remover esta mensagem do grupo?")) removeMessage.mutate(message.id);
+                    }}
+                    disabled={removeMessage.isPending}
+                    className="mt-1 inline-flex cursor-pointer items-center gap-1 px-1 text-xs text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="h-3 w-3" /> Remover
+                  </button>
+                }
+              />
             ))}
             {group.data.messages.length === 0 && (
-              <p className="rounded-2xl border p-6 text-center text-sm text-muted-foreground">
-                Nenhuma mensagem neste grupo.
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                Nenhuma mensagem neste grupo ainda.
               </p>
             )}
           </div>
