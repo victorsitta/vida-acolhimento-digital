@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { adminCommunityService } from "@/services";
 import type { AdminCommunityStatus } from "@/types";
+import { Pager, usePagination } from "@/components/common/Pager";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useProfile } from "@/contexts/ProfileContext";
 
@@ -51,6 +52,7 @@ function Page() {
     },
   });
 
+  const pg = usePagination(groups.data ?? [], 6);
   return (
     <AppShell>
       <PageHeader
@@ -105,8 +107,8 @@ function Page() {
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {(groups.data ?? []).map((group) => (
-          <article key={group.id} className="rounded-3xl border bg-card p-5 shadow-soft">
+        {pg.pageItems.map((group) => (
+          <article key={group.id} className="card-lift rounded-3xl border bg-card p-5 shadow-soft">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -158,6 +160,7 @@ function Page() {
           </article>
         ))}
       </div>
+      <Pager {...pg} onPageChange={pg.setPage} />
     </AppShell>
   );
 }

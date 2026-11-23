@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, CheckCircle2, FileText } from "lucide-react";
+import { Users, CheckCircle2, FileText, MessageCircle } from "lucide-react";
 import { AppShell } from "@/layouts/AppShell";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PriorityBadge } from "@/components/common/PriorityBadge";
@@ -161,6 +161,36 @@ function Page() {
           value={dashboard.data ? String(dashboard.data.totalVolunteers) : "—"}
         />
       </div>
+
+      {(myConversations.data ?? []).some((c) => c.status === "active") && (
+        <section className="mt-8" aria-label="Atendimentos em andamento">
+          <h2 className="mb-3 flex items-center gap-2 font-display text-xl font-semibold">
+            <MessageCircle className="h-5 w-5" /> Atendimentos em andamento
+          </h2>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {(myConversations.data ?? [])
+              .filter((c) => c.status === "active" && c.volunteerAlias !== undefined)
+              .map((c) => (
+                <li
+                  key={c.id}
+                  className="card-lift flex items-center justify-between gap-3 rounded-2xl border bg-card p-4 shadow-soft"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{c.userAlias}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Iniciada {fmtRelative(c.startedAt)} · só termina quando você ou a pessoa encerrar
+                    </p>
+                  </div>
+                  <Button asChild size="sm">
+                    <Link to="/vol/chat/$id" params={{ id: c.id }}>
+                      Voltar à conversa
+                    </Link>
+                  </Button>
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
 
       <section className="mt-8">
         <h2 className="mb-3 flex items-center gap-2 font-display text-xl font-semibold">

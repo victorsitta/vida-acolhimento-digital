@@ -124,6 +124,7 @@ function mapConversation(input: any): Conversation {
     lastMessage: input.last_message,
     userId: input.user_id,
     isTeamChat: input.is_team_chat,
+    rating: input.rating ?? undefined,
   };
 }
 
@@ -183,6 +184,9 @@ function mapApplication(input: any): Application {
     availability: input.availability ?? "A combinar",
     experience: input.experience ?? "",
     status: mapApplicationStatus(input.status),
+    kind: input.kind === "moderador" ? "moderador" : "voluntario",
+    currentRole: input.users?.role ?? undefined,
+    candidateId: input.user_id ?? undefined,
   };
 }
 
@@ -436,6 +440,13 @@ export const chatService = {
     } catch {
       // silencioso
     }
+  },
+  async rate(id: string, rating: number, comment?: string): Promise<{ ok: true }> {
+    await apiData<unknown>(`/conversations/${id}/rating`, {
+      method: "POST",
+      body: JSON.stringify({ rating, comment }),
+    });
+    return { ok: true };
   },
   async endConversation(id: string, notes?: string): Promise<{ ok: true }> {
     await apiData<unknown>(`/conversations/${id}/close`, {
@@ -845,7 +856,7 @@ export const metricsService = {
       totalVolunteers: data.onlineVolunteers ?? data.online_volunteers ?? 0,
       activeConversations: data.ativas ?? data.active_chats ?? data.activeChats ?? 0,
       conversationsToday: data.total ?? data.ativas ?? 0,
-      avgWaitMinutes: (data.pendingChats ?? data.pending_chats) ? 5 : 0,
+      avgWaitMinutes: data.avgWaitMinutes ?? ((data.pendingChats ?? data.pending_chats) ? 5 : 0),
       satisfactionRate: data.satisfactionRate ?? data.satisfaction_rate ?? 0,
       weekly: (data.weeklyConversations ?? data.weekly_conversations ?? []).map((w: any) => ({
         day: w.day,
@@ -906,3 +917,31 @@ export const volunteerReportService = {
 
 export { careRecordService } from "./careRecordService";
 
+export interface AuditLog {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId?: string;
+  actorId?: string;
+  actorName?: string;
+  actorRole?: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+}
+
+export const auditService = {
+  async list(): Promise<AuditLog[]> {
+    const data = await apiData<any[]>("/admin/logs");
+    return data.map((l) => ({
+      id: l.id,
+      action: l.action,
+      entityType: l.entity_type,
+      entityId: l.entity_id ?? undefined,
+      actorId: l.actor_id ?? undefined,
+      actorName: l.actor_name ?? undefined,
+      actorRole: l.actor_role ?? undefined,
+      metadata: l.metadata_json ?? {},
+      createdAt: l.created_at,
+    }));
+  },
+};

@@ -13,6 +13,10 @@ const map: Record<string, string> = {
   waiting: "bg-[color-mix(in_oklab,var(--warning)_22%,transparent)] text-foreground",
   active: "bg-[color-mix(in_oklab,var(--success)_22%,transparent)] text-foreground",
   ended: "bg-muted text-muted-foreground",
+  ativo: "bg-[color-mix(in_oklab,var(--success)_22%,transparent)] text-foreground",
+  pausado: "bg-[color-mix(in_oklab,var(--warning)_25%,transparent)] text-foreground",
+  banido: "bg-[color-mix(in_oklab,var(--destructive)_18%,transparent)] text-destructive",
+  respondido: "bg-[color-mix(in_oklab,var(--success)_22%,transparent)] text-foreground",
 };
 
 const labels: Record<string, string> = {
@@ -28,6 +32,10 @@ const labels: Record<string, string> = {
   waiting: "Aguardando",
   active: "Em andamento",
   ended: "Encerrada",
+  ativo: "Ativo",
+  pausado: "Pausado",
+  banido: "Suspenso",
+  respondido: "Respondido",
 };
 
 export function StatusBadge({ status }: { status: string }) {

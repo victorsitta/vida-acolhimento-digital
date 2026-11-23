@@ -4,6 +4,8 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { AppShell } from "@/layouts/AppShell";
 import { PageHeader } from "@/components/common/PageHeader";
 import { metricsService, volunteerReportService, reportService, chatService } from "@/services";
+import { Pager, usePagination } from "@/components/common/Pager";
+import { StatCard } from "@/components/common/StatCard";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useState, useMemo } from "react";
 import {
@@ -24,7 +26,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/StatusBadge";
-import { FileText, ShieldAlert, History } from "lucide-react";
+import { Activity, Clock, FileText, HeartHandshake, History, MessagesSquare, ShieldAlert, Smile, Users } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/")({
@@ -116,14 +118,18 @@ function Page() {
     return (conversationsQuery.data ?? []).filter((c) => c.status === "ended" && !c.isTeamChat);
   }, [conversationsQuery.data]);
 
+  const pgVol = usePagination(volunteerReports.data ?? [], 6);
+  const pgMod = usePagination(filteredModReports, 6);
+  const pgEnded = usePagination(endedConversations, 8);
+
   return (
     <AppShell>
       <PageHeader title="Dashboard" description="Visão geral da plataforma." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Usuários" value={m?.totalUsers.toLocaleString("pt-BR") ?? "—"} />
-        <Stat label="Voluntários" value={m?.totalVolunteers.toString() ?? "—"} />
-        <Stat label="Conversas hoje" value={m?.conversationsToday.toString() ?? "—"} />
-        <Stat label="Satisfação" value={m ? `${m.satisfactionRate}%` : "—"} />
+        <StatCard label="Usuários" icon={Users} tone="primary" value={m?.totalUsers.toLocaleString("pt-BR") ?? "—"} />
+        <StatCard label="Voluntários online" icon={HeartHandshake} tone="success" value={m?.totalVolunteers.toString() ?? "—"} />
+        <StatCard label="Conversas hoje" icon={MessagesSquare} tone="accent" value={m?.conversationsToday.toString() ?? "—"} />
+        <StatCard label="Satisfação" icon={Smile} tone="info" value={m && m.satisfactionRate > 0 ? `${m.satisfactionRate}%` : "—"} hint={m && m.satisfactionRate === 0 ? "Ainda sem avaliações" : undefined} />
       </div>
 
       <section className="mt-8 rounded-2xl border bg-card p-5">
@@ -149,8 +155,8 @@ function Page() {
       </section>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        <Stat label="Conversas ativas" value={m?.activeConversations.toString() ?? "—"} />
-        <Stat label="Tempo médio de espera" value={m ? `${m.avgWaitMinutes} min` : "—"} />
+        <StatCard label="Conversas ativas" icon={Activity} tone="success" value={m?.activeConversations.toString() ?? "—"} />
+        <StatCard label="Espera média na fila" icon={Clock} tone="primary" value={m ? `${m.avgWaitMinutes} min` : "—"} hint="De quem aguarda agora" />
       </div>
 
       <div className="mt-8">
@@ -168,8 +174,8 @@ function Page() {
           </TabsList>
 
           <TabsContent value="relatorios-voluntarios" className="space-y-4">
-            <div className="divide-y rounded-2xl border bg-card">
-              {(volunteerReports.data ?? []).map((r) => (
+            <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+              {pgVol.pageItems.map((r) => (
                 <div key={r.id} className="p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="font-semibold text-sm">{r.title}</p>
@@ -211,11 +217,12 @@ function Page() {
                 </p>
               )}
             </div>
+          <Pager {...pgVol} onPageChange={pgVol.setPage} />
           </TabsContent>
 
           <TabsContent value="reportes-moderadores" className="space-y-4">
-            <div className="divide-y rounded-2xl border bg-card">
-              {filteredModReports.map((r) => (
+            <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+              {pgMod.pageItems.map((r) => (
                 <div key={r.id} className="p-4 space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="font-semibold text-sm">{r.reason}</p>
@@ -246,11 +253,12 @@ function Page() {
                 </p>
               )}
             </div>
+          <Pager {...pgMod} onPageChange={pgMod.setPage} />
           </TabsContent>
 
           <TabsContent value="historico-atendimentos" className="space-y-4">
-            <div className="divide-y rounded-2xl border bg-card">
-              {endedConversations.map((c) => (
+            <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+              {pgEnded.pageItems.map((c) => (
                 <div key={c.id} className="p-4 flex items-center justify-between gap-4">
                   <div className="space-y-1">
                     <p className="font-semibold text-sm">
@@ -279,6 +287,7 @@ function Page() {
                 </p>
               )}
             </div>
+          <Pager {...pgEnded} onPageChange={pgEnded.setPage} />
           </TabsContent>
         </Tabs>
       </div>

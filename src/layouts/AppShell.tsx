@@ -14,6 +14,7 @@ import {
   Settings,
   MoreHorizontal,
   UsersRound,
+  ScrollText,
   X,
 } from "lucide-react";
 import { useState, useRef, useEffect, type ReactNode } from "react";
@@ -58,10 +59,10 @@ const NAV: Record<ProfileRole, Item[]> = {
   administrador: [
     { to: "/admin", label: "Dashboard", icon: BarChart3 },
     { to: "/admin/candidaturas", label: "Candidaturas", icon: ClipboardList },
-    { to: "/admin/moderadores", label: "Moderadores", icon: Shield },
     { to: "/admin/usuarios", label: "Usuários", icon: Users },
     { to: "/admin/comunidades", label: "Grupos", icon: UsersRound },
     { to: "/admin/historico", label: "Conversas", icon: History },
+    { to: "/admin/logs", label: "Logs", icon: ScrollText },
   ],
 };
 
@@ -320,7 +321,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main className="flex-1 px-4 py-6 pb-24 md:px-8 md:pb-10">
-          <div className="mx-auto max-w-5xl">{children}</div>
+          <div className="fade-up mx-auto max-w-5xl">{children}</div>
         </main>
 
         {/* Bottom nav mobile */}

@@ -60,7 +60,7 @@ function userAlias(c: any) {
   return c.users?.user_profiles?.nickname || c.users?.display_name || "Pessoa acolhida";
 }
 
-export async function handleSupabaseRequest<T>(
+async function handleInner<T>(
   path: string,
   method = "GET",
   body?: any
@@ -583,7 +583,7 @@ export async function handleSupabaseRequest<T>(
     const sub = appMatch[2];
     const { data: authData } = await supabase.auth.getUser();
     const uid = authData?.user?.id;
-    const sel = "*, users:user_id(display_name)";
+    const sel = "*, users:user_id(display_name, role)";
     const kindFilter = (q: any) =>
       kind === "moderador" ? q.eq("kind", "moderador") : q.or("kind.is.null,kind.eq.voluntario");
 
@@ -898,6 +898,39 @@ export async function handleSupabaseRequest<T>(
     }
   }
 
+  if (cleanPath === "/admin/logs" && method === "GET") {
+    const { data, error } = await supabase
+      .from("audit_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((data || []).map((l: any) => l.actor_id).filter(Boolean)));
+    const names = new Map<string, { name: string; role: string }>();
+    if (ids.length) {
+      const { data: us } = await supabase.from("users").select("id, display_name, role").in("id", ids);
+      (us || []).forEach((u: any) => names.set(u.id, { name: u.display_name, role: u.role }));
+    }
+    return ok(
+      (data || []).map((l: any) => ({
+        ...l,
+        actor_name: names.get(l.actor_id)?.name ?? null,
+        actor_role: names.get(l.actor_id)?.role ?? null,
+      })),
+    ) as T;
+  }
+
+  const ratingMatch = cleanPath.match(/^\/conversations\/([a-f0-9-]+)\/rating$/i);
+  if (ratingMatch && method === "POST") {
+    const rating = Math.min(5, Math.max(1, Number(payload.rating) || 0));
+    const { error } = await supabase
+      .from("conversations")
+      .update({ rating, rating_comment: payload.comment || null })
+      .eq("id", ratingMatch[1]);
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+
   // 5. VOLUNTEERS & APPLICATIONS
   if (cleanPath === "/admin/volunteers" && method === "GET") {
     const { data, error } = await supabase
@@ -975,6 +1008,18 @@ export async function handleSupabaseRequest<T>(
       .select("*", { count: "exact", head: true })
       .eq("availability_status", "online")
       .gte("last_seen_at", since);
+    const { data: waitingRows } = await supabase
+      .from("conversations")
+      .select("created_at")
+      .eq("status", "aguardando");
+    const avgWaitMinutes = (waitingRows || []).length
+      ? Math.round(
+          (waitingRows || []).reduce(
+            (sum: number, r: any) => sum + (Date.now() - new Date(r.created_at).getTime()) / 60000,
+            0,
+          ) / (waitingRows || []).length,
+        )
+      : 0;
 
     const weekAgo = new Date(Date.now() - 7 * 86400_000).toISOString();
     const { data: recent } = await supabase
@@ -991,17 +1036,106 @@ export async function handleSupabaseRequest<T>(
       };
     });
     const today = new Date().toDateString();
+    const { data: rated } = await supabase
+      .from("conversations")
+      .select("rating")
+      .not("rating", "is", null);
+    const satisfaction = (rated || []).length
+      ? Math.round(
+          ((rated || []).reduce((sum: number, r: any) => sum + Number(r.rating), 0) /
+            (rated || []).length /
+            5) *
+            100,
+        )
+      : 0;
 
     return ok({
       totalUsersAllTime: totalUsers || 0,
       activeChats: activeChats || 0,
       pendingChats: pendingChats || 0,
+      avgWaitMinutes,
       onlineVolunteers: onlineVolunteers || 0,
       total: (recent || []).filter((r: any) => new Date(r.created_at).toDateString() === today).length,
-      satisfactionRate: 0,
+      satisfactionRate: satisfaction,
       weeklyConversations: weekly,
     }) as T;
   }
 
   return null;
 }
+
+// ───────────────────────── AUDITORIA ─────────────────────────
+const UUID = "[a-f0-9-]{36}";
+const AUDIT_RULES: Array<{ method: string; re: RegExp; action: string; entity: string }> = [
+  { method: "POST", re: /^\/auth\/login$/, action: "login", entity: "sessao" },
+  { method: "POST", re: /^\/auth\/register$/, action: "cadastro", entity: "usuario" },
+  { method: "POST", re: /^\/auth\/password\/reset$/, action: "senha.recuperacao", entity: "usuario" },
+  { method: "POST", re: /^\/conversations$/, action: "fila.entrada", entity: "atendimento" },
+  { method: "POST", re: new RegExp(`^/conversations/(${UUID})/accept$`), action: "atendimento.aceito", entity: "atendimento" },
+  { method: "POST", re: new RegExp(`^/conversations/(${UUID})/close$`), action: "atendimento.encerrado", entity: "atendimento" },
+  { method: "POST", re: new RegExp(`^/conversations/(${UUID})/risk-flags$`), action: "risco.sinalizado", entity: "atendimento" },
+  { method: "POST", re: new RegExp(`^/conversations/(${UUID})/rating$`), action: "atendimento.avaliado", entity: "atendimento" },
+  { method: "POST", re: new RegExp(`^/communities/(${UUID})/join$`), action: "grupo.entrada", entity: "grupo" },
+  { method: "POST", re: new RegExp(`^/communities/(${UUID})/leave$`), action: "grupo.saida", entity: "grupo" },
+  { method: "POST", re: /^\/reports$/, action: "denuncia.criada", entity: "denuncia" },
+  { method: "PATCH", re: new RegExp(`^/reports/admin/reports/(${UUID})$`), action: "denuncia.atualizada", entity: "denuncia" },
+  { method: "POST", re: /^\/admin\/(volunteers|moderators)\/apply$/, action: "candidatura.enviada", entity: "candidatura" },
+  { method: "POST", re: new RegExp(`^/admin/(?:volunteers|moderators)/(${UUID})/approve$`), action: "candidatura.aprovada", entity: "candidatura" },
+  { method: "POST", re: new RegExp(`^/admin/(?:volunteers|moderators)/(${UUID})/reject$`), action: "candidatura.recusada", entity: "candidatura" },
+  { method: "PATCH", re: new RegExp(`^/users/admin/(${UUID})/role$`), action: "usuario.papel_alterado", entity: "usuario" },
+  { method: "POST", re: new RegExp(`^/users/admin/(${UUID})/ban$`), action: "usuario.suspensao", entity: "usuario" },
+  { method: "POST", re: /^\/communities\/admin$/, action: "grupo.criado", entity: "grupo" },
+  { method: "PATCH", re: new RegExp(`^/communities/admin/(${UUID})$`), action: "grupo.atualizado", entity: "grupo" },
+  { method: "PATCH", re: new RegExp(`^/communities/admin/(${UUID})/members/(${UUID})$`), action: "grupo.membro_atualizado", entity: "grupo" },
+  { method: "DELETE", re: new RegExp(`^/communities/admin/messages/(${UUID})$`), action: "grupo.mensagem_removida", entity: "mensagem" },
+  { method: "POST", re: /^\/admin\/volunteers\/reports$/, action: "relatorio.enviado", entity: "relatorio" },
+  { method: "POST", re: new RegExp(`^/admin/volunteers/reports/(${UUID})/respond$`), action: "relatorio.respondido", entity: "relatorio" },
+];
+
+function auditMetadata(payload: any): Record<string, unknown> {
+  const keep = ["role", "status", "ban", "reason", "name", "decision", "level", "title", "targetType"];
+  const meta: Record<string, unknown> = {};
+  for (const k of keep) if (payload && payload[k] !== undefined) meta[k] = payload[k];
+  return meta;
+}
+
+async function writeAudit(cleanPath: string, method: string, payload: any) {
+  if (!supabase) return;
+  const rule = AUDIT_RULES.find((r) => r.method === method && r.re.test(cleanPath));
+  if (!rule) return;
+  try {
+    const { data } = await supabase.auth.getSession();
+    const actor = data.session?.user?.id ?? null;
+    const m = cleanPath.match(rule.re);
+    const entityId = m && m[1] && /^[a-f0-9-]{36}$/i.test(m[1]) ? m[1] : null;
+    await supabase.from("audit_logs").insert({
+      actor_id: actor,
+      action: rule.action,
+      entity_type: rule.entity,
+      entity_id: entityId,
+      metadata_json: { ...auditMetadata(payload), path: cleanPath },
+    });
+  } catch {
+    // log nunca pode quebrar a ação do usuário
+  }
+}
+
+export async function handleSupabaseRequest<T>(
+  path: string,
+  method = "GET",
+  body?: any,
+): Promise<T | null> {
+  const result = await handleInner<T>(path, method, body);
+  if (result !== null && method !== "GET") {
+    const cleanPath = path.replace(/^\/api/, "").replace(/\/$/, "");
+    let payload: any = {};
+    try {
+      payload = typeof body === "string" ? JSON.parse(body || "{}") : body || {};
+    } catch {
+      payload = {};
+    }
+    void writeAudit(cleanPath, method, payload);
+  }
+  return result;
+}
+

@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { ProfileRole } from "@/types";
+import { Pager, usePagination } from "@/components/common/Pager";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,11 +32,18 @@ export const Route = createFileRoute("/admin/usuarios")({
 });
 
 const ROLES: ProfileRole[] = ["usuario", "voluntario", "moderador", "administrador"];
+const ROLE_LABEL: Record<ProfileRole, string> = {
+  usuario: "Usuário",
+  voluntario: "Voluntário",
+  moderador: "Moderador",
+  administrador: "Administrador",
+};
 
 function Page() {
   useAuthGuard();
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["users"], queryFn: userService.list });
+  const me = useQuery({ queryKey: ["me"], queryFn: () => userService.me() });
   const m = useMutation({
     mutationFn: ({ id, role }: { id: string; role: ProfileRole }) =>
       userService.updateRole(id, role),
@@ -43,7 +51,7 @@ function Page() {
       toast.success("Papel atualizado.");
       qc.invalidateQueries({ queryKey: ["users"] });
     },
-    onError: () => toast.error("Não foi possível atualizar o papel."),
+    onError: (e: any) => toast.error(e?.message || "Não foi possível atualizar o papel."),
   });
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -57,6 +65,7 @@ function Page() {
     onError: () => toast.error("Não foi possível alterar o status do usuário."),
   });
 
+  const pg = usePagination(q.data ?? [], 10);
   const userDetailsQuery = useQuery({
     queryKey: ["user-details", selectedUserId],
     queryFn: () => userService.getDetails(selectedUserId!),
@@ -80,8 +89,8 @@ function Page() {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {(q.data ?? []).map((u) => (
-              <tr key={u.id}>
+            {pg.pageItems.map((u) => (
+              <tr key={u.id} className="row-hover">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9">
@@ -98,16 +107,27 @@ function Page() {
                 <td className="px-4 py-3 hidden sm:table-cell text-muted-foreground">{u.email}</td>
                 <td className="px-4 py-3">
                   <Select
-                    defaultValue={u.role}
-                    onValueChange={(v) => m.mutate({ id: u.id, role: v as ProfileRole })}
+                    value={u.role}
+                    disabled={u.id === me.data?.id || m.isPending}
+                    onValueChange={(v) => {
+                      if (
+                        window.confirm(
+                          `Alterar o papel de ${u.name} para ${ROLE_LABEL[v as ProfileRole]}?`,
+                        )
+                      )
+                        m.mutate({ id: u.id, role: v as ProfileRole });
+                    }}
                   >
-                    <SelectTrigger className="h-9 w-[160px]">
+                    <SelectTrigger
+                      className="h-9 w-[160px]"
+                      title={u.id === me.data?.id ? "Você não pode alterar o próprio papel" : undefined}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {ROLES.map((r) => (
                         <SelectItem key={r} value={r}>
-                          {r}
+                          {ROLE_LABEL[r]}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -139,6 +159,7 @@ function Page() {
           </tbody>
         </table>
       </div>
+      <Pager {...pg} onPageChange={pg.setPage} />
 
       {/* Dialog para exibir detalhes do usuário (exclusivo admin) */}
       <Dialog open={!!selectedUserId} onOpenChange={(open) => { if (!open) setSelectedUserId(null); }}>

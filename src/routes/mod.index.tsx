@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { reportService, userService } from "@/services";
 import { fmtRelative } from "@/utils/format";
 import type { ReportStatus } from "@/types";
+import { Pager, usePagination } from "@/components/common/Pager";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { ShieldAlert, Users, AlertTriangle, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -114,6 +115,9 @@ function Page() {
     });
   }, [usersQuery.data, userSearch]);
 
+  const pgReports = usePagination(list, 8);
+  const pgUsers = usePagination(filteredUsers, 10);
+
   return (
     <AppShell>
       <PageHeader
@@ -156,13 +160,13 @@ function Page() {
             </Select>
           </div>
 
-          <ul className="divide-y rounded-2xl border bg-card">
-            {list.map((r) => (
+          <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
+            {pgReports.pageItems.map((r) => (
               <li key={r.id}>
                 <Link
                   to="/mod/$id"
                   params={{ id: r.id }}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-4 hover:bg-muted/40"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-4 row-hover"
                 >
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -183,6 +187,7 @@ function Page() {
               </p>
             )}
           </ul>
+          <Pager {...pgReports} onPageChange={pgReports.setPage} />
         </TabsContent>
 
         {/* TAB 2: Listagem de Usuários */}
@@ -203,7 +208,7 @@ function Page() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {filteredUsers.map((u) => (
+                {pgUsers.pageItems.map((u) => (
                   <tr key={u.id}>
                     <td className="px-4 py-3 font-medium">{u.name}</td>
                     <td className="px-4 py-3 text-xs capitalize text-muted-foreground">{u.role}</td>
@@ -239,6 +244,7 @@ function Page() {
               </tbody>
             </table>
           </div>
+          <Pager {...pgUsers} onPageChange={pgUsers.setPage} />
         </TabsContent>
 
         {/* TAB 3: Meus Reportes Enviados */}

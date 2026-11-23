@@ -1,14 +1,52 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, ChevronUp, Inbox, Search } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronDown, ChevronUp, Inbox, MessageCircle, Search, Star } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
+import { Pager, usePagination } from "@/components/common/Pager";
 import { Input } from "@/components/ui/input";
 import { chatService } from "@/services";
 import { fmtDateTime } from "@/utils/format";
 import type { Conversation } from "@/types";
+import { cn } from "@/lib/utils";
+
+function Rating({ conversationId, value }: { conversationId: string; value?: number }) {
+  const qc = useQueryClient();
+  const m = useMutation({
+    mutationFn: (n: number) => chatService.rate(conversationId, n),
+    onSuccess: () => {
+      toast.success("Obrigado pela avaliação!");
+      qc.invalidateQueries({ queryKey: ["conversations"] });
+    },
+    onError: () => toast.error("Não foi possível salvar a avaliação."),
+  });
+  return (
+    <div className="flex items-center gap-0.5" role="group" aria-label="Avaliar atendimento">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          disabled={!!value || m.isPending}
+          onClick={() => m.mutate(n)}
+          aria-label={`${n} estrela${n > 1 ? "s" : ""}`}
+          className="rounded p-0.5 disabled:cursor-default"
+        >
+          <Star
+            className={cn(
+              "h-4 w-4 transition",
+              n <= (value ?? 0) ? "fill-primary text-primary" : "text-muted-foreground hover:text-primary",
+            )}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function Transcript({ conversation }: { conversation: Conversation }) {
   const q = useQuery({
@@ -58,9 +96,12 @@ function Transcript({ conversation }: { conversation: Conversation }) {
 export function ConversationHistory({
   title = "Histórico de conversas",
   description = "Todas as conversas entre voluntários e usuários.",
+  resume,
 }: {
   title?: string;
   description?: string;
+  /** Quem participa pode voltar a uma conversa em andamento (voluntário ou usuário). */
+  resume?: "vol" | "app";
 }) {
   const q = useQuery({ queryKey: ["conversations"], queryFn: chatService.getConversations });
   const [open, setOpen] = useState<string | null>(null);
@@ -78,6 +119,7 @@ export function ConversationHistory({
       );
   }, [q.data, term]);
 
+  const pg = usePagination(list, 10);
   return (
     <>
       <PageHeader title={title} description={description} />
@@ -105,8 +147,8 @@ export function ConversationHistory({
         />
       ) : (
         <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
-          {list.map((c) => (
-            <li key={c.id}>
+          {pg.pageItems.map((c) => (
+            <li key={c.id} className="row-hover">
               <div className="flex flex-wrap items-center gap-3 px-4 py-4">
                 <button
                   type="button"
@@ -121,13 +163,30 @@ export function ConversationHistory({
                   <p className="text-xs text-muted-foreground">{fmtDateTime(c.startedAt)}</p>
                 </button>
                 <div className="flex items-center gap-2">
-                  <div className="rounded-xl bg-neutral-900">
+                  {c.status === "active" && resume === "vol" && (
+                    <Button asChild size="sm" className="gap-1.5">
+                      <Link to="/vol/chat/$id" params={{ id: c.id }}>
+                        <MessageCircle className="h-4 w-4" /> Voltar à conversa
+                      </Link>
+                    </Button>
+                  )}
+                  {c.status === "active" && resume === "app" && (
+                    <Button asChild size="sm" className="gap-1.5">
+                      <Link to="/app/chat/$id" params={{ id: c.id }}>
+                        <MessageCircle className="h-4 w-4" /> Voltar à conversa
+                      </Link>
+                    </Button>
+                  )}
+                  {resume === "app" && c.status === "ended" && (
+                    <Rating conversationId={c.id} value={c.rating} />
+                  )}
+                  {resume !== "app" && (
                     <CareRecordSheet
                       userId={c.userId}
                       userAlias={c.userAlias}
                       conversationId={c.id}
                     />
-                  </div>
+                  )}
                   <StatusBadge status={c.status} />
                   {open === c.id ? (
                     <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
@@ -141,6 +200,7 @@ export function ConversationHistory({
           ))}
         </ul>
       )}
+      <Pager {...pg} onPageChange={pg.setPage} />
     </>
   );
 }

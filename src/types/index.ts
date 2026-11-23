@@ -41,6 +41,7 @@ export interface Conversation {
   lastMessage?: string;
   userId?: string;
   isTeamChat?: boolean;
+  rating?: number;
 }
 
 export type QueuePriority = "normal" | "prioritaria" | "crise";
@@ -76,6 +77,11 @@ export interface Application {
   availability: string;
   experience: string;
   status: ApplicationStatus;
+  /** Tipo da candidatura: usuário→voluntário ou voluntário→moderador. */
+  kind?: "voluntario" | "moderador";
+  /** Papel atual de quem se candidatou. */
+  currentRole?: string;
+  candidateId?: string;
 }
 
 export type ReportStatus = "pendente" | "em_analise" | "resolvido" | "arquivado";
@@ -178,6 +184,13 @@ export interface VolunteerReport {
   updatedAt: string;
 }
 
+export interface CareAttachment {
+  path: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
 export interface CareRecord {
   id: string;
   userId: string;
@@ -185,6 +198,8 @@ export interface CareRecord {
   volunteerName?: string;
   conversationId?: string;
   riskLevel: "baixo" | "medio" | "alto" | "imediato";
+  title?: string;
+  attachments?: CareAttachment[];
   summary: string;
   actionTaken?: string;
   createdAt: string;

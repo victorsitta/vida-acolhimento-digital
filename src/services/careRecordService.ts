@@ -1,118 +1,138 @@
 import { supabase } from "@/lib/supabase";
-import type { CareRecord } from "@/types";
+import type { CareRecord, CareAttachment } from "@/types";
+
+const BUCKET = "prontuarios";
+export const MAX_ATTACHMENT_MB = 10;
+export const MAX_ATTACHMENTS = 8;
+
+function mapRecord(r: any): CareRecord {
+  return {
+    id: r.id,
+    userId: r.user_id,
+    volunteerId: r.volunteer_id,
+    volunteerName: r.users?.display_name || r.volunteer_name || "Voluntário",
+    conversationId: r.conversation_id ?? undefined,
+    riskLevel: r.risk_level || "baixo",
+    title: r.title ?? undefined,
+    summary: r.summary ?? "",
+    actionTaken: r.action_taken ?? "",
+    attachments: Array.isArray(r.attachments) ? (r.attachments as CareAttachment[]) : [],
+    createdAt: r.created_at ?? new Date().toISOString(),
+    updatedAt: r.updated_at ?? undefined,
+  };
+}
+
+function safeName(name: string) {
+  return name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "_")
+    .slice(-80);
+}
 
 export const careRecordService = {
-  /**
-   * Consulta o histórico de prontuário e evoluções de um paciente
-   * (acessível exclusivamente por voluntários, moderadores e administradores)
-   */
+  /** Histórico de prontuário do acolhido (somente equipe). */
   async getPatientHistory(userId: string): Promise<CareRecord[]> {
-    if (!supabase) {
-      // Fallback local se cliente não inicializado
-      return [];
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from("care_records")
+      .select("*, users:volunteer_id(display_name)")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (!error) return (data || []).map(mapRecord);
+
+    // fallback: RPC antiga (sem anexos/título)
+    const { data: rpcData, error: rpcError } = await supabase.rpc("get_patient_care_history", {
+      p_user_id: userId,
+    });
+    if (!rpcError && Array.isArray(rpcData)) {
+      return rpcData.map((r: any) => mapRecord({ ...r, user_id: userId }));
     }
-
-    try {
-      // Tenta via RPC dedicada
-      const { data: rpcData, error: rpcError } = await supabase.rpc("get_patient_care_history", {
-        p_user_id: userId,
-      });
-
-      if (!rpcError && Array.isArray(rpcData)) {
-        return rpcData.map((r: any) => ({
-          id: r.id,
-          userId,
-          volunteerId: r.volunteer_id ?? "",
-          volunteerName: r.volunteer_name ?? "Voluntário",
-          riskLevel: r.risk_level ?? "baixo",
-          summary: r.summary ?? "",
-          actionTaken: r.action_taken ?? "",
-          createdAt: r.created_at ?? new Date().toISOString(),
-        }));
-      }
-
-      // Consulta direta à tabela care_records com join em users
-      const { data, error } = await supabase
-        .from("care_records")
-        .select("*, users:volunteer_id(display_name)")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.warn("Aviso ao carregar prontuário do acolhido:", error.message);
-        return [];
-      }
-
-      return (data || []).map((r: any) => ({
-        id: r.id,
-        userId: r.user_id,
-        volunteerId: r.volunteer_id,
-        volunteerName: r.users?.display_name || "Voluntário",
-        conversationId: r.conversation_id,
-        riskLevel: r.risk_level || "baixo",
-        summary: r.summary,
-        actionTaken: r.action_taken,
-        createdAt: r.created_at,
-        updatedAt: r.updated_at,
-      }));
-    } catch (err) {
-      console.error("Erro ao buscar histórico do acolhido:", err);
-      return [];
-    }
+    throw new Error(error.message);
   },
 
-  /**
-   * Registra uma nova nota de evolução ou atendimento no prontuário do paciente
-   */
+  /** Envia arquivos ao bucket privado e devolve os metadados para salvar no registro. */
+  async uploadAttachments(userId: string, files: File[]): Promise<CareAttachment[]> {
+    if (!supabase || files.length === 0) return [];
+    const uploaded: CareAttachment[] = [];
+    for (const file of files) {
+      if (file.size > MAX_ATTACHMENT_MB * 1024 * 1024) {
+        throw new Error(`"${file.name}" passa de ${MAX_ATTACHMENT_MB} MB.`);
+      }
+      const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safeName(file.name)}`;
+      const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+        contentType: file.type || undefined,
+        upsert: false,
+      });
+      if (error) {
+        throw new Error(
+          error.message.toLowerCase().includes("bucket")
+            ? "O armazenamento de anexos ainda não foi criado no Supabase (rode o SQL de prontuário)."
+            : `Falha ao enviar "${file.name}": ${error.message}`,
+        );
+      }
+      uploaded.push({ path, name: file.name, size: file.size, type: file.type || "application/octet-stream" });
+    }
+    return uploaded;
+  },
+
+  /** Link temporário (10 min) para abrir/baixar um anexo. */
+  async getAttachmentUrl(path: string): Promise<string> {
+    if (!supabase) throw new Error("Supabase indisponível");
+    const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 600);
+    if (error || !data?.signedUrl) throw new Error(error?.message || "Não foi possível abrir o anexo.");
+    return data.signedUrl;
+  },
+
   async addRecord(data: {
     userId: string;
     volunteerId?: string;
     conversationId?: string;
     riskLevel?: "baixo" | "medio" | "alto" | "imediato";
+    title?: string;
     summary: string;
     actionTaken?: string;
-  }): Promise<CareRecord | null> {
-    if (!supabase) return null;
+    files?: File[];
+  }): Promise<CareRecord> {
+    if (!supabase) throw new Error("Supabase indisponível");
 
-    try {
-      const userRes = await supabase.auth.getUser();
-      const currentVolunteerId = data.volunteerId || userRes.data.user?.id;
+    const userRes = await supabase.auth.getUser();
+    const volunteerId = data.volunteerId || userRes.data.user?.id;
+    if (!volunteerId) throw new Error("Você precisa estar autenticado.");
 
-      if (!currentVolunteerId) {
-        throw new Error("Voluntário não autenticado");
-      }
+    const attachments = await careRecordService.uploadAttachments(data.userId, data.files ?? []);
 
-      const { data: record, error } = await supabase
-        .from("care_records")
-        .insert({
-          user_id: data.userId,
-          volunteer_id: currentVolunteerId,
-          conversation_id: data.conversationId || null,
-          risk_level: data.riskLevel || "baixo",
-          summary: data.summary,
-          action_taken: data.actionTaken || null,
-        })
-        .select()
-        .single();
+    const { data: record, error } = await supabase
+      .from("care_records")
+      .insert({
+        user_id: data.userId,
+        volunteer_id: volunteerId,
+        conversation_id: data.conversationId || null,
+        risk_level: data.riskLevel || "baixo",
+        title: data.title?.trim() || null,
+        summary: data.summary,
+        action_taken: data.actionTaken || null,
+        attachments,
+      })
+      .select()
+      .single();
 
-      if (error) {
-        throw error;
-      }
-
-      return {
-        id: record.id,
-        userId: record.user_id,
-        volunteerId: record.volunteer_id,
-        volunteerName: "Você",
-        conversationId: record.conversation_id,
-        riskLevel: record.risk_level,
-        summary: record.summary,
-        actionTaken: record.action_taken,
-        createdAt: record.created_at,
-      };
-    } catch (err: any) {
-      console.error("Erro ao registrar prontuário:", err);
-      throw new Error(err.message || "Erro ao salvar no prontuário");
+    if (error) {
+      // não deixa arquivos órfãos se o registro falhar
+      if (attachments.length) await supabase.storage.from(BUCKET).remove(attachments.map((a) => a.path));
+      throw new Error(error.message);
     }
+
+    void supabase.from("audit_logs").insert({
+      actor_id: volunteerId,
+      action: "prontuario.criado",
+      entity_type: "prontuario",
+      entity_id: record.id,
+      metadata_json: { acolhido: data.userId, risco: data.riskLevel, anexos: attachments.length },
+    });
+
+    return mapRecord({ ...record, users: { display_name: "Você" } });
   },
 };

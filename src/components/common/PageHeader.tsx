@@ -10,8 +10,9 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 pb-6">
+    <header className="grid grid-cols-1 items-start gap-4 pb-6 sm:grid-cols-[minmax(0,1fr)_auto]">
       <div className="min-w-0">
+        <div className="mb-3 h-1 w-10 rounded-full bg-gradient-to-r from-primary to-accent" aria-hidden="true" />
         <h1 className="font-display text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
           {title}
         </h1>
@@ -19,7 +20,7 @@ export function PageHeader({
           <p className="mt-1 text-sm text-muted-foreground text-pretty">{description}</p>
         )}
       </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+      {actions && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>}
     </header>
   );
 }

@@ -214,6 +214,7 @@ function Page() {
             </div>
             <div className="flex items-center gap-2">
               <CareRecordSheet
+                tone="dark"
                 userId={conversation.data?.userId}
                 userAlias={conversation.data?.userAlias}
                 conversationId={id}

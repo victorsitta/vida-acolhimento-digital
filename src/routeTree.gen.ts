@@ -40,6 +40,7 @@ import { Route as AppComunidadesRouteImport } from './routes/app.comunidades'
 import { Route as AppCandidaturaRouteImport } from './routes/app.candidatura'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminModeradoresRouteImport } from './routes/admin.moderadores'
+import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHistoricoRouteImport } from './routes/admin.historico'
 import { Route as AdminComunidadesRouteImport } from './routes/admin.comunidades'
 import { Route as AdminCandidaturasRouteImport } from './routes/admin.candidaturas'
@@ -209,6 +210,11 @@ const AdminModeradoresRoute = AdminModeradoresRouteImport.update({
   path: '/admin/moderadores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLogsRoute = AdminLogsRouteImport.update({
+  id: '/admin/logs',
+  path: '/admin/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminHistoricoRoute = AdminHistoricoRouteImport.update({
   id: '/admin/historico',
   path: '/admin/historico',
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/admin/candidaturas': typeof AdminCandidaturasRouteWithChildren
   '/admin/comunidades': typeof AdminComunidadesRouteWithChildren
   '/admin/historico': typeof AdminHistoricoRoute
+  '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/candidatura': typeof AppCandidaturaRoute
@@ -333,6 +340,7 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
   '/admin/historico': typeof AdminHistoricoRoute
+  '/admin/logs': typeof AdminLogsRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/conversar': typeof AppConversarRoute
@@ -378,6 +386,7 @@ export interface FileRoutesById {
   '/admin/candidaturas': typeof AdminCandidaturasRouteWithChildren
   '/admin/comunidades': typeof AdminComunidadesRouteWithChildren
   '/admin/historico': typeof AdminHistoricoRoute
+  '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/candidatura': typeof AppCandidaturaRoute
@@ -426,6 +435,7 @@ export interface FileRouteTypes {
     | '/admin/candidaturas'
     | '/admin/comunidades'
     | '/admin/historico'
+    | '/admin/logs'
     | '/admin/moderadores'
     | '/admin/usuarios'
     | '/app/candidatura'
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/termos'
     | '/admin/historico'
+    | '/admin/logs'
     | '/admin/usuarios'
     | '/app/candidatura'
     | '/app/conversar'
@@ -514,6 +525,7 @@ export interface FileRouteTypes {
     | '/admin/candidaturas'
     | '/admin/comunidades'
     | '/admin/historico'
+    | '/admin/logs'
     | '/admin/moderadores'
     | '/admin/usuarios'
     | '/app/candidatura'
@@ -561,6 +573,7 @@ export interface RootRouteChildren {
   AdminCandidaturasRoute: typeof AdminCandidaturasRouteWithChildren
   AdminComunidadesRoute: typeof AdminComunidadesRouteWithChildren
   AdminHistoricoRoute: typeof AdminHistoricoRoute
+  AdminLogsRoute: typeof AdminLogsRoute
   AdminModeradoresRoute: typeof AdminModeradoresRouteWithChildren
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AppCandidaturaRoute: typeof AppCandidaturaRoute
@@ -805,6 +818,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminModeradoresRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/logs': {
+      id: '/admin/logs'
+      path: '/admin/logs'
+      fullPath: '/admin/logs'
+      preLoaderRoute: typeof AdminLogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/historico': {
       id: '/admin/historico'
       path: '/admin/historico'
@@ -966,6 +986,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCandidaturasRoute: AdminCandidaturasRouteWithChildren,
   AdminComunidadesRoute: AdminComunidadesRouteWithChildren,
   AdminHistoricoRoute: AdminHistoricoRoute,
+  AdminLogsRoute: AdminLogsRoute,
   AdminModeradoresRoute: AdminModeradoresRouteWithChildren,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AppCandidaturaRoute: AppCandidaturaRoute,
