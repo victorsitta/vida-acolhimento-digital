@@ -4,6 +4,8 @@ import { AppShell } from "@/layouts/AppShell";
 import { HeroBanner } from "@/components/common/HeroBanner";
 import { MoodCheckin } from "@/components/wellbeing/MoodCheckin";
 import { BreathingExercise } from "@/components/wellbeing/BreathingExercise";
+import { TracksPanel } from "@/components/wellbeing/TracksPanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 export const Route = createFileRoute("/app/bem-estar")({
@@ -52,39 +54,50 @@ function Page() {
         icon={HeartPulse}
         eyebrow="Cuide de você"
         title="Seu espaço de bem-estar"
-        description="Registre como você está, respire com calma e use técnicas simples para os dias mais pesados."
+        description="Registre como você está, respire com calma, siga uma trilha de 7 dias e use técnicas simples nos dias mais pesados."
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <MoodCheckin />
-        <BreathingExercise />
-      </div>
+      <Tabs defaultValue="hoje">
+        <TabsList className="mb-5 h-auto flex-wrap">
+          <TabsTrigger value="hoje">Hoje</TabsTrigger>
+          <TabsTrigger value="trilhas">Trilhas de 7 dias</TabsTrigger>
+          <TabsTrigger value="tecnicas">Técnicas rápidas</TabsTrigger>
+        </TabsList>
 
-      <section className="mt-8" aria-labelledby="tecnicas">
-        <h2 id="tecnicas" className="mb-3 font-display text-lg font-semibold">
-          Técnicas rápidas
-        </h2>
-        <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {TECHNIQUES.map((t) => (
-            <li key={t.title} className="card-lift rounded-2xl border bg-card p-4 shadow-soft">
-              <span className={`grid h-10 w-10 place-items-center rounded-xl ${t.tone}`}>
-                <t.icon className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <h3 className="mt-3 text-sm font-semibold">{t.title}</h3>
-              <ol className="mt-2 space-y-1 text-sm text-muted-foreground">
-                {t.steps.map((s, i) => (
-                  <li key={s} className="flex gap-2">
-                    <span className="font-semibold text-primary">{i + 1}.</span> {s}
-                  </li>
-                ))}
-              </ol>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-xs text-muted-foreground">
-          Estas dicas apoiam o seu dia a dia, mas não substituem acompanhamento profissional.
-        </p>
-      </section>
+        <TabsContent value="hoje">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <MoodCheckin />
+            <BreathingExercise />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="trilhas">
+          <TracksPanel />
+        </TabsContent>
+
+        <TabsContent value="tecnicas">
+          <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {TECHNIQUES.map((t) => (
+              <li key={t.title} className="card-lift rounded-2xl border bg-card p-4 shadow-soft">
+                <span className={`grid h-10 w-10 place-items-center rounded-xl ${t.tone}`}>
+                  <t.icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <h3 className="mt-3 text-sm font-semibold">{t.title}</h3>
+                <ol className="mt-2 space-y-1 text-sm text-muted-foreground">
+                  {t.steps.map((st, i) => (
+                    <li key={st} className="flex gap-2">
+                      <span className="font-semibold text-primary">{i + 1}.</span> {st}
+                    </li>
+                  ))}
+                </ol>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Estas dicas apoiam o seu dia a dia, mas não substituem acompanhamento profissional.
+          </p>
+        </TabsContent>
+      </Tabs>
     </AppShell>
   );
 }

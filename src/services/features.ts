@@ -97,6 +97,11 @@ export const appointmentService = {
   async cancel(id: string): Promise<void> {
     await call(`/appointments/${id}/cancel`, json("POST"));
   },
+  /** Passa o horário para outro voluntário livre; se não houver, avisa a pessoa para remarcar. */
+  async release(id: string): Promise<{ reassigned: boolean }> {
+    const d = await call<any>(`/appointments/${id}/release`, json("POST"));
+    return { reassigned: !!d?.reassigned };
+  },
   async open(): Promise<Appointment[]> {
     return (await call<any[]>("/appointments/open")).map(mapAppt);
   },
@@ -105,6 +110,30 @@ export const appointmentService = {
   },
   async complete(id: string): Promise<void> {
     await call(`/appointments/${id}/complete`, json("POST"));
+  },
+};
+
+export interface Slot {
+  startsAt: string;
+  free: number;
+}
+export interface AvailabilityCell {
+  weekday: number;
+  hour: number;
+}
+export const slotService = {
+  async list(): Promise<Slot[]> {
+    const rows = await call<any[]>("/appointments/slots");
+    return rows.map((r) => ({ startsAt: r.slot_start, free: Number(r.free) }));
+  },
+};
+export const availabilityService = {
+  async get(): Promise<AvailabilityCell[]> {
+    const rows = await call<any[]>("/volunteer-availability");
+    return rows.map((r) => ({ weekday: Number(r.weekday), hour: Number(r.hour) }));
+  },
+  async save(slots: AvailabilityCell[]): Promise<void> {
+    await call("/volunteer-availability", json("PUT", { slots }));
   },
 };
 

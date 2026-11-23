@@ -104,6 +104,13 @@ export async function handleFeatureRequest(cleanPath: string, method: string, pa
     if (error) throw new Error(error.message);
     return ok(data || []);
   }
+  const releaseMatch = cleanPath.match(/^\/appointments\/([a-f0-9-]+)\/release$/i);
+  if (releaseMatch && method === "POST") {
+    const { data, error } = await sb.rpc("release_appointment", { p_id: releaseMatch[1] });
+    if (error) throw new Error(error.message);
+    await logAudit("agenda.liberada", "agendamento", releaseMatch[1]);
+    return ok(data);
+  }
   const apptMatch = cleanPath.match(/^\/appointments\/([a-f0-9-]+)\/(cancel|claim|complete)$/i);
   if (apptMatch && method === "POST") {
     const [, id, action] = apptMatch;
@@ -126,6 +133,36 @@ export async function handleFeatureRequest(cleanPath: string, method: string, pa
     if (error) throw new Error(error.message);
     await logAudit(action === "cancel" ? "agenda.cancelada" : "agenda.concluida", "agendamento", id);
     return ok({ ok: true });
+  }
+
+  // ---------- Horários disponíveis (agenda) ----------
+  if (cleanPath === "/appointments/slots" && method === "GET") {
+    const { data, error } = await sb.rpc("available_slots", { p_days: 10 });
+    if (error) return ok([]); // sem a função no banco: a pessoa usa o horário livre
+    return ok(data || []);
+  }
+  if (cleanPath === "/volunteer-availability") {
+    const { data: auth } = await sb.auth.getUser();
+    const uid = auth.user?.id;
+    if (!uid) throw new Error("Não autenticado");
+    if (method === "GET") {
+      const { data, error } = await sb.from("volunteer_availability").select("weekday, hour").eq("volunteer_id", uid);
+      if (error) throw new Error(error.message);
+      return ok(data || []);
+    }
+    if (method === "PUT") {
+      const slots: Array<{ weekday: number; hour: number }> = Array.isArray(payload.slots) ? payload.slots : [];
+      const clean = slots
+        .filter((x) => Number.isInteger(x.weekday) && Number.isInteger(x.hour) && x.weekday >= 0 && x.weekday <= 6 && x.hour >= 0 && x.hour <= 23)
+        .map((x) => ({ volunteer_id: uid, weekday: x.weekday, hour: x.hour }));
+      const del = await sb.from("volunteer_availability").delete().eq("volunteer_id", uid);
+      if (del.error) throw new Error(del.error.message);
+      if (clean.length) {
+        const ins = await sb.from("volunteer_availability").insert(clean);
+        if (ins.error) throw new Error(ins.error.message);
+      }
+      return ok({ ok: true, count: clean.length });
+    }
   }
 
   // ---------- Trilhas ----------

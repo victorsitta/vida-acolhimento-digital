@@ -80,6 +80,7 @@ const LABELS: Record<string, string> = {
   "agenda.criada": "Agendou uma conversa",
   "agenda.assumida": "Voluntário assumiu um horário",
   "agenda.cancelada": "Cancelou um horário",
+  "agenda.liberada": "Voluntário liberou um horário",
   "agenda.concluida": "Concluiu uma conversa agendada",
   "moderacao.medida": "Aplicou uma medida de moderação",
   "moderacao.advertir": "Advertiu uma pessoa",

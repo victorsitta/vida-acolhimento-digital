@@ -56,7 +56,6 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/app/conversar", label: "Conversar", icon: MessageCircle },
     { to: "/app/comunidades", label: "Grupos", icon: UsersRound },
     { to: "/app/bem-estar", label: "Bem-estar", icon: HeartPulse },
-    { to: "/app/trilhas", label: "Trilhas", icon: Sparkles },
     { to: "/app/agendar", label: "Agendar", icon: CalendarClock },
     { to: "/app/plano-seguranca", label: "Meu plano", icon: ShieldHalf },
     { to: "/app/ajuda", label: "Onde buscar ajuda", icon: LifeBuoy },

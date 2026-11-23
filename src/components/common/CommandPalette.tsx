@@ -88,13 +88,13 @@ export function CommandPalette({ items, onLogout }: { items: PaletteNavItem[]; o
       <Button
         variant="outline"
         size="sm"
-        className="hidden h-9 gap-2 rounded-full pr-2 text-muted-foreground md:inline-flex"
+        className="hidden h-10 w-72 justify-start gap-2.5 rounded-full px-4 text-muted-foreground md:inline-flex lg:w-96"
         onClick={() => setOpen(true)}
         aria-label="Buscar (Ctrl K)"
       >
-        <Search className="h-4 w-4" />
-        <span className="text-xs">Buscar…</span>
-        <kbd className="ml-4 rounded-md border bg-muted px-1.5 py-0.5 font-sans text-[10px] font-medium">Ctrl K</kbd>
+        <Search className="h-[1.1rem] w-[1.1rem]" />
+        <span className="flex-1 text-left text-sm">Buscar telas, pessoas…</span>
+        <kbd className="rounded-md border bg-muted px-1.5 py-0.5 font-sans text-[11px] font-medium">Ctrl K</kbd>
       </Button>
 
       <CommandDialog

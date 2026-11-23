@@ -22,7 +22,7 @@ export function SosButton() {
         onClick={() => setOpen(true)}
         aria-label="Preciso de ajuda agora (SOS)"
         data-tip="Preciso de ajuda agora"
-        className="fixed bottom-[5.25rem] left-4 z-40 grid h-12 w-12 place-items-center rounded-full bg-destructive text-destructive-foreground shadow-lg ring-4 ring-destructive/20 transition hover:scale-110 md:bottom-6 md:left-6 md:h-auto md:w-auto md:grid-flow-col md:gap-2 md:px-4 md:py-3"
+        className="fixed bottom-[5.25rem] right-4 z-40 grid h-12 w-12 place-items-center rounded-full bg-destructive text-destructive-foreground shadow-lg ring-4 ring-destructive/20 transition hover:scale-110 md:bottom-6 md:right-6 md:h-auto md:w-auto md:grid-flow-col md:gap-2 md:px-4 md:py-3"
       >
         <LifeBuoy className="h-5 w-5" aria-hidden="true" />
         <span className="hidden text-sm font-semibold md:inline">SOS</span>

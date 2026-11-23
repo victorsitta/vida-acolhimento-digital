@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { appointmentService, type Appointment } from "@/services/features";
+import { appointmentService, slotService, type Appointment, type Slot } from "@/services/features";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/app/agendar")({
 
 const STATUS: Record<Appointment["status"], { label: string; icon: typeof Clock3; cls: string }> = {
   aberto: { label: "Aguardando um voluntário", icon: Hourglass, cls: "bg-warning/25 text-foreground" },
-  confirmado: { label: "Confirmada", icon: CheckCircle2, cls: "bg-success/15 text-success" },
+  confirmado: { label: "Confirmada · voluntário escolhido", icon: CheckCircle2, cls: "bg-success/15 text-success" },
   cancelado: { label: "Cancelada", icon: XCircle, cls: "bg-muted text-muted-foreground" },
   concluido: { label: "Concluída", icon: CheckCircle2, cls: "bg-muted text-muted-foreground" },
 };
@@ -37,14 +37,29 @@ function Page() {
   const min = useMemo(() => toLocalInput(new Date(Date.now() + 30 * 60_000)), []);
   const [when, setWhen] = useState("");
   const [topic, setTopic] = useState("");
+  const [picked, setPicked] = useState<string | null>(null);
+  const [dayKey, setDayKey] = useState<string | null>(null);
+
+  const slots = useQuery({ queryKey: ["slots"], queryFn: slotService.list, refetchInterval: 60_000, retry: false });
+  // agrupa os horários livres por dia (data local)
+  const days = useMemo(() => {
+    const map = new Map<string, Slot[]>();
+    for (const sl of slots.data ?? []) {
+      const k = toLocalInput(new Date(sl.startsAt)).slice(0, 10);
+      map.set(k, [...(map.get(k) ?? []), sl]);
+    }
+    return Array.from(map, ([key, list]) => ({ key, slots: list }));
+  }, [slots.data]);
 
   const create = useMutation({
-    mutationFn: () => appointmentService.create(new Date(when).toISOString(), topic.trim() || undefined),
+    mutationFn: (startsAt: string) => appointmentService.create(startsAt, topic.trim() || undefined),
     onSuccess: () => {
-      toast.success("Horário pedido! Avisaremos quando um voluntário confirmar.");
+      toast.success("Horário reservado! Avisaremos quando um voluntário confirmar.");
       setWhen("");
       setTopic("");
+      setPicked(null);
       qc.invalidateQueries({ queryKey: ["appointments"] });
+      qc.invalidateQueries({ queryKey: ["slots"] });
     },
     onError: (e: any) => toast.error(e?.message || "Não foi possível agendar."),
   });
@@ -66,7 +81,7 @@ function Page() {
         icon={CalendarClock}
         eyebrow="No seu tempo"
         title="Agendar uma conversa"
-        description="Escolha um dia e horário. Um voluntário confirma e você recebe um lembrete antes de começar."
+        description="Escolha um horário livre. O sistema escolhe um voluntário disponível e avisa vocês dois. Você recebe um lembrete antes de começar."
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -127,35 +142,87 @@ function Page() {
           )}
         </section>
 
-        <form
-          className="h-fit space-y-4 rounded-3xl border bg-card p-5 shadow-soft sm:p-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (when) create.mutate();
-          }}
-        >
-          <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-            <CalendarPlus className="h-5 w-5 text-primary" /> Marcar horário
+        <section className="h-fit space-y-4 rounded-3xl border bg-card p-5 shadow-soft sm:p-6" aria-labelledby="escolher">
+          <h2 id="escolher" className="flex items-center gap-2 font-display text-lg font-semibold">
+            <CalendarPlus className="h-5 w-5 text-primary" /> Escolha um horário
           </h2>
-          <div className="space-y-1.5">
-            <label htmlFor="when" className="text-sm font-medium">
-              Dia e horário
-            </label>
-            <Input id="when" type="datetime-local" min={min} value={when} onChange={(e) => setWhen(e.target.value)} required />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="topic" className="text-sm font-medium">
-              Quer adiantar o assunto? <span className="font-normal text-muted-foreground">(opcional)</span>
-            </label>
-            <Textarea id="topic" rows={3} value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Ex.: ansiedade com o trabalho" maxLength={300} />
-          </div>
-          <Button type="submit" size="lg" className="w-full" disabled={!when || create.isPending}>
-            {create.isPending ? "Enviando…" : "Pedir este horário"}
-          </Button>
+
+          {slots.isPending ? (
+            <Skeleton className="h-40 w-full" />
+          ) : days.length === 0 ? (
+            <div className="rounded-2xl border border-dashed p-5 text-center">
+              <p className="text-sm font-medium">Ainda não há horários disponíveis</p>
+              <p className="mt-1 text-xs text-muted-foreground">Os voluntários definem quando podem atender. Volte mais tarde ou use Conversar agora.</p>
+            </div>
+          ) : (
+            <>
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Dia">
+                {days.map((d) => {
+                  const dt = new Date(d.key + "T12:00:00");
+                  const active = d.key === (dayKey ?? days[0].key);
+                  return (
+                    <button
+                      key={d.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => {
+                        setDayKey(d.key);
+                        setPicked(null);
+                      }}
+                      className={cn(
+                        "shrink-0 rounded-2xl border px-3.5 py-2 text-center transition",
+                        active ? "border-primary bg-primary text-primary-foreground shadow-sm" : "bg-background/70 hover:border-primary/50",
+                      )}
+                    >
+                      <span className="block text-[11px] font-medium uppercase opacity-80">{dt.toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "")}</span>
+                      <span className="block font-display text-lg font-semibold leading-tight">{dt.getDate()}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-3 gap-2" role="group" aria-label="Horários livres">
+                {(days.find((d) => d.key === (dayKey ?? days[0].key)) ?? days[0]).slots.map((sl) => {
+                  const d = new Date(sl.startsAt);
+                  const active = picked === sl.startsAt;
+                  return (
+                    <button
+                      key={sl.startsAt}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setPicked(sl.startsAt)}
+                      className={cn(
+                        "rounded-xl border py-2.5 text-sm font-medium tabular-nums transition",
+                        active ? "border-primary bg-primary/15 ring-2 ring-primary/40" : "bg-background/70 hover:border-primary/50 hover:bg-primary/5",
+                      )}
+                    >
+                      {pad(d.getHours())}:{pad(d.getMinutes())}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {picked && (
+            <div className="pop-in space-y-3 rounded-2xl bg-primary/5 p-3">
+              <p className="text-sm">
+                <strong>{new Date(picked).toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}</strong> às{" "}
+                <strong>{pad(new Date(picked).getHours())}:{pad(new Date(picked).getMinutes())}</strong>
+              </p>
+              <Textarea rows={2} value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Quer adiantar o assunto? (opcional)" maxLength={300} />
+              <Button size="lg" className="w-full" disabled={create.isPending} onClick={() => create.mutate(picked)}>
+                {create.isPending ? "Agendando…" : "Confirmar horário"}
+              </Button>
+            </div>
+          )}
+
+
           <p className="text-xs text-muted-foreground">
-            Precisa conversar agora? Use <strong>Conversar</strong> no menu. Em risco, ligue 188 ou 192.
+            O sistema escolhe um voluntário disponível nesse horário e avisa por aqui. Precisa conversar agora? Use <strong>Conversar</strong>. Em risco, ligue 188 ou 192.
           </p>
-        </form>
+        </section>
       </div>
     </AppShell>
   );
