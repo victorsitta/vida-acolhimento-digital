@@ -289,15 +289,8 @@ DROP TRIGGER IF EXISTS trg_ensure_staff_profile ON public.users;
 CREATE TRIGGER trg_ensure_staff_profile AFTER UPDATE OF role ON public.users
   FOR EACH ROW WHEN (OLD.role IS DISTINCT FROM NEW.role) EXECUTE FUNCTION public.ensure_staff_profile();
 
--- somente administrador altera papeis (o proprio usuario nao pode se promover)
-DROP POLICY IF EXISTS "users_update_own" ON public.users;
-CREATE POLICY "users_update_own" ON public.users FOR UPDATE
-  USING (auth.uid() = id OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role = 'administrador'))
-  WITH CHECK (
-    EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role = 'administrador')
-    OR (auth.uid() = id AND role = (SELECT u2.role FROM public.users u2 WHERE u2.id = auth.uid()))
-  );
-NOTIFY pgrst, 'reload schema';
+-- (regras de papel: veja fix_recursao_users.sql)
+
 
 -- ================= promover_contas_teste.sql =================
 -- Rode no SQL Editor do Supabase: define o papel de cada conta de teste.
@@ -326,4 +319,36 @@ LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
   SELECT m.community_id, count(*) FROM public.community_members m WHERE m.status = 'ativo' GROUP BY m.community_id
 $$;
 GRANT EXECUTE ON FUNCTION public.community_member_counts() TO authenticated;
+NOTIFY pgrst, 'reload schema';
+
+-- ================= fix_recursao_users.sql =================
+-- Corrige: "infinite recursion detected in policy for relation users"
+-- Rode no SQL Editor do Supabase. Pode rodar mais de uma vez.
+
+-- Funcao auxiliar: le o papel de quem esta logado SEM passar pelas regras (RLS),
+-- evitando que a regra de "users" consulte a propria tabela "users".
+CREATE OR REPLACE FUNCTION public.current_user_role()
+RETURNS public.user_role
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT role FROM public.users WHERE id = auth.uid()
+$$;
+GRANT EXECUTE ON FUNCTION public.current_user_role() TO authenticated;
+
+-- Leitura: cada pessoa ve o proprio cadastro; a equipe ve todos.
+DROP POLICY IF EXISTS "users_select_own" ON public.users;
+CREATE POLICY "users_select_own" ON public.users FOR SELECT USING (
+  auth.uid() = id
+  OR public.current_user_role() IN ('voluntario', 'moderador', 'administrador')
+);
+
+-- Alteracao: o administrador muda qualquer papel; cada pessoa edita so o proprio
+-- cadastro e NAO pode mudar o proprio papel.
+DROP POLICY IF EXISTS "users_update_own" ON public.users;
+CREATE POLICY "users_update_own" ON public.users FOR UPDATE
+  USING (auth.uid() = id OR public.current_user_role() = 'administrador')
+  WITH CHECK (
+    public.current_user_role() = 'administrador'
+    OR (auth.uid() = id AND role = public.current_user_role())
+  );
+
 NOTIFY pgrst, 'reload schema';
