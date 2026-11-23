@@ -72,6 +72,13 @@ const LABELS: Record<string, string> = {
   "disponibilidade.alterada": "Alterou a disponibilidade",
   "logs.exportado": "Exportou os logs",
   "conta.excluida": "Excluiu a própria conta",
+  "moderacao.medida": "Aplicou uma medida de moderação",
+  "moderacao.advertir": "Advertiu uma pessoa",
+  "moderacao.suspender": "Suspendeu uma conta",
+  "moderacao.reativar": "Reativou uma conta",
+  "moderacao.remover_mensagem": "Removeu mensagem denunciada",
+  "moderacao.denuncia_excluida": "Excluiu uma denúncia",
+  "denuncia.avaliada": "Avaliou o atendimento da moderação",
   "conta.dados_exportados": "Baixou os próprios dados",
   "grupo.identidade_revelada": "Consultou identidade em grupo",
 };
@@ -81,7 +88,7 @@ const CATEGORIES: Array<{ value: string; label: string; prefix: string[] }> = [
   { value: "acesso", label: "Acesso e conta", prefix: ["login", "logout", "cadastro", "senha"] },
   { value: "atendimento", label: "Atendimentos, fila e prontuário", prefix: ["fila", "atendimento", "risco", "prontuario", "disponibilidade"] },
   { value: "grupos", label: "Grupos", prefix: ["grupo"] },
-  { value: "moderacao", label: "Denúncias e moderação", prefix: ["denuncia", "relatorio"] },
+  { value: "moderacao", label: "Denúncias e moderação", prefix: ["denuncia", "relatorio", "moderacao"] },
   { value: "equipe", label: "Equipe e candidaturas", prefix: ["candidatura", "usuario", "logs", "conta"] },
 ];
 

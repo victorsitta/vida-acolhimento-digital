@@ -26,6 +26,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as VolModeradorRouteImport } from './routes/vol.moderador'
 import { Route as VolHistoricoRouteImport } from './routes/vol.historico'
 import { Route as VolFilaRouteImport } from './routes/vol.fila'
+import { Route as VolDenunciasRouteImport } from './routes/vol.denuncias'
 import { Route as VolCandidaturaRouteImport } from './routes/vol.candidatura'
 import { Route as VolAvaliacoesRouteImport } from './routes/vol.avaliacoes'
 import { Route as ModHistoricoRouteImport } from './routes/mod.historico'
@@ -141,6 +142,11 @@ const VolHistoricoRoute = VolHistoricoRouteImport.update({
 const VolFilaRoute = VolFilaRouteImport.update({
   id: '/vol/fila',
   path: '/vol/fila',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VolDenunciasRoute = VolDenunciasRouteImport.update({
+  id: '/vol/denuncias',
+  path: '/vol/denuncias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VolCandidaturaRoute = VolCandidaturaRouteImport.update({
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/mod/historico': typeof ModHistoricoRoute
   '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
+  '/vol/denuncias': typeof VolDenunciasRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
   '/vol/moderador': typeof VolModeradorRoute
@@ -377,6 +384,7 @@ export interface FileRoutesByTo {
   '/mod/historico': typeof ModHistoricoRoute
   '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
+  '/vol/denuncias': typeof VolDenunciasRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
   '/vol/moderador': typeof VolModeradorRoute
@@ -428,6 +436,7 @@ export interface FileRoutesById {
   '/mod/historico': typeof ModHistoricoRoute
   '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
+  '/vol/denuncias': typeof VolDenunciasRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
   '/vol/moderador': typeof VolModeradorRoute
@@ -480,6 +489,7 @@ export interface FileRouteTypes {
     | '/mod/historico'
     | '/vol/avaliacoes'
     | '/vol/candidatura'
+    | '/vol/denuncias'
     | '/vol/fila'
     | '/vol/historico'
     | '/vol/moderador'
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/mod/historico'
     | '/vol/avaliacoes'
     | '/vol/candidatura'
+    | '/vol/denuncias'
     | '/vol/fila'
     | '/vol/historico'
     | '/vol/moderador'
@@ -576,6 +587,7 @@ export interface FileRouteTypes {
     | '/mod/historico'
     | '/vol/avaliacoes'
     | '/vol/candidatura'
+    | '/vol/denuncias'
     | '/vol/fila'
     | '/vol/historico'
     | '/vol/moderador'
@@ -627,6 +639,7 @@ export interface RootRouteChildren {
   ModHistoricoRoute: typeof ModHistoricoRoute
   VolAvaliacoesRoute: typeof VolAvaliacoesRoute
   VolCandidaturaRoute: typeof VolCandidaturaRoute
+  VolDenunciasRoute: typeof VolDenunciasRoute
   VolFilaRoute: typeof VolFilaRoute
   VolHistoricoRoute: typeof VolHistoricoRoute
   VolModeradorRoute: typeof VolModeradorRoute
@@ -757,6 +770,13 @@ declare module '@tanstack/react-router' {
       path: '/vol/fila'
       fullPath: '/vol/fila'
       preLoaderRoute: typeof VolFilaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vol/denuncias': {
+      id: '/vol/denuncias'
+      path: '/vol/denuncias'
+      fullPath: '/vol/denuncias'
+      preLoaderRoute: typeof VolDenunciasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vol/candidatura': {
@@ -1064,6 +1084,7 @@ const rootRouteChildren: RootRouteChildren = {
   ModHistoricoRoute: ModHistoricoRoute,
   VolAvaliacoesRoute: VolAvaliacoesRoute,
   VolCandidaturaRoute: VolCandidaturaRoute,
+  VolDenunciasRoute: VolDenunciasRoute,
   VolFilaRoute: VolFilaRoute,
   VolHistoricoRoute: VolHistoricoRoute,
   VolModeradorRoute: VolModeradorRoute,

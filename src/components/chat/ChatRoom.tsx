@@ -1,8 +1,24 @@
-import { useEffect, useRef, type ChangeEvent, type ReactNode } from "react";
-import { Send, X } from "lucide-react";
+import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { Palette, Send, Smile, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+
+const STICKERS: Array<{ group: string; items: string[] }> = [
+  { group: "Carinho", items: ["🤗", "💛", "🫶", "🥰", "💞", "🌷", "🫂", "😊"] },
+  { group: "Força", items: ["💪", "🌟", "✨", "🔥", "🏆", "🙌", "👏", "🚀"] },
+  { group: "Calma", items: ["🌿", "🌈", "☀️", "🌙", "🍃", "🌊", "☕", "🧘"] },
+  { group: "Gratidão", items: ["🙏", "🌻", "🎁", "💐", "🤝", "👍", "😌", "🥹"] },
+];
+
+const THEMES = [
+  { id: "ouro", label: "Dourado", from: "", to: "", fg: "" },
+  { id: "oceano", label: "Oceano", from: "oklch(0.58 0.12 240)", to: "oklch(0.5 0.12 255)", fg: "white" },
+  { id: "floresta", label: "Floresta", from: "oklch(0.56 0.11 155)", to: "oklch(0.48 0.1 170)", fg: "white" },
+  { id: "rosa", label: "Rosa", from: "oklch(0.64 0.14 5)", to: "oklch(0.56 0.14 350)", fg: "white" },
+  { id: "lavanda", label: "Lavanda", from: "oklch(0.6 0.13 295)", to: "oklch(0.52 0.14 280)", fg: "white" },
+];
+const THEME_KEY = "vida:chat-theme";
 
 function initialsOf(text: string) {
   return text
@@ -47,6 +63,8 @@ export interface ChatRoomProps {
     disabled?: boolean;
     maxLength?: number;
     hint?: string;
+    /** envia uma figurinha (já no formato "::sticker::🤗") */
+    onSticker?: (sticker: string) => void;
   };
   className?: string;
 }
@@ -73,6 +91,25 @@ export function ChatRoom({
   className,
 }: ChatRoomProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
+  const [showStickers, setShowStickers] = useState(false);
+  const [showThemes, setShowThemes] = useState(false);
+  const [themeId, setThemeId] = useState<string>(() => {
+    try {
+      return localStorage.getItem(THEME_KEY) || "ouro";
+    } catch {
+      return "ouro";
+    }
+  });
+  const theme = THEMES.find((t) => t.id === themeId) ?? THEMES[0];
+  const chooseTheme = (id: string) => {
+    setThemeId(id);
+    setShowThemes(false);
+    try {
+      localStorage.setItem(THEME_KEY, id);
+    } catch {
+      /* sem armazenamento: só não lembra a escolha */
+    }
+  };
 
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight, behavior: "smooth" });
@@ -86,6 +123,11 @@ export function ChatRoom({
         "flex h-[calc(100dvh-13rem)] min-h-[28rem] flex-col overflow-hidden rounded-3xl border bg-card shadow-soft",
         className,
       )}
+      style={
+        theme.from
+          ? ({ "--bubble-from": theme.from, "--bubble-to": theme.to, "--bubble-fg": theme.fg } as React.CSSProperties)
+          : undefined
+      }
     >
       {/* Cabeçalho */}
       <header className="border-b bg-gradient-to-b from-primary/10 to-transparent px-4 py-3 sm:px-5">
@@ -110,6 +152,42 @@ export function ChatRoom({
           </div>
           <div className="flex items-center gap-1.5">
             {actions}
+            <div className="relative">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setShowThemes(!showThemes)}
+                aria-label="Cor das mensagens"
+                aria-expanded={showThemes}
+              >
+                <Palette className="h-4 w-4" />
+              </Button>
+              {showThemes && (
+                <div className="pop-in absolute right-0 top-11 z-20 w-44 rounded-2xl border bg-popover p-2 shadow-xl">
+                  <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Cor das suas mensagens
+                  </p>
+                  {THEMES.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => chooseTheme(t.id)}
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-muted",
+                        t.id === themeId && "bg-muted font-medium",
+                      )}
+                    >
+                      <span
+                        className="h-4 w-4 rounded-full border"
+                        style={{ background: t.from ? `linear-gradient(135deg, ${t.from}, ${t.to})` : "var(--primary)" }}
+                      />
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {onEnd && (
               <Button
                 type="button"
@@ -154,7 +232,48 @@ export function ChatRoom({
       >
         {typing}
         {replyBar}
+        {showStickers && composer.onSticker && (
+          <div className="pop-in mb-2 max-h-52 overflow-y-auto rounded-2xl border bg-popover p-3 shadow-lg">
+            {STICKERS.map((g) => (
+              <div key={g.group} className="mb-2 last:mb-0">
+                <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {g.group}
+                </p>
+                <div className="grid grid-cols-8 gap-1">
+                  {g.items.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => {
+                        composer.onSticker?.(`::sticker::${emoji}`);
+                        setShowStickers(false);
+                      }}
+                      className="grid aspect-square place-items-center rounded-xl text-2xl transition hover:scale-125 hover:bg-muted active:scale-95"
+                      aria-label={`Enviar figurinha ${emoji}`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="flex items-end gap-2">
+          {composer.onSticker && (
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-11 w-11 shrink-0 rounded-2xl"
+              onClick={() => setShowStickers(!showStickers)}
+              aria-label="Figurinhas"
+              aria-expanded={showStickers}
+              disabled={composer.disabled}
+            >
+              <Smile className="h-5 w-5" />
+            </Button>
+          )}
           <label htmlFor="chat-message" className="sr-only">
             Mensagem
           </label>

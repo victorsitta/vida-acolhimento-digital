@@ -296,6 +296,7 @@ function Page() {
           onChange: handleTextChange,
           onSubmit: () => send.mutate({ text: text.trim(), replyToId: replyingTo?.id }),
           sending: send.isPending,
+          onSticker: (st: string) => send.mutate({ text: st, replyToId: replyingTo?.id }),
           placeholder: "Escreva uma mensagem…",
         }}
       >

@@ -14,7 +14,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-card/50 p-10 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
+      <div className="float-y grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary ring-8 ring-primary/5">
         <Icon className="h-6 w-6" aria-hidden="true" />
       </div>
       <h3 className="mt-4 text-base font-semibold text-foreground">{title}</h3>

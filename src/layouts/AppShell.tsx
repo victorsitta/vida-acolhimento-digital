@@ -52,6 +52,7 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/vol/fila", label: "Fila", icon: Users },
     { to: "/vol/historico", label: "Histórico", icon: History },
     { to: "/vol/avaliacoes", label: "Avaliações", icon: Star },
+    { to: "/vol/denuncias", label: "Denúncias", icon: FileWarning },
     { to: "/vol/candidatura", label: "Candidatura", icon: ClipboardList },
   ],
   moderador: [
@@ -379,7 +380,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </header>
 
         <main className="flex-1 px-4 py-6 pb-24 md:px-10 md:py-10 md:pb-12">
-          <div className="fade-up mx-auto max-w-5xl">{children}</div>
+          <div className="fade-up mx-auto max-w-6xl">{children}</div>
         </main>
 
         {/* Bottom nav mobile */}

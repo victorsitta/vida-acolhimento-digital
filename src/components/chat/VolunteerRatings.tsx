@@ -118,8 +118,17 @@ function VolunteerCard({ s }: { s: Summary }) {
 }
 
 /** Avaliações dos atendimentos: equipe vê todos os voluntários; voluntário vê só as próprias. */
-export function VolunteerRatings({ mine = false }: { mine?: boolean }) {
-  const q = useQuery({ queryKey: ["ratings"], queryFn: ratingService.list });
+export function VolunteerRatings({
+  mine = false,
+  source = "volunteers",
+}: {
+  mine?: boolean;
+  source?: "volunteers" | "moderators";
+}) {
+  const q = useQuery({
+    queryKey: ["ratings", source],
+    queryFn: source === "moderators" ? ratingService.listModerators : ratingService.list,
+  });
   const [term, setTerm] = useState("");
 
   const rows = q.data ?? [];
@@ -137,11 +146,13 @@ export function VolunteerRatings({ mine = false }: { mine?: boolean }) {
   return (
     <>
       <PageHeader
-        title={mine ? "Minhas avaliações" : "Avaliações dos voluntários"}
+        title={mine ? "Minhas avaliações" : source === "moderators" ? "Avaliações da moderação" : "Avaliações dos voluntários"}
         description={
           mine
             ? "O que as pessoas acolhidas acharam dos seus atendimentos."
-            : "Notas e comentários deixados pelas pessoas após cada atendimento."
+            : source === "moderators"
+              ? "Notas de quem denunciou sobre como a moderação tratou o caso."
+              : "Notas e comentários deixados pelas pessoas após cada atendimento."
         }
       />
 
@@ -154,7 +165,7 @@ export function VolunteerRatings({ mine = false }: { mine?: boolean }) {
       {!mine && summaries.length > 1 && (
         <div className="relative mb-4 max-w-md">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <Input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Buscar voluntário" className="pl-9" aria-label="Buscar voluntário" />
+          <Input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Buscar pelo nome" className="pl-9" aria-label="Buscar pelo nome" />
         </div>
       )}
 

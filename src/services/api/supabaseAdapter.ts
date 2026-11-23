@@ -278,48 +278,40 @@ async function handleInner<T>(
     const { data: me } = await supabase.from("users").select("role").eq("id", uid).maybeSingle();
     const role = me?.role;
 
-    let query = supabase
-      .from("conversations")
-      .select(`*, ${USER_NAME_SELECT}, volunteer:volunteer_id(display_name)`)
-      .order("created_at", { ascending: false });
-    if (role === "voluntario") {
-      // voluntário vê o que atendeu (e o que ele mesmo abriu), nunca a fila de outros aqui
-      query = query.or(`volunteer_id.eq.${uid},user_id.eq.${uid}`);
-    } else if (role !== "moderador" && role !== "administrador") {
-      query = query.eq("user_id", uid);
-    }
-    const { data, error } = await query;
+    const isStaff = role === "moderador" || role === "administrador";
+    const build = (withEmail: boolean) => {
+      const who = withEmail
+        ? "users:user_id(display_name, email, user_profiles(nickname)), volunteer:volunteer_id(display_name, email)"
+        : `${USER_NAME_SELECT}, volunteer:volunteer_id(display_name)`;
+      let query = supabase!
+        .from("conversations")
+        .select(`*, ${who}`)
+        .order("created_at", { ascending: false });
+      if (role === "voluntario") {
+        // voluntário vê o que atendeu (e o que ele mesmo abriu), nunca a fila de outros aqui
+        query = query.or(`volunteer_id.eq.${uid},user_id.eq.${uid}`);
+      } else if (!isStaff) {
+        query = query.eq("user_id", uid);
+      }
+      return query;
+    };
+    let { data, error } = await build(isStaff);
+    if (error && isStaff) ({ data, error } = await build(false)); // coluna email ainda não existe
     if (error) throw new Error(error.message);
     return ok(
       (data || []).map((c: any) => ({
         ...c,
         anonymous_name: userAlias(c),
         volunteer_display_name: c.volunteer?.display_name,
+        ...(isStaff
+          ? {
+              user_real_name: c.users?.display_name,
+              user_email: c.users?.email,
+              volunteer_email: c.volunteer?.email,
+            }
+          : {}),
       })),
     ) as T;
-  }
-
-  const qsMatch = cleanPath.match(/^\/conversations\/queue-status(?:\/([a-f0-9-]+))?$/i);
-  if (qsMatch) {
-    const since = new Date(Date.now() - 90_000).toISOString();
-    const { count: online } = await supabase
-      .from("volunteer_profiles")
-      .select("*", { count: "exact", head: true })
-      .eq("availability_status", "online")
-      .gte("last_seen_at", since);
-    const { data: waiting } = await supabase
-      .from("conversations")
-      .select("id, created_at")
-      .eq("status", "aguardando")
-      .gte("created_at", waitCutoff())
-      .order("created_at", { ascending: true });
-    const list = waiting || [];
-    const idx = qsMatch[1] ? list.findIndex((c: any) => c.id === qsMatch[1]) : -1;
-    return ok({
-      online: online || 0,
-      waiting: list.length,
-      position: idx >= 0 ? idx + 1 : null,
-    }) as T;
   }
 
   if (cleanPath === "/conversations/volunteer/queue") {
@@ -690,7 +682,7 @@ async function handleInner<T>(
   }
 
   const repAdminMatch = cleanPath.match(/^\/reports\/admin\/reports(?:\/([a-f0-9-]+))?$/i);
-  const repSel = "*, reporter:reporter_id(display_name)";
+  const repSel = "*, reporter:reporter_id(display_name), handler:handled_by(display_name)";
   const mapRep = (r: any) => ({
     ...r,
     reporterAlias: r.reporter?.display_name ?? "Pessoa denunciante",
@@ -716,16 +708,76 @@ async function handleInner<T>(
   if (repAdminMatch && repAdminMatch[1] && method === "PATCH") {
     const { error } = await supabase
       .from("reports")
-      .update({ status: payload.status, decision: payload.decision || null })
+      .update({
+        status: payload.status,
+        decision: payload.decision || null,
+        handled_by: (await supabase.auth.getUser()).data.user?.id,
+        updated_at: new Date().toISOString(),
+        resolved_at: ["resolvido", "arquivado"].includes(payload.status) ? new Date().toISOString() : null,
+      })
       .eq("id", repAdminMatch[1]);
     if (error) throw new Error(error.message);
     return ok({ ok: true }) as T;
+  }
+  const repActionMatch = cleanPath.match(/^\/reports\/admin\/reports\/([a-f0-9-]+)\/action$/i);
+  if (repActionMatch && method === "POST") {
+    const { error } = await supabase.rpc("moderation_action", {
+      p_report_id: repActionMatch[1],
+      p_action: payload.action,
+      p_reason: payload.reason || null,
+    });
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+  if (repAdminMatch && repAdminMatch[1] && method === "DELETE") {
+    const { error } = await supabase.from("reports").delete().eq("id", repAdminMatch[1]);
+    if (error) throw new Error(error.message);
+    await logAudit("moderacao.denuncia_excluida", "denuncia", repAdminMatch[1]);
+    return ok({ ok: true }) as T;
+  }
+  const repRateMatch = cleanPath.match(/^\/reports\/([a-f0-9-]+)\/rating$/i);
+  if (repRateMatch && method === "POST") {
+    const { error } = await supabase.rpc("rate_report", {
+      p_report_id: repRateMatch[1],
+      p_rating: Number(payload.rating),
+      p_comment: payload.comment || null,
+    });
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+  if (cleanPath === "/moderators/ratings" && method === "GET") {
+    const { data, error } = await supabase
+      .from("reports")
+      .select("id, handled_by, resolution_rating, resolution_comment, resolved_at, created_at, reason")
+      .not("resolution_rating", "is", null)
+      .not("handled_by", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((data || []).map((r: any) => r.handled_by)));
+    const names = new Map<string, string>();
+    if (ids.length) {
+      const { data: us } = await supabase.from("users").select("id, display_name").in("id", ids);
+      (us || []).forEach((u: any) => names.set(u.id, u.display_name));
+    }
+    return ok(
+      (data || []).map((r: any) => ({
+        id: r.id,
+        volunteer_id: r.handled_by,
+        volunteer_name: names.get(r.handled_by) ?? "Moderador",
+        user_alias: r.reason,
+        rating: r.resolution_rating,
+        rating_comment: r.resolution_comment,
+        ended_at: r.resolved_at,
+        created_at: r.created_at,
+      })),
+    ) as T;
   }
   if (cleanPath === "/reports/my" && method === "GET") {
     const { data: authData } = await supabase.auth.getUser();
     const { data, error } = await supabase
       .from("reports")
-      .select("*")
+      .select("*, handler:handled_by(display_name)")
       .eq("reporter_id", authData.user?.id)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -1238,6 +1290,8 @@ const AUDIT_RULES: Array<{ method: string; re: RegExp; action: string; entity: s
   { method: "POST", re: new RegExp(`^/admin/volunteers/reports/(${UUID})/respond$`), action: "relatorio.respondido", entity: "relatorio" },
   { method: "POST", re: new RegExp(`^/conversations/(${UUID})/messages$`), action: "atendimento.mensagem", entity: "atendimento" },
   { method: "POST", re: new RegExp(`^/communities/(${UUID})/messages$`), action: "grupo.mensagem", entity: "grupo" },
+  { method: "POST", re: new RegExp(`^/reports/admin/reports/(${UUID})/action$`), action: "moderacao.medida", entity: "denuncia" },
+  { method: "POST", re: new RegExp(`^/reports/(${UUID})/rating$`), action: "denuncia.avaliada", entity: "denuncia" },
   { method: "POST", re: /^\/auth\/anonymous$/, action: "login.anonimo", entity: "sessao" },
   { method: "POST", re: /^\/auth\/resend-confirmation$/, action: "cadastro.reenvio_confirmacao", entity: "usuario" },
   { method: "PATCH", re: /^\/admin\/volunteers\/availability$/, action: "disponibilidade.alterada", entity: "voluntario", skip: (p: any) => !!p?.heartbeat },

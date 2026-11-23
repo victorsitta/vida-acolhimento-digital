@@ -54,6 +54,13 @@ export function ChatDay({ date }: { date: string }) {
   );
 }
 
+/** Figurinha: mensagem enviada como "::sticker::🤗" (sem mudar o banco). */
+export const STICKER_PREFIX = "::sticker::";
+export const isSticker = (text: string) => text.startsWith(STICKER_PREFIX);
+export const stickerOf = (text: string) => text.slice(STICKER_PREFIX.length);
+/** Texto legível para prévias (listas, notificações). */
+export const previewText = (text: string) => (isSticker(text) ? `${stickerOf(text)} figurinha` : text);
+
 export interface ChatBubbleProps {
   /** mensagem da própria pessoa (alinhada à direita, em destaque) */
   mine: boolean;
@@ -111,13 +118,36 @@ export function ChatBubble({
             <span className={cn("mb-1 px-1 text-xs font-semibold", tone.name)}>{name}</span>
           )}
 
+          {isSticker(text) ? (
+            <div className="px-1">
+              <span
+                className="block origin-bottom animate-in zoom-in-50 text-6xl leading-none drop-shadow-sm duration-300 sm:text-7xl"
+                role="img"
+                aria-label="Figurinha"
+              >
+                {stickerOf(text)}
+              </span>
+              <time dateTime={createdAt} className="mt-1 block text-[11px] text-muted-foreground">
+                {fmtTime(createdAt)}
+              </time>
+            </div>
+          ) : (
           <div
             className={cn(
               "relative px-4 py-2.5 text-sm leading-relaxed",
               mine
-                ? "rounded-2xl rounded-br-md bg-gradient-to-br from-primary to-primary/85 text-primary-foreground shadow-md shadow-primary/20"
+                ? "rounded-2xl rounded-br-md text-primary-foreground shadow-md"
                 : cn("rounded-2xl rounded-bl-md border border-l-4 bg-card text-card-foreground shadow-sm", tone.edge),
             )}
+            style={
+              mine
+                ? {
+                    background:
+                      "linear-gradient(135deg, var(--bubble-from, var(--primary)), var(--bubble-to, color-mix(in oklab, var(--primary) 82%, var(--accent))))",
+                    color: "var(--bubble-fg, var(--primary-foreground))",
+                  }
+                : undefined
+            }
           >
             {reply && (
               <div
@@ -151,6 +181,7 @@ export function ChatBubble({
               )}
             </div>
           </div>
+          )}
 
           {footer}
         </div>

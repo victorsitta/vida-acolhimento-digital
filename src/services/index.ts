@@ -121,6 +121,9 @@ function mapConversation(input: any): Conversation {
     endedAt: input.ended_at,
     topic: "Atendimento emocional",
     closedReason: input.closed_reason ?? undefined,
+    userName: input.user_real_name ?? undefined,
+    userEmail: input.user_email ?? undefined,
+    volunteerEmail: input.volunteer_email ?? undefined,
     priority: input.priority ?? "normal",
     lastMessage: input.last_message,
     userId: input.user_id,
@@ -203,6 +206,13 @@ function mapReport(input: any): Report {
     priority: input.priority ?? "media",
     createdAt: input.created_at ?? input.createdAt ?? new Date().toISOString(),
     history: input.history ?? [],
+    targetType: input.target_type ?? undefined,
+    targetId: input.target_id ?? undefined,
+    decision: input.decision ?? undefined,
+    handlerName: input.handler?.display_name ?? input.handler_name ?? undefined,
+    resolvedAt: input.resolved_at ?? undefined,
+    rating: input.resolution_rating ?? undefined,
+    ratingComment: input.resolution_comment ?? undefined,
   };
 }
 
@@ -655,6 +665,30 @@ export const reportService = {
     });
     return mapReport({ ...response, reported_alias: reportedAlias });
   },
+  /** Medidas da moderação: advertir, suspender, reativar ou remover a mensagem. */
+  async applyAction(
+    id: string,
+    action: "advertir" | "suspender" | "reativar" | "remover_mensagem",
+    reason?: string,
+  ): Promise<{ ok: true }> {
+    await apiData<unknown>(`/reports/admin/reports/${id}/action`, {
+      method: "POST",
+      body: JSON.stringify({ action, reason }),
+    });
+    return { ok: true };
+  },
+  async remove(id: string): Promise<{ ok: true }> {
+    await apiData<unknown>(`/reports/admin/reports/${id}`, { method: "DELETE" });
+    return { ok: true };
+  },
+  /** Quem denunciou avalia o atendimento da moderação. */
+  async rate(id: string, rating: number, comment?: string): Promise<{ ok: true }> {
+    await apiData<unknown>(`/reports/${id}/rating`, {
+      method: "POST",
+      body: JSON.stringify({ rating, comment }),
+    });
+    return { ok: true };
+  },
   async setStatus(id: string, status: ReportStatus, note: string): Promise<{ ok: true }> {
     await apiData<unknown>(`/reports/admin/reports/${id}`, {
       method: "PATCH",
@@ -966,6 +1000,18 @@ export interface RatingRow {
 }
 
 export const ratingService = {
+  async listModerators(): Promise<RatingRow[]> {
+    const data = await apiData<any[]>("/moderators/ratings");
+    return data.map((r) => ({
+      conversationId: r.id,
+      volunteerId: r.volunteer_id,
+      volunteerName: r.volunteer_name ?? "Moderador",
+      userAlias: r.user_alias ?? "Denúncia",
+      rating: Number(r.rating),
+      comment: r.rating_comment ?? undefined,
+      createdAt: r.ended_at ?? r.created_at,
+    }));
+  },
   async list(): Promise<RatingRow[]> {
     const data = await apiData<any[]>("/volunteers/ratings");
     return data.map((r) => ({

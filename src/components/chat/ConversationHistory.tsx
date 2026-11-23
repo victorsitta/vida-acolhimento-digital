@@ -51,7 +51,7 @@ function Rating({ conversationId, value }: { conversationId: string; value?: num
   );
 }
 
-function Transcript({ conversation }: { conversation: Conversation }) {
+function Transcript({ conversation, identity }: { conversation: Conversation; identity?: boolean }) {
   const q = useQuery({
     queryKey: ["messages", conversation.id],
     queryFn: async () => {
@@ -78,7 +78,7 @@ function Transcript({ conversation }: { conversation: Conversation }) {
               mine={!fromUser}
               text={m.text}
               createdAt={m.createdAt}
-              name={fromUser ? conversation.userAlias : (conversation.volunteerAlias ?? "Voluntário")}
+              name={fromUser ? personName(conversation, identity) : (conversation.volunteerAlias ?? "Voluntário")}
               showAvatar
             />
           </li>
@@ -88,14 +88,22 @@ function Transcript({ conversation }: { conversation: Conversation }) {
   );
 }
 
+/** Para a moderação: nome real quando disponível; para os demais: o apelido. */
+function personName(c: Conversation, identity?: boolean) {
+  return identity && c.userName ? c.userName : c.userAlias;
+}
+
 /** Histórico de atendimentos entre voluntários e usuários (visão da equipe). */
 export function ConversationHistory({
   title = "Histórico de conversas",
   description = "Todas as conversas entre voluntários e usuários.",
   resume,
+  identity = false,
 }: {
   title?: string;
   description?: string;
+  /** mostra nome e e-mail reais das duas pessoas (somente moderador/administrador) */
+  identity?: boolean;
   /** Quem participa pode voltar a uma conversa em andamento (voluntário ou usuário). */
   resume?: "vol" | "app";
 }) {
@@ -153,10 +161,15 @@ export function ConversationHistory({
                   aria-haspopup="dialog"
                 >
                   <p className="truncate text-sm font-medium">
-                    {c.userAlias} <span className="text-muted-foreground">↔</span>{" "}
+                    {personName(c, identity)} <span className="text-muted-foreground">↔</span>{" "}
                     {c.volunteerAlias ?? "sem voluntário"}
                   </p>
-                  <p className="text-xs text-muted-foreground">{fmtDateTime(c.startedAt)}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {identity && (c.userEmail || c.volunteerEmail)
+                      ? `${c.userEmail ?? "—"} · ${c.volunteerEmail ?? "—"} · `
+                      : ""}
+                    {fmtDateTime(c.startedAt)}
+                  </p>
                 </button>
                 <div className="flex items-center gap-2">
                   {c.status === "active" && resume === "vol" && (
@@ -207,8 +220,14 @@ export function ConversationHistory({
           <TranscriptDialog
             open={!!c}
             onOpenChange={(o) => !o && setOpen(null)}
-            title={c ? `${c.userAlias} ↔ ${c.volunteerAlias ?? "sem voluntário"}` : ""}
-            subtitle={c ? `Iniciada em ${fmtDateTime(c.startedAt)}` : undefined}
+            title={c ? `${personName(c, identity)} ↔ ${c.volunteerAlias ?? "sem voluntário"}` : ""}
+            subtitle={
+              c
+                ? identity
+                  ? `${personName(c, identity)}${c.userEmail ? ` (${c.userEmail})` : ""} · ${c.volunteerAlias ?? "voluntário"}${c.volunteerEmail ? ` (${c.volunteerEmail})` : ""} · ${fmtDateTime(c.startedAt)}`
+                  : `Iniciada em ${fmtDateTime(c.startedAt)}`
+                : undefined
+            }
             scrollKey={c?.id}
             actions={
               c && resume !== "app" ? (
@@ -216,7 +235,7 @@ export function ConversationHistory({
               ) : undefined
             }
           >
-            {c && <Transcript conversation={c} />}
+            {c && <Transcript conversation={c} identity={identity} />}
           </TranscriptDialog>
         );
       })()}

@@ -21,6 +21,9 @@ import type { ChatMessage } from "@/types";
 import { toast } from "sonner";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useChatRealtime } from "@/hooks/useChatRealtime";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Star } from "lucide-react";
 import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
 import { ChatRoom } from "@/components/chat/ChatRoom";
 
@@ -35,6 +38,10 @@ function Page() {
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [endOpen, setEndOpen] = useState(false);
+  // avaliação do voluntário: aparece sempre que a conversa termina (por qualquer lado)
+  const [rateOpen, setRateOpen] = useState(false);
+  const [stars, setStars] = useState(0);
+  const [comment, setComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -68,9 +75,19 @@ function Page() {
           ? "Conversa encerrada."
           : "O voluntário encerrou a conversa. Você pode relê-la e avaliar no histórico.",
       );
-      navigate({ to: "/app/historico" });
+      setRateOpen(true);
     }
   }, [conversation.data?.status]);
+
+  const rate = useMutation({
+    mutationFn: () => chatService.rate(id, stars, comment.trim() || undefined),
+    onSuccess: () => {
+      toast.success("Obrigado pela avaliação!");
+      setRateOpen(false);
+      navigate({ to: "/app/historico" });
+    },
+    onError: () => toast.error("Não foi possível enviar a avaliação."),
+  });
 
   const send = useMutation({
     mutationFn: ({ text, replyToId }: { text: string; replyToId?: string }) =>
@@ -117,8 +134,9 @@ function Page() {
   const endConversation = useMutation({
     mutationFn: () => chatService.endConversation(id),
     onSuccess: () => {
-      toast.success("Conversa encerrada. Você pode avaliar o atendimento no histórico.");
-      navigate({ to: "/app/historico" });
+      toast.success("Conversa encerrada.");
+      setEndOpen(false);
+      setRateOpen(true);
     },
     onError: () => toast.error("Não foi possível encerrar. Tente novamente."),
   });
@@ -210,6 +228,8 @@ function Page() {
           value: text,
           onChange: handleTextChange,
           onSubmit: handleSend,
+          onSticker: (st: string) => send.mutate({ text: st }),
+          disabled: rateOpen || conversation.data?.status === "ended",
           placeholder: "Escreva como está se sentindo…",
         }}
       >
@@ -232,6 +252,68 @@ function Page() {
           );
         })}
       </ChatRoom>
+
+      <Dialog
+        open={rateOpen}
+        onOpenChange={(o) => {
+          if (!o) {
+            setRateOpen(false);
+            navigate({ to: "/app/historico" });
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Como foi seu atendimento?</DialogTitle>
+            <DialogDescription>
+              Sua avaliação ajuda a cuidar de quem cuida e a melhorar o acolhimento.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center gap-1 py-2" role="group" aria-label="Nota de 1 a 5">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setStars(n)}
+                aria-label={`${n} estrela${n > 1 ? "s" : ""}`}
+                aria-pressed={stars === n}
+                className="rounded-lg p-1 transition hover:scale-125"
+              >
+                <Star
+                  className={`h-9 w-9 transition ${n <= stars ? "fill-primary text-primary" : "text-muted-foreground/40"}`}
+                />
+              </button>
+            ))}
+          </div>
+          <p className="text-center text-xs text-muted-foreground">
+            {["Toque para avaliar", "Precisa melhorar", "Poderia ser melhor", "Foi bom", "Muito bom", "Excelente!"][stars]}
+          </p>
+          <Textarea
+            rows={3}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Quer deixar um comentário? (opcional)"
+            maxLength={500}
+          />
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setRateOpen(false);
+                navigate({ to: "/app/historico" });
+              }}
+            >
+              Agora não
+            </Button>
+            <Button
+              disabled={stars === 0 || rate.isPending}
+              onClick={() => rate.mutate()}
+            >
+              {rate.isPending ? "Enviando…" : "Enviar avaliação"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={endOpen} onOpenChange={setEndOpen}>
         <AlertDialogContent>

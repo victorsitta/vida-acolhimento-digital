@@ -30,13 +30,13 @@ export function HeroBanner({
 }) {
   const g = greeting();
   return (
-    <section className="hero relative mb-8 overflow-hidden rounded-3xl border p-6 shadow-soft sm:p-8">
+    <section className="hero relative mb-6 overflow-hidden rounded-2xl border p-5 shadow-soft sm:p-6">
       <span className="blob blob-a" aria-hidden="true" />
       <span className="blob blob-b" aria-hidden="true" />
       <span className="hero-dots" aria-hidden="true" />
 
       <Icon
-        className="float-y pointer-events-none absolute -right-2 -top-2 h-32 w-32 text-primary/15 sm:h-44 sm:w-44"
+        className="float-y pointer-events-none absolute -right-2 -top-3 h-24 w-24 text-primary/15 sm:h-32 sm:w-32"
         aria-hidden="true"
       />
 
@@ -46,11 +46,11 @@ export function HeroBanner({
             <g.Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
             {eyebrow ?? g.text}
           </p>
-          <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          <h1 className="mt-2.5 font-display text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
             {title}
           </h1>
           {description && (
-            <p className="mt-2 max-w-xl text-sm text-muted-foreground text-pretty sm:text-base">
+            <p className="mt-1.5 max-w-xl text-sm text-muted-foreground text-pretty">
               {description}
             </p>
           )}

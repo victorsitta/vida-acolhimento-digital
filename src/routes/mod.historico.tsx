@@ -12,7 +12,7 @@ function Page() {
   useAuthGuard();
   return (
     <AppShell>
-      <ConversationHistory />
+      <ConversationHistory identity />
     </AppShell>
   );
 }

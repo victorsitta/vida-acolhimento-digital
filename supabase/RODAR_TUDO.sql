@@ -414,3 +414,160 @@ END $$;
 GRANT EXECUTE ON FUNCTION public.delete_my_account() TO authenticated;
 
 NOTIFY pgrst, 'reload schema';
+
+-- ================= fix_email_usuarios.sql =================
+-- Guarda o e-mail em public.users para a equipe ver nome e e-mail reais nas conversas.
+-- Rode no SQL Editor do Supabase. Pode rodar mais de uma vez.
+
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS email TEXT;
+
+-- Preenche quem ja existe
+UPDATE public.users u
+   SET email = a.email
+  FROM auth.users a
+ WHERE a.id = u.id AND (u.email IS DISTINCT FROM a.email);
+
+-- Novos cadastros ja nascem com e-mail
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  v_display VARCHAR(100);
+  v_role public.user_role;
+BEGIN
+  v_display := LEFT(COALESCE(NULLIF(new.raw_user_meta_data->>'display_name', ''), 'Apoiado'), 100);
+  IF (new.is_anonymous IS TRUE) THEN
+    v_role := 'anonimo'::public.user_role;
+  ELSE
+    v_role := 'cadastrado'::public.user_role;
+  END IF;
+
+  INSERT INTO public.users (id, display_name, role, email)
+  VALUES (new.id, v_display, v_role, new.email)
+  ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
+
+  INSERT INTO public.user_profiles (user_id, nickname)
+  VALUES (new.id, COALESCE(NULLIF(new.raw_user_meta_data->>'nickname', ''), v_display))
+  ON CONFLICT (user_id) DO NOTHING;
+
+  RETURN new;
+END;
+$$;
+
+-- Mantem o e-mail sincronizado se a pessoa trocar de e-mail
+CREATE OR REPLACE FUNCTION public.sync_user_email() RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  UPDATE public.users SET email = NEW.email WHERE id = NEW.id;
+  RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS on_auth_user_email_changed ON auth.users;
+CREATE TRIGGER on_auth_user_email_changed AFTER UPDATE OF email ON auth.users
+  FOR EACH ROW WHEN (OLD.email IS DISTINCT FROM NEW.email) EXECUTE FUNCTION public.sync_user_email();
+
+NOTIFY pgrst, 'reload schema';
+
+-- ================= fix_denuncias_moderacao.sql =================
+-- Medidas de moderacao, acompanhamento da denuncia e avaliacao da moderacao.
+-- Rode no SQL Editor do Supabase. Pode rodar mais de uma vez.
+
+ALTER TABLE public.reports ADD COLUMN IF NOT EXISTS handled_by UUID;
+ALTER TABLE public.reports ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMPTZ;
+ALTER TABLE public.reports ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
+ALTER TABLE public.reports ADD COLUMN IF NOT EXISTS resolution_rating SMALLINT CHECK (resolution_rating BETWEEN 1 AND 5);
+ALTER TABLE public.reports ADD COLUMN IF NOT EXISTS resolution_comment TEXT;
+ALTER TABLE public.reports ADD COLUMN IF NOT EXISTS decision TEXT;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.reports TO authenticated;
+
+-- A equipe de moderacao pode excluir denuncias (a acao fica nos logs)
+DROP POLICY IF EXISTS "reports_delete_staff" ON public.reports;
+CREATE POLICY "reports_delete_staff" ON public.reports FOR DELETE USING (
+  EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('moderador', 'administrador')));
+
+-- Medidas: advertir, suspender, reativar, remover_mensagem
+CREATE OR REPLACE FUNCTION public.moderation_action(p_report_id UUID, p_action TEXT, p_reason TEXT DEFAULT NULL)
+RETURNS JSONB
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  v_role public.user_role;
+  r RECORD;
+  v_target UUID;
+  v_msg UUID;
+  v_reason TEXT := NULLIF(trim(COALESCE(p_reason, '')), '');
+BEGIN
+  SELECT role INTO v_role FROM public.users WHERE id = auth.uid();
+  IF v_role NOT IN ('moderador', 'administrador') THEN
+    RAISE EXCEPTION 'Apenas a moderacao pode aplicar medidas';
+  END IF;
+  SELECT * INTO r FROM public.reports WHERE id = p_report_id;
+  IF r.id IS NULL THEN RAISE EXCEPTION 'Denuncia nao encontrada'; END IF;
+
+  IF r.target_type = 'mensagem' AND r.target_id ~* '^[0-9a-f-]{36}$' THEN
+    v_msg := r.target_id::uuid;
+    SELECT sender_id INTO v_target FROM public.community_messages WHERE id = v_msg;
+  ELSIF r.target_type = 'usuario' AND r.target_id ~* '^[0-9a-f-]{36}$' THEN
+    v_target := r.target_id::uuid;
+  END IF;
+
+  IF p_action IN ('advertir', 'suspender', 'reativar') AND v_target IS NULL THEN
+    RAISE EXCEPTION 'Esta denuncia nao aponta para uma pessoa identificavel';
+  END IF;
+
+  IF p_action = 'advertir' THEN
+    INSERT INTO public.notifications (user_id, type, title, body)
+    VALUES (v_target, 'moderacao', 'Aviso da moderação',
+            COALESCE(v_reason, 'Seu comportamento foi sinalizado. Lembre-se de respeitar as regras da comunidade.'));
+  ELSIF p_action = 'suspender' THEN
+    IF (SELECT role FROM public.users WHERE id = v_target) = 'administrador' THEN
+      RAISE EXCEPTION 'Nao e possivel suspender um administrador';
+    END IF;
+    UPDATE public.users SET status = 'banido' WHERE id = v_target;
+    INSERT INTO public.notifications (user_id, type, title, body)
+    VALUES (v_target, 'moderacao', 'Conta suspensa', COALESCE(v_reason, 'Sua conta foi suspensa pela moderação.'));
+  ELSIF p_action = 'reativar' THEN
+    UPDATE public.users SET status = 'ativo' WHERE id = v_target;
+  ELSIF p_action = 'remover_mensagem' THEN
+    IF v_msg IS NULL THEN RAISE EXCEPTION 'Esta denuncia nao aponta para uma mensagem'; END IF;
+    UPDATE public.community_messages SET deleted_at = now() WHERE id = v_msg;
+  ELSE
+    RAISE EXCEPTION 'Acao invalida';
+  END IF;
+
+  UPDATE public.reports
+     SET handled_by = auth.uid(),
+         updated_at = now(),
+         status = CASE WHEN status = 'pendente' THEN 'em_analise'::public.report_status ELSE status END,
+         decision = trim(both E'\n' FROM COALESCE(decision, '') || E'\n' || p_action || COALESCE(': ' || v_reason, ''))
+   WHERE id = p_report_id;
+
+  INSERT INTO public.audit_logs (actor_id, action, entity_type, entity_id, metadata_json)
+  VALUES (auth.uid(), 'moderacao.' || p_action, 'denuncia', p_report_id::text,
+          jsonb_build_object('alvo', v_target, 'motivo', v_reason));
+
+  RETURN jsonb_build_object('ok', true);
+END $$;
+GRANT EXECUTE ON FUNCTION public.moderation_action(UUID, TEXT, TEXT) TO authenticated;
+
+-- Quem denunciou avalia como a moderacao tratou o caso (so depois de resolvida/arquivada)
+CREATE OR REPLACE FUNCTION public.rate_report(p_report_id UUID, p_rating INT, p_comment TEXT DEFAULT NULL)
+RETURNS JSONB
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE r RECORD;
+BEGIN
+  SELECT * INTO r FROM public.reports WHERE id = p_report_id;
+  IF r.id IS NULL OR r.reporter_id IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION 'Voce so pode avaliar as suas proprias denuncias';
+  END IF;
+  IF r.status NOT IN ('resolvido', 'arquivado') THEN
+    RAISE EXCEPTION 'A denuncia ainda esta em andamento';
+  END IF;
+  IF p_rating < 1 OR p_rating > 5 THEN RAISE EXCEPTION 'Nota invalida'; END IF;
+  UPDATE public.reports
+     SET resolution_rating = p_rating, resolution_comment = NULLIF(trim(COALESCE(p_comment, '')), '')
+   WHERE id = p_report_id;
+  RETURN jsonb_build_object('ok', true);
+END $$;
+GRANT EXECUTE ON FUNCTION public.rate_report(UUID, INT, TEXT) TO authenticated;
+
+NOTIFY pgrst, 'reload schema';

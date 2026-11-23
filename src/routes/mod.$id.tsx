@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import type { ReportStatus } from "@/types";
-import { Eye, ShieldAlert } from "lucide-react";
+import { BellRing, Eye, Trash2, ShieldAlert, UserCheck, UserX, MessageSquareOff } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 export const Route = createFileRoute("/mod/$id")({
@@ -48,6 +49,37 @@ function Page() {
     refetchOnWindowFocus: true,
   });
   const qc = useQueryClient();
+
+  // Medidas de moderação (advertir, suspender, remover mensagem...) e exclusão da denúncia
+  type Measure = "advertir" | "suspender" | "reativar" | "remover_mensagem";
+  const [measure, setMeasure] = useState<Measure | null>(null);
+  const [measureReason, setMeasureReason] = useState("");
+  const applyMeasure = useMutation({
+    mutationFn: () => reportService.applyAction(id, measure!, measureReason.trim() || undefined),
+    onSuccess: () => {
+      toast.success("Medida aplicada e registrada na auditoria.");
+      setMeasure(null);
+      setMeasureReason("");
+      qc.invalidateQueries({ queryKey: ["report", id] });
+      qc.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (e: any) => toast.error(e?.message || "Não foi possível aplicar a medida."),
+  });
+  const removeReport = useMutation({
+    mutationFn: () => reportService.remove(id),
+    onSuccess: () => {
+      toast.success("Denúncia excluída.");
+      qc.invalidateQueries({ queryKey: ["reports"] });
+      navigate({ to: "/mod" });
+    },
+    onError: (e: any) => toast.error(e?.message || "Não foi possível excluir."),
+  });
+  const MEASURES: Record<Measure, { label: string; help: string; destructive?: boolean }> = {
+    advertir: { label: "Advertir a pessoa", help: "Envia um aviso da moderação para a pessoa denunciada." },
+    suspender: { label: "Suspender a conta", help: "Bloqueia o acesso da pessoa. Ela é avisada.", destructive: true },
+    reativar: { label: "Reativar a conta", help: "Devolve o acesso a uma conta suspensa." },
+    remover_mensagem: { label: "Remover a mensagem", help: "Apaga a mensagem denunciada do grupo.", destructive: true },
+  };
   const m = useMutation({
     mutationFn: (s: ReportStatus) => reportService.setStatus(id, s, note),
     onSuccess: () => {
@@ -181,6 +213,37 @@ function Page() {
 
         <aside className="space-y-4">
           <section className="rounded-2xl border bg-card p-5">
+            <h2 className="text-sm font-semibold">Medidas de moderação</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Cada medida fica registrada nos logs.</p>
+            <div className="mt-3 grid gap-2">
+              <Button variant="outline" className="justify-start gap-2" onClick={() => setMeasure("advertir")}>
+                <BellRing className="h-4 w-4" /> Advertir a pessoa
+              </Button>
+              <Button variant="outline" className="justify-start gap-2" onClick={() => setMeasure("suspender")}>
+                <UserX className="h-4 w-4" /> Suspender a conta
+              </Button>
+              <Button variant="outline" className="justify-start gap-2" onClick={() => setMeasure("reativar")}>
+                <UserCheck className="h-4 w-4" /> Reativar a conta
+              </Button>
+              {r.targetType === "mensagem" && (
+                <Button variant="outline" className="justify-start gap-2" onClick={() => setMeasure("remover_mensagem")}>
+                  <MessageSquareOff className="h-4 w-4" /> Remover a mensagem
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                className="justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                disabled={removeReport.isPending}
+                onClick={() => {
+                  if (window.confirm("Excluir esta denúncia definitivamente? Prefira arquivar se quiser manter o histórico.")) removeReport.mutate();
+                }}
+              >
+                <Trash2 className="h-4 w-4" /> Excluir denúncia
+              </Button>
+            </div>
+          </section>
+
+          <section className="rounded-2xl border bg-card p-5">
             <h2 className="text-sm font-semibold">Ações</h2>
             <div className="mt-3 grid gap-2">
               <Confirm label="Marcar em análise" onConfirm={() => m.mutate("em_analise")} />
@@ -206,6 +269,33 @@ function Page() {
           </section>
         </aside>
       </div>
+      <Dialog open={!!measure} onOpenChange={(o) => !o && setMeasure(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{measure ? MEASURES[measure].label : ""}</DialogTitle>
+            <DialogDescription>{measure ? MEASURES[measure].help : ""}</DialogDescription>
+          </DialogHeader>
+          <Textarea
+            rows={4}
+            value={measureReason}
+            onChange={(e) => setMeasureReason(e.target.value)}
+            placeholder="Motivo (quem denunciou e a auditoria veem este texto)"
+            maxLength={500}
+          />
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setMeasure(null)}>
+              Cancelar
+            </Button>
+            <Button
+              variant={measure && MEASURES[measure].destructive ? "destructive" : "default"}
+              disabled={applyMeasure.isPending}
+              onClick={() => applyMeasure.mutate()}
+            >
+              {applyMeasure.isPending ? "Aplicando…" : "Confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }

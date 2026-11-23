@@ -13,7 +13,7 @@ export function PageHeader({
     <header className="grid grid-cols-1 items-start gap-4 pb-6 sm:grid-cols-[minmax(0,1fr)_auto]">
       <div className="min-w-0">
         <div className="mb-3 h-1 w-10 rounded-full bg-gradient-to-r from-primary to-accent" aria-hidden="true" />
-        <h1 className="font-display text-2xl font-semibold tracking-tight text-balance sm:text-3xl">
+        <h1 className="font-display text-xl font-semibold tracking-tight text-balance sm:text-2xl">
           {title}
         </h1>
         {description && (

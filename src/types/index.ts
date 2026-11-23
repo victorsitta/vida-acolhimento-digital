@@ -43,6 +43,10 @@ export interface Conversation {
   isTeamChat?: boolean;
   rating?: number;
   closedReason?: string;
+  /** Identidade real — só vem preenchida para moderador/administrador. */
+  userName?: string;
+  userEmail?: string;
+  volunteerEmail?: string;
 }
 
 export type QueuePriority = "normal" | "prioritaria" | "crise";
@@ -97,6 +101,14 @@ export interface Report {
   priority: "baixa" | "media" | "alta";
   createdAt: string;
   history: Array<{ at: string; action: string; by: string }>;
+  targetType?: string;
+  targetId?: string;
+  /** decisão/medidas registradas pela moderação (visível a quem denunciou) */
+  decision?: string;
+  handlerName?: string;
+  resolvedAt?: string;
+  rating?: number;
+  ratingComment?: string;
 }
 
 export interface Metrics {

@@ -185,6 +185,7 @@ function Page() {
               if (message) send.mutate(message);
             },
             sending: send.isPending,
+            onSticker: (st: string) => send.mutate(st),
             disabled: !group.data.joined,
             placeholder: `Escreva como ${group.data.myAlias}...`,
             hint: "Não compartilhe nome, telefone, endereço ou redes sociais.",
