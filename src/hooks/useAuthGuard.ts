@@ -42,6 +42,8 @@ export function useAuthGuard() {
       navigate({ to: "/vol", replace: true });
       return;
     }
+    // moderadores também acompanham os grupos (área compartilhada com o admin)
+    if (pathname.startsWith("/admin/comunidades") && role === "moderador") return;
     const match = PREFIX_ROLE.find((p) => pathname.startsWith(p.prefix));
     if (!match) return;
 

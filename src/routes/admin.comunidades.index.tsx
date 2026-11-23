@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { adminCommunityService } from "@/services";
 import type { AdminCommunityStatus } from "@/types";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { useProfile } from "@/contexts/ProfileContext";
 
 export const Route = createFileRoute("/admin/comunidades/")({
   head: () => ({ meta: [{ title: "Gestão de grupos — VIDA+" }] }),
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/admin/comunidades/")({
 
 function Page() {
   useAuthGuard();
+  const isAdmin = useProfile().role === "administrador";
   const queryClient = useQueryClient();
   const groups = useQuery({ queryKey: ["admin-communities"], queryFn: adminCommunityService.list });
   const [showCreate, setShowCreate] = useState(false);
@@ -55,9 +57,11 @@ function Page() {
         title="Gestão de grupos"
         description="Controle comunidades, participantes e atividade da plataforma."
         actions={
-          <Button className="gap-2" onClick={() => setShowCreate((value) => !value)}>
-            <Plus className="h-4 w-4" /> Novo grupo
-          </Button>
+          isAdmin ? (
+            <Button className="gap-2" onClick={() => setShowCreate((value) => !value)}>
+              <Plus className="h-4 w-4" /> Novo grupo
+            </Button>
+          ) : undefined
         }
       />
 
@@ -123,7 +127,7 @@ function Page() {
                   Gerenciar
                 </Link>
               </Button>
-              {group.status !== "ativo" && (
+              {isAdmin && group.status !== "ativo" && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -132,7 +136,7 @@ function Page() {
                   <PlayCircle className="mr-1.5 h-4 w-4" /> Ativar
                 </Button>
               )}
-              {group.status === "ativo" && (
+              {isAdmin && group.status === "ativo" && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -141,7 +145,7 @@ function Page() {
                   <PauseCircle className="mr-1.5 h-4 w-4" /> Pausar
                 </Button>
               )}
-              {group.status !== "arquivado" && (
+              {isAdmin && group.status !== "arquivado" && (
                 <Button
                   size="sm"
                   variant="ghost"

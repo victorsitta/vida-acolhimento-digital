@@ -140,6 +140,7 @@ function mapMessage(input: any): ChatMessage {
     createdAt: input.created_at ?? new Date().toISOString(),
     status: "sent",
     replyToId: input.reply_to_id || undefined,
+    senderId: input.sender_id ?? undefined,
   };
 }
 

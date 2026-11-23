@@ -50,13 +50,18 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/vol/historico", label: "Histórico", icon: History },
     { to: "/vol/candidatura", label: "Candidatura", icon: ClipboardList },
   ],
-  moderador: [{ to: "/mod", label: "Denúncias", icon: Shield }],
+  moderador: [
+    { to: "/mod", label: "Denúncias", icon: Shield },
+    { to: "/admin/comunidades", label: "Grupos", icon: UsersRound },
+    { to: "/mod/historico", label: "Conversas", icon: History },
+  ],
   administrador: [
     { to: "/admin", label: "Dashboard", icon: BarChart3 },
     { to: "/admin/candidaturas", label: "Candidaturas", icon: ClipboardList },
     { to: "/admin/moderadores", label: "Moderadores", icon: Shield },
     { to: "/admin/usuarios", label: "Usuários", icon: Users },
     { to: "/admin/comunidades", label: "Grupos", icon: UsersRound },
+    { to: "/admin/historico", label: "Conversas", icon: History },
   ],
 };
 

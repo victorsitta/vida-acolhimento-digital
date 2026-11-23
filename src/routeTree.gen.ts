@@ -27,6 +27,7 @@ import { Route as VolModeradorRouteImport } from './routes/vol.moderador'
 import { Route as VolHistoricoRouteImport } from './routes/vol.historico'
 import { Route as VolFilaRouteImport } from './routes/vol.fila'
 import { Route as VolCandidaturaRouteImport } from './routes/vol.candidatura'
+import { Route as ModHistoricoRouteImport } from './routes/mod.historico'
 import { Route as ModIdRouteImport } from './routes/mod.$id'
 import { Route as AppPrivacidadeRouteImport } from './routes/app.privacidade'
 import { Route as AppPreferenciasRouteImport } from './routes/app.preferencias'
@@ -39,6 +40,7 @@ import { Route as AppComunidadesRouteImport } from './routes/app.comunidades'
 import { Route as AppCandidaturaRouteImport } from './routes/app.candidatura'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminModeradoresRouteImport } from './routes/admin.moderadores'
+import { Route as AdminHistoricoRouteImport } from './routes/admin.historico'
 import { Route as AdminComunidadesRouteImport } from './routes/admin.comunidades'
 import { Route as AdminCandidaturasRouteImport } from './routes/admin.candidaturas'
 import { Route as AppComunidadesIndexRouteImport } from './routes/app.comunidades.index'
@@ -142,6 +144,11 @@ const VolCandidaturaRoute = VolCandidaturaRouteImport.update({
   path: '/vol/candidatura',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ModHistoricoRoute = ModHistoricoRouteImport.update({
+  id: '/mod/historico',
+  path: '/mod/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModIdRoute = ModIdRouteImport.update({
   id: '/mod/$id',
   path: '/mod/$id',
@@ -200,6 +207,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
 const AdminModeradoresRoute = AdminModeradoresRouteImport.update({
   id: '/admin/moderadores',
   path: '/admin/moderadores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminHistoricoRoute = AdminHistoricoRouteImport.update({
+  id: '/admin/historico',
+  path: '/admin/historico',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminComunidadesRoute = AdminComunidadesRouteImport.update({
@@ -276,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/termos': typeof TermosRoute
   '/admin/candidaturas': typeof AdminCandidaturasRouteWithChildren
   '/admin/comunidades': typeof AdminComunidadesRouteWithChildren
+  '/admin/historico': typeof AdminHistoricoRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/candidatura': typeof AppCandidaturaRoute
@@ -288,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/historico': typeof ModHistoricoRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
@@ -318,6 +332,7 @@ export interface FileRoutesByTo {
   '/seguranca': typeof SegurancaRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/admin/historico': typeof AdminHistoricoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/conversar': typeof AppConversarRoute
@@ -328,6 +343,7 @@ export interface FileRoutesByTo {
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/historico': typeof ModHistoricoRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
@@ -361,6 +377,7 @@ export interface FileRoutesById {
   '/termos': typeof TermosRoute
   '/admin/candidaturas': typeof AdminCandidaturasRouteWithChildren
   '/admin/comunidades': typeof AdminComunidadesRouteWithChildren
+  '/admin/historico': typeof AdminHistoricoRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/candidatura': typeof AppCandidaturaRoute
@@ -373,6 +390,7 @@ export interface FileRoutesById {
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/historico': typeof ModHistoricoRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
@@ -407,6 +425,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/admin/candidaturas'
     | '/admin/comunidades'
+    | '/admin/historico'
     | '/admin/moderadores'
     | '/admin/usuarios'
     | '/app/candidatura'
@@ -419,6 +438,7 @@ export interface FileRouteTypes {
     | '/app/preferencias'
     | '/app/privacidade'
     | '/mod/$id'
+    | '/mod/historico'
     | '/vol/candidatura'
     | '/vol/fila'
     | '/vol/historico'
@@ -449,6 +469,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/sobre'
     | '/termos'
+    | '/admin/historico'
     | '/admin/usuarios'
     | '/app/candidatura'
     | '/app/conversar'
@@ -459,6 +480,7 @@ export interface FileRouteTypes {
     | '/app/preferencias'
     | '/app/privacidade'
     | '/mod/$id'
+    | '/mod/historico'
     | '/vol/candidatura'
     | '/vol/fila'
     | '/vol/historico'
@@ -491,6 +513,7 @@ export interface FileRouteTypes {
     | '/termos'
     | '/admin/candidaturas'
     | '/admin/comunidades'
+    | '/admin/historico'
     | '/admin/moderadores'
     | '/admin/usuarios'
     | '/app/candidatura'
@@ -503,6 +526,7 @@ export interface FileRouteTypes {
     | '/app/preferencias'
     | '/app/privacidade'
     | '/mod/$id'
+    | '/mod/historico'
     | '/vol/candidatura'
     | '/vol/fila'
     | '/vol/historico'
@@ -536,6 +560,7 @@ export interface RootRouteChildren {
   TermosRoute: typeof TermosRoute
   AdminCandidaturasRoute: typeof AdminCandidaturasRouteWithChildren
   AdminComunidadesRoute: typeof AdminComunidadesRouteWithChildren
+  AdminHistoricoRoute: typeof AdminHistoricoRoute
   AdminModeradoresRoute: typeof AdminModeradoresRouteWithChildren
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AppCandidaturaRoute: typeof AppCandidaturaRoute
@@ -548,6 +573,7 @@ export interface RootRouteChildren {
   AppPreferenciasRoute: typeof AppPreferenciasRoute
   AppPrivacidadeRoute: typeof AppPrivacidadeRoute
   ModIdRoute: typeof ModIdRoute
+  ModHistoricoRoute: typeof ModHistoricoRoute
   VolCandidaturaRoute: typeof VolCandidaturaRoute
   VolFilaRoute: typeof VolFilaRoute
   VolHistoricoRoute: typeof VolHistoricoRoute
@@ -688,6 +714,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VolCandidaturaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mod/historico': {
+      id: '/mod/historico'
+      path: '/mod/historico'
+      fullPath: '/mod/historico'
+      preLoaderRoute: typeof ModHistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mod/$id': {
       id: '/mod/$id'
       path: '/mod/$id'
@@ -770,6 +803,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/moderadores'
       fullPath: '/admin/moderadores'
       preLoaderRoute: typeof AdminModeradoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/historico': {
+      id: '/admin/historico'
+      path: '/admin/historico'
+      fullPath: '/admin/historico'
+      preLoaderRoute: typeof AdminHistoricoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/comunidades': {
@@ -925,6 +965,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermosRoute: TermosRoute,
   AdminCandidaturasRoute: AdminCandidaturasRouteWithChildren,
   AdminComunidadesRoute: AdminComunidadesRouteWithChildren,
+  AdminHistoricoRoute: AdminHistoricoRoute,
   AdminModeradoresRoute: AdminModeradoresRouteWithChildren,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AppCandidaturaRoute: AppCandidaturaRoute,
@@ -937,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppPreferenciasRoute: AppPreferenciasRoute,
   AppPrivacidadeRoute: AppPrivacidadeRoute,
   ModIdRoute: ModIdRoute,
+  ModHistoricoRoute: ModHistoricoRoute,
   VolCandidaturaRoute: VolCandidaturaRoute,
   VolFilaRoute: VolFilaRoute,
   VolHistoricoRoute: VolHistoricoRoute,

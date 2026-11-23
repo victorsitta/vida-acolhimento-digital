@@ -147,3 +147,9 @@ DROP POLICY IF EXISTS "volunteer_profiles_insert_own" ON public.volunteer_profil
 CREATE POLICY "volunteer_profiles_insert_own" ON public.volunteer_profiles FOR INSERT WITH CHECK (
   auth.uid() = user_id AND EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('voluntario','moderador','administrador')));
 NOTIFY pgrst, 'reload schema';
+
+-- moderador tambem enxerga todos os grupos (inclusive pausados/arquivados)
+DROP POLICY IF EXISTS "communities_select" ON public.communities;
+CREATE POLICY "communities_select" ON public.communities FOR SELECT USING (
+  status = 'ativo' OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('moderador','administrador')));
+NOTIFY pgrst, 'reload schema';
