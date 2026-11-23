@@ -150,9 +150,19 @@ function Page() {
   // Fallback de posição decrescente enquanto espera
   useEffect(() => {
     if (step !== "waiting") return;
-    const t = setInterval(() => setPos((p) => Math.max(1, p - 1)), 15000);
-    return () => clearInterval(t);
   }, [step]);
+
+  // Situação real da fila: voluntários online e posição verdadeira
+  const qs = useQuery({
+    queryKey: ["queue-status", conversationId],
+    queryFn: () => queueService.status(conversationId ?? undefined),
+    enabled: step === "intro" || step === "waiting",
+    refetchInterval: 4000,
+  });
+  const noVolunteers = qs.isSuccess && qs.data.online === 0;
+  useEffect(() => {
+    if (step === "waiting" && qs.data?.position) setPos(qs.data.position);
+  }, [step, qs.data?.position]);
 
   return (
     <AppShell>
@@ -169,6 +179,21 @@ function Page() {
             <p className="mt-2 text-pretty text-sm text-muted-foreground">
               Sua conversa é anônima e confidencial. Você pode encerrá-la a qualquer momento.
             </p>
+            {noVolunteers && (
+              <p
+                role="status"
+                className="mt-4 rounded-2xl border border-amber-300/50 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-100"
+              >
+                No momento não há voluntários disponíveis. Você pode entrar na fila e será
+                atendido(a) assim que alguém ficar online. Se estiver em crise, ligue 188 (CVV) ou
+                192 (SAMU).
+              </p>
+            )}
+            {qs.data && qs.data.online > 0 && (
+              <p className="mt-4 text-sm text-emerald-700 dark:text-emerald-300">
+                {qs.data.online} voluntário(s) online agora.
+              </p>
+            )}
             <Button
               onClick={() => join.mutate()}
               disabled={join.isPending}
@@ -190,9 +215,19 @@ function Page() {
           <p className="mt-1 text-sm text-muted-foreground">
             Sua posição na fila: <strong>{pos}</strong>
           </p>
-          <p className="text-sm text-muted-foreground">
-            Tempo estimado: <strong>{eta} min</strong>
-          </p>
+          {noVolunteers ? (
+            <p
+              role="status"
+              className="mx-auto mt-3 max-w-sm rounded-2xl border border-amber-300/50 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-100"
+            >
+              No momento não há voluntários disponíveis. Continue aqui: você será atendido(a) quando
+              alguém ficar online. Em emergência: CVV 188 · SAMU 192.
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Voluntários online agora: <strong>{qs.data?.online ?? "…"}</strong>
+            </p>
+          )}
           <Button
             variant="outline"
             className="mt-6 gap-2"

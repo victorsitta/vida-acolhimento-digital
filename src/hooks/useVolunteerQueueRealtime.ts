@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { QueueEntry } from "@/types";
+import { volunteerService } from "@/services";
 
 function mapQueueEntry(input: any): QueueEntry {
   const waitingSince = input.created_at ?? new Date().toISOString();
@@ -80,8 +81,14 @@ export function useVolunteerQueueRealtime(enabled = true) {
     // garantia extra: se algum evento se perder, a fila se corrige sozinha
     const timer = window.setInterval(refetchQueue, 5000);
 
+    // presença real: enquanto a tela está aberta, o voluntário conta como disponível
+    const beat = () => volunteerService.setStatus("me", "online").catch(() => {});
+    beat();
+    const heartbeat = window.setInterval(beat, 30000);
+
     return () => {
       window.clearInterval(timer);
+      window.clearInterval(heartbeat);
       supabase?.removeChannel(channel);
     };
   }, [enabled, qc, refetchQueue]);

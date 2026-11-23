@@ -137,3 +137,13 @@ DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.messages; EXCEP
 DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.conversations; EXCEPTION WHEN OTHERS THEN NULL; END $$;
 
 NOTIFY pgrst, 'reload schema';
+
+-- presenca real dos voluntarios (heartbeat)
+ALTER TABLE public.volunteer_profiles ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ;
+NOTIFY pgrst, 'reload schema';
+
+-- voluntario cria/atualiza o proprio perfil de disponibilidade (upsert do heartbeat)
+DROP POLICY IF EXISTS "volunteer_profiles_insert_own" ON public.volunteer_profiles;
+CREATE POLICY "volunteer_profiles_insert_own" ON public.volunteer_profiles FOR INSERT WITH CHECK (
+  auth.uid() = user_id AND EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('voluntario','moderador','administrador')));
+NOTIFY pgrst, 'reload schema';

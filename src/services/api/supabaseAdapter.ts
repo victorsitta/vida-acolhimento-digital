@@ -288,6 +288,28 @@ export async function handleSupabaseRequest<T>(
     ) as T;
   }
 
+  const qsMatch = cleanPath.match(/^\/conversations\/queue-status(?:\/([a-f0-9-]+))?$/i);
+  if (qsMatch) {
+    const since = new Date(Date.now() - 90_000).toISOString();
+    const { count: online } = await supabase
+      .from("volunteer_profiles")
+      .select("*", { count: "exact", head: true })
+      .eq("availability_status", "online")
+      .gte("last_seen_at", since);
+    const { data: waiting } = await supabase
+      .from("conversations")
+      .select("id, created_at")
+      .eq("status", "aguardando")
+      .order("created_at", { ascending: true });
+    const list = waiting || [];
+    const idx = qsMatch[1] ? list.findIndex((c: any) => c.id === qsMatch[1]) : -1;
+    return ok({
+      online: online || 0,
+      waiting: list.length,
+      position: idx >= 0 ? idx + 1 : null,
+    }) as T;
+  }
+
   if (cleanPath === "/conversations/volunteer/queue") {
     const { data, error } = await supabase
       .from("conversations")
@@ -632,7 +654,11 @@ export async function handleSupabaseRequest<T>(
     const { data: authData } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("volunteer_profiles")
-      .upsert({ user_id: authData.user?.id, availability_status: payload.status });
+      .upsert({
+        user_id: authData.user?.id,
+        availability_status: payload.status,
+        last_seen_at: new Date().toISOString(),
+      });
     if (error) throw new Error(error.message);
     return ok({ status: payload.status }) as T;
   }

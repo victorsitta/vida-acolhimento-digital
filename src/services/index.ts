@@ -359,6 +359,18 @@ export const queueService = {
       conversationId: data.id,
     };
   },
+  async status(
+    conversationId?: string,
+  ): Promise<{ online: number; waiting: number; position: number | null }> {
+    const data = await apiData<any>(
+      `/conversations/queue-status${conversationId ? `/${conversationId}` : ""}`,
+    );
+    return {
+      online: data.online ?? 0,
+      waiting: data.waiting ?? 0,
+      position: data.position ?? null,
+    };
+  },
   async cancel(conversationId?: string): Promise<{ ok: true }> {
     if (conversationId) {
       try {
