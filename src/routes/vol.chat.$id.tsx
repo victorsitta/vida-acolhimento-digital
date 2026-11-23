@@ -69,11 +69,20 @@ function Page() {
   }, [messages.data?.length]);
 
   useEffect(() => {
-    if (conversation.data?.status === "ended" && !ended) {
-      setEnded(true);
-      toast.info("A conversa foi encerrada pela pessoa acolhida.");
+    if (conversation.data?.status !== "ended" || ended) return;
+    const endedAgoMin = conversation.data.endedAt
+      ? (Date.now() - new Date(conversation.data.endedAt).getTime()) / 60000
+      : 0;
+    if (endedAgoMin > 15) {
+      // conversa antiga: não dá para voltar, só consultar no histórico
+      toast.info("Esta conversa já foi encerrada. Você pode relê-la no histórico.");
+      navigate({ to: "/vol/historico", replace: true });
+      return;
     }
-  }, [conversation.data?.status, ended]);
+    // acabou de encerrar: o voluntário registra o prontuário
+    setEnded(true);
+    toast.info("A conversa foi encerrada.");
+  }, [conversation.data?.status, conversation.data?.endedAt, ended]);
 
   const send = useMutation({
     mutationFn: ({ text: val, replyToId }: { text: string; replyToId?: string }) =>

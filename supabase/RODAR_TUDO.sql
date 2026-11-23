@@ -306,3 +306,15 @@ UPDATE public.users SET role = 'moderador'     WHERE id = (SELECT id FROM auth.u
 UPDATE public.users SET role = 'administrador' WHERE id = (SELECT id FROM auth.users WHERE email = 'teste.administrador@vidamais.app');
 SELECT u.email, p.role FROM auth.users u JOIN public.users p ON p.id = u.id WHERE u.email LIKE 'teste.%@vidamais.app';
 
+
+-- ================= conversa encerrada nao aceita mensagens =================
+DROP POLICY IF EXISTS "messages_access" ON public.messages;
+CREATE POLICY "messages_access" ON public.messages FOR ALL
+USING (EXISTS (SELECT 1 FROM public.conversations c WHERE c.id = messages.conversation_id AND (
+  c.user_id = auth.uid() OR c.volunteer_id = auth.uid()
+  OR EXISTS (SELECT 1 FROM public.users u WHERE u.id = auth.uid() AND u.role IN ('moderador','administrador')))))
+WITH CHECK (sender_id = auth.uid() AND EXISTS (SELECT 1 FROM public.conversations c
+  WHERE c.id = messages.conversation_id
+    AND c.status IN ('ativa','sinalizada')
+    AND (c.user_id = auth.uid() OR c.volunteer_id = auth.uid())));
+NOTIFY pgrst, 'reload schema';

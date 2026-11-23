@@ -353,6 +353,14 @@ async function handleInner<T>(
   if (msgMatch && method === "POST") {
     const convId = msgMatch[1];
     const { data: authData } = await supabase.auth.getUser();
+    const { data: convRow } = await supabase
+      .from("conversations")
+      .select("status")
+      .eq("id", convId)
+      .maybeSingle();
+    if (convRow && ["encerrada", "arquivada"].includes(convRow.status)) {
+      throw new Error("Esta conversa foi encerrada e não aceita novas mensagens.");
+    }
     const { data, error } = await supabase
       .from("messages")
       .insert({
