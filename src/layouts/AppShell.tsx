@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
+  ShieldCheck,
   HeartPulse,
   Star,
   ArrowLeft,
@@ -75,6 +76,7 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/admin/historico", label: "Conversas", icon: History },
     { to: "/admin/avaliacoes", label: "Avaliações", icon: Star },
     { to: "/admin/logs", label: "Logs", icon: ScrollText },
+    { to: "/admin/retencao", label: "Privacidade", icon: ShieldCheck },
   ],
 };
 

@@ -1170,6 +1170,19 @@ async function handleInner<T>(
     }
   }
 
+  if (cleanPath === "/admin/retention") {
+    const args = {
+      p_chat_days: 90,
+      p_group_days: 180,
+      p_log_days: 365,
+      p_notification_days: 90,
+      p_dry_run: method !== "POST",
+    };
+    const { data, error } = await supabase.rpc("purge_old_data", args);
+    if (error) throw new Error(error.message);
+    return ok(data) as T;
+  }
+
   // 5. VOLUNTEERS & APPLICATIONS
   if (cleanPath === "/admin/volunteers" && method === "GET") {
     const { data, error } = await supabase

@@ -6,6 +6,7 @@ import { AppShell } from "@/layouts/AppShell";
 import { PageHeader } from "@/components/common/PageHeader";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { DataPolicy } from "@/components/common/DataPolicy";
 import { Label } from "@/components/ui/label";
 import { clearSession, http } from "@/services/api/client";
 import { deleteMyAccount, exportMyData } from "@/services/privacyService";
@@ -71,6 +72,12 @@ function Page() {
         title="Privacidade & LGPD"
         description="Você controla o uso dos seus dados. Você pode revogar consentimentos a qualquer momento."
       />
+      <section className="mb-8 max-w-4xl">
+        <h2 className="mb-1 font-display text-lg font-semibold">O que guardamos e por quanto tempo</h2>
+        <p className="mb-3 text-sm text-muted-foreground">Transparência total sobre os seus dados.</p>
+        <DataPolicy />
+      </section>
+
       <div className="max-w-2xl space-y-4">
         <section className="rounded-2xl border bg-card p-5 shadow-soft">
           <h2 className="font-semibold">Seus dados</h2>

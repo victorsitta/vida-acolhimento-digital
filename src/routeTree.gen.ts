@@ -43,6 +43,7 @@ import { Route as AppComunidadesRouteImport } from './routes/app.comunidades'
 import { Route as AppCandidaturaRouteImport } from './routes/app.candidatura'
 import { Route as AppBemEstarRouteImport } from './routes/app.bem-estar'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
+import { Route as AdminRetencaoRouteImport } from './routes/admin.retencao'
 import { Route as AdminModeradoresRouteImport } from './routes/admin.moderadores'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHistoricoRouteImport } from './routes/admin.historico'
@@ -230,6 +231,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   path: '/admin/usuarios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRetencaoRoute = AdminRetencaoRouteImport.update({
+  id: '/admin/retencao',
+  path: '/admin/retencao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminModeradoresRoute = AdminModeradoresRouteImport.update({
   id: '/admin/moderadores',
   path: '/admin/moderadores',
@@ -328,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
+  '/admin/retencao': typeof AdminRetencaoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
@@ -377,6 +384,7 @@ export interface FileRoutesByTo {
   '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
+  '/admin/retencao': typeof AdminRetencaoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
@@ -429,6 +437,7 @@ export interface FileRoutesById {
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
+  '/admin/retencao': typeof AdminRetencaoRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
@@ -483,6 +492,7 @@ export interface FileRouteTypes {
     | '/admin/historico'
     | '/admin/logs'
     | '/admin/moderadores'
+    | '/admin/retencao'
     | '/admin/usuarios'
     | '/app/bem-estar'
     | '/app/candidatura'
@@ -532,6 +542,7 @@ export interface FileRouteTypes {
     | '/admin/avaliacoes'
     | '/admin/historico'
     | '/admin/logs'
+    | '/admin/retencao'
     | '/admin/usuarios'
     | '/app/bem-estar'
     | '/app/candidatura'
@@ -583,6 +594,7 @@ export interface FileRouteTypes {
     | '/admin/historico'
     | '/admin/logs'
     | '/admin/moderadores'
+    | '/admin/retencao'
     | '/admin/usuarios'
     | '/app/bem-estar'
     | '/app/candidatura'
@@ -636,6 +648,7 @@ export interface RootRouteChildren {
   AdminHistoricoRoute: typeof AdminHistoricoRoute
   AdminLogsRoute: typeof AdminLogsRoute
   AdminModeradoresRoute: typeof AdminModeradoresRouteWithChildren
+  AdminRetencaoRoute: typeof AdminRetencaoRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AppBemEstarRoute: typeof AppBemEstarRoute
   AppCandidaturaRoute: typeof AppCandidaturaRoute
@@ -904,6 +917,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsuariosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/retencao': {
+      id: '/admin/retencao'
+      path: '/admin/retencao'
+      fullPath: '/admin/retencao'
+      preLoaderRoute: typeof AdminRetencaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/moderadores': {
       id: '/admin/moderadores'
       path: '/admin/moderadores'
@@ -1089,6 +1109,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminHistoricoRoute: AdminHistoricoRoute,
   AdminLogsRoute: AdminLogsRoute,
   AdminModeradoresRoute: AdminModeradoresRouteWithChildren,
+  AdminRetencaoRoute: AdminRetencaoRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AppBemEstarRoute: AppBemEstarRoute,
   AppCandidaturaRoute: AppCandidaturaRoute,

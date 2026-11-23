@@ -82,7 +82,7 @@ const FAQS = [
   },
   {
     q: "Meus dados ou conversas ficam salvos?",
-    a: "Mantemos apenas o mínimo necessário para o sistema funcionar. Suas mensagens privadas não são armazenadas permanentemente e seu sigilo é nossa prioridade.",
+    a: "Guardamos o necessário para cuidar de você com segurança: as mensagens dos atendimentos ficam por 90 dias depois que a conversa termina e depois são apagadas. Só você e o voluntário as leem; a moderação só acessa em caso de denúncia ou risco, e cada acesso é registrado. Você pode baixar seus dados ou excluir a conta quando quiser.",
   },
   {
     q: "Quanto custa usar o aplicativo?",

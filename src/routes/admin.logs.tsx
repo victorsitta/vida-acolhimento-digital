@@ -74,6 +74,7 @@ const LABELS: Record<string, string> = {
   "logs.exportado": "Exportou os logs",
   "conta.excluida": "Excluiu a própria conta",
   "risco.alerta_automatico": "Alerta automático de risco",
+  "sistema.limpeza": "Limpeza automática de dados vencidos",
   "moderacao.medida": "Aplicou uma medida de moderação",
   "moderacao.advertir": "Advertiu uma pessoa",
   "moderacao.suspender": "Suspendeu uma conta",
@@ -91,7 +92,7 @@ const CATEGORIES: Array<{ value: string; label: string; prefix: string[] }> = [
   { value: "atendimento", label: "Atendimentos, fila e prontuário", prefix: ["fila", "atendimento", "risco", "prontuario", "disponibilidade"] },
   { value: "grupos", label: "Grupos", prefix: ["grupo"] },
   { value: "moderacao", label: "Denúncias e moderação", prefix: ["denuncia", "relatorio", "moderacao"] },
-  { value: "equipe", label: "Equipe e candidaturas", prefix: ["candidatura", "usuario", "logs", "conta"] },
+  { value: "equipe", label: "Equipe e candidaturas", prefix: ["candidatura", "usuario", "logs", "conta", "sistema"] },
 ];
 
 function tone(action: string) {

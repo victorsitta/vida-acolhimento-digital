@@ -1067,3 +1067,29 @@ export const wellbeingService = {
     return { ok: true };
   },
 };
+
+export interface RetentionResult {
+  chatMessages: number;
+  groupMessages: number;
+  logs: number;
+  notifications: number;
+  lastRun?: string;
+}
+
+const mapRetention = (d: any): RetentionResult => ({
+  chatMessages: Number(d?.mensagens_atendimento ?? 0),
+  groupMessages: Number(d?.mensagens_grupos ?? 0),
+  logs: Number(d?.logs ?? 0),
+  notifications: Number(d?.avisos ?? 0),
+  lastRun: d?.ultima_limpeza ?? undefined,
+});
+
+/** Retenção de dados (LGPD): quanto está vencido e execução da limpeza. */
+export const retentionService = {
+  async preview(): Promise<RetentionResult> {
+    return mapRetention(await apiData<any>("/admin/retention"));
+  },
+  async run(): Promise<RetentionResult> {
+    return mapRetention(await apiData<any>("/admin/retention", { method: "POST" }));
+  },
+};
