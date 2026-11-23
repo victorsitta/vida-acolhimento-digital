@@ -397,3 +397,106 @@ main pre { max-width: 100%; overflow-x: auto; white-space: pre-wrap; }
 @media (max-width: 640px) {
   main { padding-left: 1rem; padding-right: 1rem; }
 }
+
+/* ─────────────────────────────────────────────
+   ANIMAÇÃO E ENFEITE — banners, brilho, carregamento
+   ───────────────────────────────────────────── */
+.hero {
+  background:
+    linear-gradient(135deg,
+      color-mix(in oklab, var(--primary) 18%, var(--card)) 0%,
+      color-mix(in oklab, var(--accent) 10%, var(--card)) 55%,
+      var(--card) 100%);
+}
+.hero .blob {
+  position: absolute; border-radius: 9999px; filter: blur(48px); pointer-events: none; opacity: 0.55;
+}
+.hero .blob-a {
+  width: 16rem; height: 16rem; left: -4rem; top: -6rem;
+  background: color-mix(in oklab, var(--primary) 55%, transparent);
+  animation: blob-drift 14s ease-in-out infinite alternate;
+}
+.hero .blob-b {
+  width: 14rem; height: 14rem; right: 10%; bottom: -7rem;
+  background: color-mix(in oklab, var(--accent) 45%, transparent);
+  animation: blob-drift 18s ease-in-out infinite alternate-reverse;
+}
+.hero-dots {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.35;
+  background-image: radial-gradient(color-mix(in oklab, var(--foreground) 18%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(to bottom right, black, transparent 70%);
+}
+@keyframes blob-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(2.5rem, 1.5rem) scale(1.12); }
+  100% { transform: translate(-1.5rem, 2.5rem) scale(0.95); }
+}
+.float-y { animation: float-y 6s ease-in-out infinite; }
+@keyframes float-y {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-10px) rotate(3deg); }
+}
+
+/* esqueleto com brilho passando */
+.skeleton-shimmer {
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--primary) 8%, transparent) 25%,
+    color-mix(in oklab, var(--primary) 20%, transparent) 50%,
+    color-mix(in oklab, var(--primary) 8%, transparent) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* coração do logo pulsa devagar */
+.heartbeat { animation: heartbeat 2.6s ease-in-out infinite; transform-origin: center; }
+@keyframes heartbeat {
+  0%, 60%, 100% { transform: scale(1); }
+  70% { transform: scale(1.12); }
+  80% { transform: scale(0.97); }
+  90% { transform: scale(1.08); }
+}
+
+/* indicador de "ao vivo" */
+.live-dot { position: relative; display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: var(--success); }
+.live-dot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: inherit; animation: live-ping 1.8s ease-out infinite; }
+@keyframes live-ping { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(3); opacity: 0; } }
+
+/* linhas e cartões "acendem" ao entrar na tela */
+.pop-in { animation: pop-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.97) translateY(6px); } to { opacity: 1; transform: none; } }
+
+
+/* ─────────────────────────────────────────────
+   FUNDO VIVO e CHAT DECORADO
+   ───────────────────────────────────────────── */
+.app-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.app-bg::before, .app-bg::after {
+  content: ""; position: absolute; border-radius: 9999px; filter: blur(80px); opacity: 0.55;
+  animation: blob-drift 24s ease-in-out infinite alternate;
+}
+.app-bg::before {
+  width: 36rem; height: 36rem; left: -10rem; top: -9rem;
+  background: color-mix(in oklab, var(--primary) 30%, transparent);
+}
+.app-bg::after {
+  width: 32rem; height: 32rem; right: -9rem; bottom: -11rem;
+  background: color-mix(in oklab, var(--accent) 24%, transparent);
+  animation-direction: alternate-reverse;
+}
+.app-bg-dots {
+  position: absolute; inset: 0; opacity: 0.4;
+  background-image: radial-gradient(color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%);
+}
+.dark .app-bg::before, .dark .app-bg::after { opacity: 0.28; }
+.dark .app-bg-dots { opacity: 0.25; }
+
+.chat-bg {
+  background-image:
+    radial-gradient(color-mix(in oklab, var(--foreground) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in oklab, var(--primary) 5%, transparent), transparent 40%);
+  background-size: 22px 22px, 100% 100%;
+}

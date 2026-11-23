@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
+  Star,
   ArrowLeft,
   Home,
   MessageCircle,
@@ -50,12 +51,14 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/vol", label: "Painel", icon: Heart },
     { to: "/vol/fila", label: "Fila", icon: Users },
     { to: "/vol/historico", label: "Histórico", icon: History },
+    { to: "/vol/avaliacoes", label: "Avaliações", icon: Star },
     { to: "/vol/candidatura", label: "Candidatura", icon: ClipboardList },
   ],
   moderador: [
     { to: "/mod", label: "Denúncias", icon: Shield },
     { to: "/admin/comunidades", label: "Grupos", icon: UsersRound },
     { to: "/mod/historico", label: "Conversas", icon: History },
+    { to: "/mod/avaliacoes", label: "Avaliações", icon: Star },
   ],
   administrador: [
     { to: "/admin", label: "Dashboard", icon: BarChart3 },
@@ -63,6 +66,7 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/admin/usuarios", label: "Usuários", icon: Users },
     { to: "/admin/comunidades", label: "Grupos", icon: UsersRound },
     { to: "/admin/historico", label: "Conversas", icon: History },
+    { to: "/admin/avaliacoes", label: "Avaliações", icon: Star },
     { to: "/admin/logs", label: "Logs", icon: ScrollText },
   ],
 };
@@ -293,9 +297,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       : items.slice(0, 3).concat({ to: "#more", label: "Mais", icon: MoreHorizontal });
 
   return (
-    <div className="flex min-h-dvh">
+    <div className="relative isolate flex min-h-dvh">
+      <div className="app-bg" aria-hidden="true">
+        <span className="app-bg-dots" />
+      </div>
       {/* Sidebar desktop */}
-      <aside className="hidden w-64 shrink-0 border-r bg-sidebar text-sidebar-foreground md:flex md:flex-col">
+      <aside className="hidden w-64 shrink-0 border-r bg-sidebar/80 text-sidebar-foreground backdrop-blur-xl md:flex md:flex-col">
         <div className="px-4 py-4">
           <Link to="/app">
             <Logo />

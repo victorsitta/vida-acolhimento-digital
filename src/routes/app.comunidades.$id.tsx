@@ -190,9 +190,10 @@ function Page() {
             hint: "Não compartilhe nome, telefone, endereço ou redes sociais.",
           }}
         >
-            {(messages.data ?? []).map((message) => (
+            {(messages.data ?? []).map((message, idx, arr) => (
               <ChatBubble
                 key={message.id}
+                prevCreatedAt={arr[idx - 1]?.createdAt}
                 mine={!!message.isMine}
                 text={message.text}
                 createdAt={message.createdAt}

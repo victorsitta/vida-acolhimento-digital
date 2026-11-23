@@ -1,3 +1,5 @@
+import { HeroBanner } from "@/components/common/HeroBanner";
+import { ShieldCheck as HeroIcon } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -124,7 +126,7 @@ function Page() {
 
   return (
     <AppShell>
-      <PageHeader title="Dashboard" description="Visão geral da plataforma." />
+      <HeroBanner icon={HeroIcon} title="Dashboard" description="Visão geral da plataforma." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Usuários" icon={Users} tone="primary" value={m?.totalUsers.toLocaleString("pt-BR") ?? "—"} />
         <StatCard label="Voluntários online" icon={HeartHandshake} tone="success" value={m?.totalVolunteers.toString() ?? "—"} />

@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { http } from "@/services/api/client";
+import { clearSession, http } from "@/services/api/client";
+import { deleteMyAccount, exportMyData } from "@/services/privacyService";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 export const Route = createFileRoute("/app/privacidade")({
@@ -18,6 +19,32 @@ export const Route = createFileRoute("/app/privacidade")({
 function Page() {
   useAuthGuard();
   const [consent, setConsent] = useState({ essencial: true, melhorias: true, pesquisa: false });
+
+  const [busy, setBusy] = useState<null | "export" | "delete">(null);
+  const doExport = async () => {
+    setBusy("export");
+    try {
+      await exportMyData();
+      toast.success("Arquivo gerado. Verifique seus downloads.");
+    } catch (e: any) {
+      toast.error(e?.message || "Não foi possível gerar o arquivo.");
+    } finally {
+      setBusy(null);
+    }
+  };
+  const doDelete = async () => {
+    if (!window.confirm("Excluir sua conta? Esta ação é definitiva e não pode ser desfeita.")) return;
+    if (!window.confirm("Tem certeza? Seus dados pessoais serão apagados e você será desconectado.")) return;
+    setBusy("delete");
+    try {
+      await deleteMyAccount();
+      clearSession();
+      window.location.assign("/");
+    } catch (e: any) {
+      toast.error(e?.message || "Não foi possível excluir a conta.");
+      setBusy(null);
+    }
+  };
 
   const saveConsent = useMutation({
     mutationFn: async () => {
@@ -45,6 +72,21 @@ function Page() {
         description="Você controla o uso dos seus dados. Você pode revogar consentimentos a qualquer momento."
       />
       <div className="max-w-2xl space-y-4">
+        <section className="rounded-2xl border bg-card p-5 shadow-soft">
+          <h2 className="font-semibold">Seus dados</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Baixe uma cópia dos seus dados ou peça a exclusão da sua conta. A exclusão é definitiva:
+            seus dados pessoais são apagados e a conta deixa de funcionar.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button variant="outline" disabled={busy !== null} onClick={doExport}>
+              {busy === "export" ? "Preparando…" : "Baixar meus dados"}
+            </Button>
+            <Button variant="destructive" disabled={busy !== null} onClick={doDelete}>
+              {busy === "delete" ? "Excluindo…" : "Excluir minha conta"}
+            </Button>
+          </div>
+        </section>
         <div className="rounded-2xl border bg-card divide-y">
           <Row
             id="ess"

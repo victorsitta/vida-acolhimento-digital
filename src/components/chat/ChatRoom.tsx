@@ -101,7 +101,10 @@ export function ChatRoom({
                 {title}
               </h1>
               {subtitle && (
-                <div className="truncate text-xs text-muted-foreground">{subtitle}</div>
+                <div className="flex items-center gap-1.5 truncate text-xs text-muted-foreground">
+                  <span className="live-dot shrink-0" aria-hidden="true" />
+                  <span className="truncate">{subtitle}</span>
+                </div>
               )}
             </div>
           </div>
@@ -135,7 +138,7 @@ export function ChatRoom({
       {/* Mensagens */}
       <div
         ref={bodyRef}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
+        className="chat-bg min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5"
         aria-live="polite"
       >
         <div className="flex flex-col gap-3">{children}</div>

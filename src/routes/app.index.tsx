@@ -1,3 +1,4 @@
+import { HeroBanner } from "@/components/common/HeroBanner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircleHeart, History, Heart, Sparkles, UsersRound } from "lucide-react";
@@ -22,7 +23,7 @@ function Page() {
 
   return (
     <AppShell>
-      <PageHeader
+      <HeroBanner icon={Heart}
         title={me.isPending ? "Olá!" : `Olá, ${me.data?.name.split(" ")[0] ?? "por aqui"}!`}
         description="Como você está se sentindo hoje? Se quiser conversar, estamos aqui."
       />

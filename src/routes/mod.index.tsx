@@ -1,3 +1,5 @@
+import { HeroBanner } from "@/components/common/HeroBanner";
+import { Shield as HeroIcon } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
@@ -120,7 +122,7 @@ function Page() {
 
   return (
     <AppShell>
-      <PageHeader
+      <HeroBanner icon={HeroIcon}
         title="Painel de Moderação"
         description="Monitore a comunidade e tome ações operacionais."
       />

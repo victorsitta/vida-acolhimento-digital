@@ -239,9 +239,10 @@ function Page() {
           scrollKey={group.data.messages.length}
         >
           <div className="space-y-3 px-3 sm:px-5" aria-live="polite">
-            {group.data.messages.map((message) => (
+            {group.data.messages.map((message, idx, arr) => (
               <ChatBubble
                 key={message.id}
+                prevCreatedAt={arr[idx - 1]?.createdAt}
                 mine={false}
                 text={message.text}
                 createdAt={message.createdAt}

@@ -302,7 +302,7 @@ function Page() {
         {messages.isPending && (
           <p className="pt-8 text-center text-xs text-muted-foreground">Carregando conversa…</p>
         )}
-        {(messages.data ?? []).map((message) => {
+        {(messages.data ?? []).map((message, idx, arr) => {
           if (message.author === "system") {
             return <ChatNotice key={message.id}>{message.text}</ChatNotice>;
           }
@@ -312,6 +312,7 @@ function Page() {
           return (
             <ChatBubble
               key={message.id}
+              prevCreatedAt={arr[idx - 1]?.createdAt}
               mine={message.author === "user"}
               text={message.text}
               createdAt={message.createdAt}

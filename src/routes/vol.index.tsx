@@ -1,3 +1,5 @@
+import { HeroBanner } from "@/components/common/HeroBanner";
+import { HeartHandshake as HeroIcon } from "lucide-react";
 import { Pager, usePagination } from "@/components/common/Pager";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -136,7 +138,7 @@ function Page() {
 
   return (
     <AppShell>
-      <PageHeader
+      <HeroBanner icon={HeroIcon}
         title="Painel do voluntário"
         description="Acompanhe quem precisa de escuta agora."
         actions={

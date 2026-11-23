@@ -27,7 +27,9 @@ import { Route as VolModeradorRouteImport } from './routes/vol.moderador'
 import { Route as VolHistoricoRouteImport } from './routes/vol.historico'
 import { Route as VolFilaRouteImport } from './routes/vol.fila'
 import { Route as VolCandidaturaRouteImport } from './routes/vol.candidatura'
+import { Route as VolAvaliacoesRouteImport } from './routes/vol.avaliacoes'
 import { Route as ModHistoricoRouteImport } from './routes/mod.historico'
+import { Route as ModAvaliacoesRouteImport } from './routes/mod.avaliacoes'
 import { Route as ModIdRouteImport } from './routes/mod.$id'
 import { Route as AppPrivacidadeRouteImport } from './routes/app.privacidade'
 import { Route as AppPreferenciasRouteImport } from './routes/app.preferencias'
@@ -44,6 +46,7 @@ import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminHistoricoRouteImport } from './routes/admin.historico'
 import { Route as AdminComunidadesRouteImport } from './routes/admin.comunidades'
 import { Route as AdminCandidaturasRouteImport } from './routes/admin.candidaturas'
+import { Route as AdminAvaliacoesRouteImport } from './routes/admin.avaliacoes'
 import { Route as AppComunidadesIndexRouteImport } from './routes/app.comunidades.index'
 import { Route as AdminModeradoresIndexRouteImport } from './routes/admin.moderadores.index'
 import { Route as AdminComunidadesIndexRouteImport } from './routes/admin.comunidades.index'
@@ -145,9 +148,19 @@ const VolCandidaturaRoute = VolCandidaturaRouteImport.update({
   path: '/vol/candidatura',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VolAvaliacoesRoute = VolAvaliacoesRouteImport.update({
+  id: '/vol/avaliacoes',
+  path: '/vol/avaliacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ModHistoricoRoute = ModHistoricoRouteImport.update({
   id: '/mod/historico',
   path: '/mod/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModAvaliacoesRoute = ModAvaliacoesRouteImport.update({
+  id: '/mod/avaliacoes',
+  path: '/mod/avaliacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ModIdRoute = ModIdRouteImport.update({
@@ -230,6 +243,11 @@ const AdminCandidaturasRoute = AdminCandidaturasRouteImport.update({
   path: '/admin/candidaturas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAvaliacoesRoute = AdminAvaliacoesRouteImport.update({
+  id: '/admin/avaliacoes',
+  path: '/admin/avaliacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppComunidadesIndexRoute = AppComunidadesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -292,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/seguranca': typeof SegurancaRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/candidaturas': typeof AdminCandidaturasRouteWithChildren
   '/admin/comunidades': typeof AdminComunidadesRouteWithChildren
   '/admin/historico': typeof AdminHistoricoRoute
@@ -308,7 +327,9 @@ export interface FileRoutesByFullPath {
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/avaliacoes': typeof ModAvaliacoesRoute
   '/mod/historico': typeof ModHistoricoRoute
+  '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
@@ -339,6 +360,7 @@ export interface FileRoutesByTo {
   '/seguranca': typeof SegurancaRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
@@ -351,7 +373,9 @@ export interface FileRoutesByTo {
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/avaliacoes': typeof ModAvaliacoesRoute
   '/mod/historico': typeof ModHistoricoRoute
+  '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
@@ -383,6 +407,7 @@ export interface FileRoutesById {
   '/seguranca': typeof SegurancaRoute
   '/sobre': typeof SobreRoute
   '/termos': typeof TermosRoute
+  '/admin/avaliacoes': typeof AdminAvaliacoesRoute
   '/admin/candidaturas': typeof AdminCandidaturasRouteWithChildren
   '/admin/comunidades': typeof AdminComunidadesRouteWithChildren
   '/admin/historico': typeof AdminHistoricoRoute
@@ -399,7 +424,9 @@ export interface FileRoutesById {
   '/app/preferencias': typeof AppPreferenciasRoute
   '/app/privacidade': typeof AppPrivacidadeRoute
   '/mod/$id': typeof ModIdRoute
+  '/mod/avaliacoes': typeof ModAvaliacoesRoute
   '/mod/historico': typeof ModHistoricoRoute
+  '/vol/avaliacoes': typeof VolAvaliacoesRoute
   '/vol/candidatura': typeof VolCandidaturaRoute
   '/vol/fila': typeof VolFilaRoute
   '/vol/historico': typeof VolHistoricoRoute
@@ -432,6 +459,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/sobre'
     | '/termos'
+    | '/admin/avaliacoes'
     | '/admin/candidaturas'
     | '/admin/comunidades'
     | '/admin/historico'
@@ -448,7 +476,9 @@ export interface FileRouteTypes {
     | '/app/preferencias'
     | '/app/privacidade'
     | '/mod/$id'
+    | '/mod/avaliacoes'
     | '/mod/historico'
+    | '/vol/avaliacoes'
     | '/vol/candidatura'
     | '/vol/fila'
     | '/vol/historico'
@@ -479,6 +509,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/sobre'
     | '/termos'
+    | '/admin/avaliacoes'
     | '/admin/historico'
     | '/admin/logs'
     | '/admin/usuarios'
@@ -491,7 +522,9 @@ export interface FileRouteTypes {
     | '/app/preferencias'
     | '/app/privacidade'
     | '/mod/$id'
+    | '/mod/avaliacoes'
     | '/mod/historico'
+    | '/vol/avaliacoes'
     | '/vol/candidatura'
     | '/vol/fila'
     | '/vol/historico'
@@ -522,6 +555,7 @@ export interface FileRouteTypes {
     | '/seguranca'
     | '/sobre'
     | '/termos'
+    | '/admin/avaliacoes'
     | '/admin/candidaturas'
     | '/admin/comunidades'
     | '/admin/historico'
@@ -538,7 +572,9 @@ export interface FileRouteTypes {
     | '/app/preferencias'
     | '/app/privacidade'
     | '/mod/$id'
+    | '/mod/avaliacoes'
     | '/mod/historico'
+    | '/vol/avaliacoes'
     | '/vol/candidatura'
     | '/vol/fila'
     | '/vol/historico'
@@ -570,6 +606,7 @@ export interface RootRouteChildren {
   SegurancaRoute: typeof SegurancaRoute
   SobreRoute: typeof SobreRoute
   TermosRoute: typeof TermosRoute
+  AdminAvaliacoesRoute: typeof AdminAvaliacoesRoute
   AdminCandidaturasRoute: typeof AdminCandidaturasRouteWithChildren
   AdminComunidadesRoute: typeof AdminComunidadesRouteWithChildren
   AdminHistoricoRoute: typeof AdminHistoricoRoute
@@ -586,7 +623,9 @@ export interface RootRouteChildren {
   AppPreferenciasRoute: typeof AppPreferenciasRoute
   AppPrivacidadeRoute: typeof AppPrivacidadeRoute
   ModIdRoute: typeof ModIdRoute
+  ModAvaliacoesRoute: typeof ModAvaliacoesRoute
   ModHistoricoRoute: typeof ModHistoricoRoute
+  VolAvaliacoesRoute: typeof VolAvaliacoesRoute
   VolCandidaturaRoute: typeof VolCandidaturaRoute
   VolFilaRoute: typeof VolFilaRoute
   VolHistoricoRoute: typeof VolHistoricoRoute
@@ -727,11 +766,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VolCandidaturaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vol/avaliacoes': {
+      id: '/vol/avaliacoes'
+      path: '/vol/avaliacoes'
+      fullPath: '/vol/avaliacoes'
+      preLoaderRoute: typeof VolAvaliacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mod/historico': {
       id: '/mod/historico'
       path: '/mod/historico'
       fullPath: '/mod/historico'
       preLoaderRoute: typeof ModHistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mod/avaliacoes': {
+      id: '/mod/avaliacoes'
+      path: '/mod/avaliacoes'
+      fullPath: '/mod/avaliacoes'
+      preLoaderRoute: typeof ModAvaliacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mod/$id': {
@@ -844,6 +897,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/candidaturas'
       fullPath: '/admin/candidaturas'
       preLoaderRoute: typeof AdminCandidaturasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/avaliacoes': {
+      id: '/admin/avaliacoes'
+      path: '/admin/avaliacoes'
+      fullPath: '/admin/avaliacoes'
+      preLoaderRoute: typeof AdminAvaliacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/comunidades/': {
@@ -983,6 +1043,7 @@ const rootRouteChildren: RootRouteChildren = {
   SegurancaRoute: SegurancaRoute,
   SobreRoute: SobreRoute,
   TermosRoute: TermosRoute,
+  AdminAvaliacoesRoute: AdminAvaliacoesRoute,
   AdminCandidaturasRoute: AdminCandidaturasRouteWithChildren,
   AdminComunidadesRoute: AdminComunidadesRouteWithChildren,
   AdminHistoricoRoute: AdminHistoricoRoute,
@@ -999,7 +1060,9 @@ const rootRouteChildren: RootRouteChildren = {
   AppPreferenciasRoute: AppPreferenciasRoute,
   AppPrivacidadeRoute: AppPrivacidadeRoute,
   ModIdRoute: ModIdRoute,
+  ModAvaliacoesRoute: ModAvaliacoesRoute,
   ModHistoricoRoute: ModHistoricoRoute,
+  VolAvaliacoesRoute: VolAvaliacoesRoute,
   VolCandidaturaRoute: VolCandidaturaRoute,
   VolFilaRoute: VolFilaRoute,
   VolHistoricoRoute: VolHistoricoRoute,

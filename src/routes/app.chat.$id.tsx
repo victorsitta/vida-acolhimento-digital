@@ -216,13 +216,14 @@ function Page() {
         {messages.isPending && (
           <p className="text-center text-xs text-muted-foreground">Carregando…</p>
         )}
-        {(messages.data ?? []).map((m) => {
+        {(messages.data ?? []).map((m, idx, arr) => {
           const replyToMessage = m.replyToId
             ? (messages.data ?? []).find((msg) => msg.id === m.replyToId)
             : undefined;
           return (
             <Bubble
               key={m.id}
+              prev={arr[idx - 1]?.createdAt}
               message={m}
               replyToMessage={replyToMessage}
               onRetry={() => send.mutate({ text: m.text, replyToId: m.replyToId })}
@@ -258,11 +259,13 @@ function Page() {
 
 function Bubble({
   message,
+  prev,
   replyToMessage,
   onRetry,
   onReply,
 }: {
   message: ChatMessage;
+  prev?: string;
   replyToMessage?: ChatMessage;
   onRetry: () => void;
   onReply?: () => void;
@@ -271,6 +274,7 @@ function Bubble({
   const mine = message.author === "user";
   return (
     <ChatBubble
+      prevCreatedAt={prev}
       mine={mine}
       text={message.text}
       createdAt={message.createdAt}

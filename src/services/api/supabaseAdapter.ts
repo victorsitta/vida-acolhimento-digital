@@ -961,6 +961,119 @@ async function handleInner<T>(
     return ok({ ok: true }) as T;
   }
 
+  // 5c. Perfil, consentimentos (LGPD), notificações, chat da equipe, identidade, avaliações
+  if (cleanPath === "/users/me/preferences" && method === "PATCH") {
+    const { data: authData } = await supabase.auth.getUser();
+    const uid = authData.user?.id;
+    if (!uid) throw new Error("Não autenticado");
+    const row: Record<string, any> = { user_id: uid, updated_at: new Date().toISOString() };
+    if (payload.nickname !== undefined) {
+      const nick = String(payload.nickname).trim();
+      if (nick.length < 2 || nick.length > 50) throw new Error("O apelido deve ter entre 2 e 50 caracteres.");
+      row.nickname = nick;
+    }
+    if (payload.preferences && typeof payload.preferences === "object") {
+      const { data: cur } = await supabase.from("user_profiles").select("preferences_json").eq("user_id", uid).maybeSingle();
+      row.preferences_json = { ...(cur?.preferences_json ?? {}), ...payload.preferences };
+    }
+    const { error } = await supabase.from("user_profiles").upsert(row);
+    if (error) throw new Error(error.message);
+    if (row.nickname) await supabase.auth.updateUser({ data: { nickname: row.nickname } });
+    return ok({ ok: true }) as T;
+  }
+
+  if (cleanPath === "/users/me/consent" && method === "POST") {
+    const { data: authData } = await supabase.auth.getUser();
+    const { error } = await supabase.from("consents").insert({
+      user_id: authData.user?.id,
+      type: String(payload.type || "").slice(0, 100),
+      version: String(payload.version || "1.0").slice(0, 20),
+    });
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+
+  const notifRead = cleanPath.match(/^\/notifications\/([a-f0-9-]+)\/read$/i);
+  if (notifRead && method === "PATCH") {
+    const { error } = await supabase
+      .from("notifications")
+      .update({ status: "lida", read_at: new Date().toISOString() })
+      .eq("id", notifRead[1]);
+    if (error) throw new Error(error.message);
+    return ok({ ok: true }) as T;
+  }
+
+  if (cleanPath === "/conversations/team" && method === "POST") {
+    const { data: authData } = await supabase.auth.getUser();
+    const me = authData.user?.id;
+    const other = payload.recipientId;
+    if (!me || !other) throw new Error("Destinatário inválido.");
+    const sel = `*, ${USER_NAME_SELECT}, volunteer:volunteer_id(display_name)`;
+    const { data: existing } = await supabase
+      .from("conversations")
+      .select(sel)
+      .eq("is_team_chat", true)
+      .in("status", ["ativa", "sinalizada"])
+      .or(`and(user_id.eq.${me},volunteer_id.eq.${other}),and(user_id.eq.${other},volunteer_id.eq.${me})`)
+      .limit(1)
+      .maybeSingle();
+    if (existing) return ok({ ...existing, anonymous_name: userAlias(existing) }) as T;
+    const { data, error } = await supabase
+      .from("conversations")
+      .insert({ user_id: me, volunteer_id: other, status: "ativa", is_team_chat: true, priority: "normal", started_at: new Date().toISOString() })
+      .select(sel)
+      .single();
+    if (error) throw new Error(error.message);
+    return ok({ ...data, anonymous_name: userAlias(data) }) as T;
+  }
+
+  const revealMatch = cleanPath.match(/^\/communities\/messages\/([a-f0-9-]+)\/reveal-identity$/i);
+  if (revealMatch && method === "POST") {
+    const reason = String(payload.reason || "").trim();
+    if (reason.length < 10) throw new Error("Descreva o motivo (mínimo 10 caracteres). Essa consulta fica registrada.");
+    const { data: authData } = await supabase.auth.getUser();
+    const { data: me } = await supabase.from("users").select("role").eq("id", authData.user?.id).maybeSingle();
+    if (!["moderador", "administrador"].includes(me?.role)) throw new Error("Apenas a moderação pode consultar identidades.");
+    const { data: msg, error } = await supabase
+      .from("community_messages")
+      .select("id, sender_id, alias_snapshot")
+      .eq("id", revealMatch[1])
+      .single();
+    if (error) throw new Error(error.message);
+    const { data: u } = await supabase.from("users").select("display_name").eq("id", msg.sender_id).maybeSingle();
+    await logAudit("grupo.identidade_revelada", "mensagem", revealMatch[1], { motivo: reason });
+    return ok({ message_id: msg.id, alias: msg.alias_snapshot, display_name: u?.display_name ?? "", email: "" }) as T;
+  }
+
+  if (cleanPath === "/volunteers/ratings" && method === "GET") {
+    const { data: authData } = await supabase.auth.getUser();
+    const uid = authData.user?.id;
+    const { data: me } = await supabase.from("users").select("role").eq("id", uid).maybeSingle();
+    let q = supabase
+      .from("conversations")
+      .select(`id, volunteer_id, rating, rating_comment, ended_at, created_at, ${USER_NAME_SELECT}`)
+      .not("rating", "is", null)
+      .not("volunteer_id", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (me?.role === "voluntario") q = q.eq("volunteer_id", uid);
+    const { data, error } = await q;
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((data || []).map((r: any) => r.volunteer_id)));
+    const names = new Map<string, string>();
+    if (ids.length) {
+      const { data: us } = await supabase.from("users").select("id, display_name").in("id", ids);
+      (us || []).forEach((u: any) => names.set(u.id, u.display_name));
+    }
+    return ok(
+      (data || []).map((r: any) => ({
+        ...r,
+        volunteer_name: names.get(r.volunteer_id) ?? "Voluntário",
+        user_alias: userAlias(r),
+      })),
+    ) as T;
+  }
+
   // 5. VOLUNTEERS & APPLICATIONS
   if (cleanPath === "/admin/volunteers" && method === "GET") {
     const { data, error } = await supabase
@@ -1027,7 +1140,8 @@ async function handleInner<T>(
     const { count: activeChats } = await supabase
       .from("conversations")
       .select("*", { count: "exact", head: true })
-      .eq("status", "ativa");
+      .eq("status", "ativa")
+      .or("is_team_chat.is.null,is_team_chat.eq.false");
     const { count: pendingChats } = await supabase
       .from("conversations")
       .select("*", { count: "exact", head: true })

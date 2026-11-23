@@ -68,12 +68,13 @@ function Transcript({ conversation }: { conversation: Conversation }) {
     );
   return (
     <ul className="space-y-3 px-3 pb-4 sm:px-4">
-      {list.map((m) => {
+      {list.map((m, idx) => {
         if (m.author === "system") return <ChatNotice key={m.id}>{m.text}</ChatNotice>;
         const fromUser = m.senderId ? m.senderId === conversation.userId : m.author === "volunteer";
         return (
           <li key={m.id}>
             <ChatBubble
+              prevCreatedAt={list[idx - 1]?.createdAt}
               mine={!fromUser}
               text={m.text}
               createdAt={m.createdAt}

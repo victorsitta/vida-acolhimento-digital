@@ -954,3 +954,28 @@ export const auditService = {
     }));
   },
 };
+
+export interface RatingRow {
+  conversationId: string;
+  volunteerId: string;
+  volunteerName: string;
+  userAlias: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+}
+
+export const ratingService = {
+  async list(): Promise<RatingRow[]> {
+    const data = await apiData<any[]>("/volunteers/ratings");
+    return data.map((r) => ({
+      conversationId: r.id,
+      volunteerId: r.volunteer_id,
+      volunteerName: r.volunteer_name ?? "Voluntário",
+      userAlias: r.user_alias ?? "Pessoa acolhida",
+      rating: Number(r.rating),
+      comment: r.rating_comment ?? undefined,
+      createdAt: r.ended_at ?? r.created_at,
+    }));
+  },
+};

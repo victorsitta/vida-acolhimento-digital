@@ -71,6 +71,9 @@ const LABELS: Record<string, string> = {
   "cadastro.reenvio_confirmacao": "Pediu reenvio de confirmação",
   "disponibilidade.alterada": "Alterou a disponibilidade",
   "logs.exportado": "Exportou os logs",
+  "conta.excluida": "Excluiu a própria conta",
+  "conta.dados_exportados": "Baixou os próprios dados",
+  "grupo.identidade_revelada": "Consultou identidade em grupo",
 };
 
 const CATEGORIES: Array<{ value: string; label: string; prefix: string[] }> = [
@@ -79,7 +82,7 @@ const CATEGORIES: Array<{ value: string; label: string; prefix: string[] }> = [
   { value: "atendimento", label: "Atendimentos, fila e prontuário", prefix: ["fila", "atendimento", "risco", "prontuario", "disponibilidade"] },
   { value: "grupos", label: "Grupos", prefix: ["grupo"] },
   { value: "moderacao", label: "Denúncias e moderação", prefix: ["denuncia", "relatorio"] },
-  { value: "equipe", label: "Equipe e candidaturas", prefix: ["candidatura", "usuario", "logs"] },
+  { value: "equipe", label: "Equipe e candidaturas", prefix: ["candidatura", "usuario", "logs", "conta"] },
 ];
 
 function tone(action: string) {
