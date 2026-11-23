@@ -5,6 +5,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Users, CheckCircle2, FileText, MessageCircle } from "lucide-react";
 import { AppShell } from "@/layouts/AppShell";
+import { VolunteerChecklist, VolunteerStats } from "@/components/common/RoleBlocks";
 import { PageHeader } from "@/components/common/PageHeader";
 import { PriorityBadge } from "@/components/common/PriorityBadge";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -156,6 +157,11 @@ function Page() {
           </Select>
         }
       />
+
+      <VolunteerChecklist />
+
+      <VolunteerStats />
+
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat

@@ -1,4 +1,6 @@
 import { SearchInput } from "@/components/common/SearchInput";
+import { downloadCsv } from "@/lib/csv";
+import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -127,7 +129,34 @@ export function ConversationHistory({
   const pg = usePagination(list, 10);
   return (
     <>
-      <PageHeader title={title} description={description} />
+      <PageHeader
+        title={title}
+        description={description}
+        actions={
+          resume !== "app" && list.length > 0 ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() =>
+                downloadCsv(
+                  "conversas",
+                  identity
+                    ? ["Pessoa", "E-mail da pessoa", "Voluntário", "E-mail do voluntário", "Início", "Situação", "Nota"]
+                    : ["Pessoa", "Voluntário", "Início", "Situação", "Nota"],
+                  list.map((c) =>
+                    identity
+                      ? [personName(c, true), c.userEmail, c.volunteerAlias, c.volunteerEmail, c.startedAt, c.status, c.rating]
+                      : [c.userAlias, c.volunteerAlias, c.startedAt, c.status, c.rating],
+                  ),
+                )
+              }
+            >
+              <Download className="h-4 w-4" /> Exportar CSV
+            </Button>
+          ) : undefined
+        }
+      />
       <SearchInput value={term} onChange={setTerm} placeholder="Buscar por usuário ou voluntário" className="max-w-md" />
 
       {q.isPending ? (

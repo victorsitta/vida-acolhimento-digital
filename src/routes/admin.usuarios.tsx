@@ -15,6 +15,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { ProfileRole } from "@/types";
 import { Pager, usePagination } from "@/components/common/Pager";
 import { FilterChips } from "@/components/common/FilterChips";
+import { downloadCsv } from "@/lib/csv";
+import { Download } from "lucide-react";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useMemo, useState } from "react";
@@ -142,6 +144,23 @@ function Page() {
       <PageHeader
         title="Usuários e papéis"
         description="Gerencie permissões. Confirme antes de aplicar ações críticas."
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={!filtered.length}
+            onClick={() =>
+              downloadCsv(
+                "usuarios",
+                ["Nome", "E-mail", "Papel", "Status", "Desde"],
+                filtered.map((u) => [u.name, u.email, u.role, u.status, u.joinedAt]),
+              )
+            }
+          >
+            <Download className="h-4 w-4" /> Exportar CSV
+          </Button>
+        }
       />
       <div className="mb-4 space-y-3">
         <SearchInput value={search} onChange={setSearch} placeholder="Buscar por nome ou e-mail" className="max-w-md" />

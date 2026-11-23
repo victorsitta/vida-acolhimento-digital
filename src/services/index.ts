@@ -345,6 +345,12 @@ export const userService = {
     });
     return mapUser(data);
   },
+  async updateNickname(nickname: string): Promise<void> {
+    await apiData<unknown>("/users/me/preferences", {
+      method: "PATCH",
+      body: JSON.stringify({ nickname }),
+    });
+  },
   async ban(id: string, ban: boolean): Promise<User> {
     const data = await apiData<any>(`/users/admin/${id}/ban`, {
       method: "POST",

@@ -1,5 +1,11 @@
 import { SearchInput } from "@/components/common/SearchInput";
 import { FilterChips } from "@/components/common/FilterChips";
+import { downloadCsv } from "@/lib/csv";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Download, CheckCheck } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -87,12 +93,59 @@ function Page() {
   );
 
   const pending = all.filter((a) => a.status === "pendente").length;
+  const qc = useQueryClient();
+  const [selected, setSelected] = useState<string[]>([]);
+  const bulk = useMutation({
+    mutationFn: async () => {
+      const chosen = all.filter((a) => selected.includes(`${a.kind}-${a.id}`) && a.status === "pendente");
+      await Promise.all(
+        chosen.map((a) =>
+          a.kind === "moderador"
+            ? moderatorApplicationService.setStatus(a.id, true)
+            : applicationService.setStatus(a.id, "aprovado"),
+        ),
+      );
+      return chosen.length;
+    },
+    onSuccess: (n) => {
+      toast.success(`${n} candidatura${n > 1 ? "s" : ""} aprovada${n > 1 ? "s" : ""}.`);
+      setSelected([]);
+      qc.invalidateQueries({ queryKey: ["applications"] });
+      qc.invalidateQueries({ queryKey: ["moderator-applications"] });
+    },
+    onError: (e: any) => toast.error(e?.message || "Não foi possível aprovar todas."),
+  });
+  const toggle = (k: string) => setSelected((cur) => (cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k]));
   const pg = usePagination(list, 8);
   const loading = vol.isPending || mod.isPending;
 
   return (
     <AppShell>
       <PageHeader
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            {selected.length > 0 && (
+              <Button size="sm" className="gap-2" disabled={bulk.isPending} onClick={() => bulk.mutate()}>
+                <CheckCheck className="h-4 w-4" /> Aprovar {selected.length} selecionada{selected.length > 1 ? "s" : ""}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={!list.length}
+              onClick={() =>
+                downloadCsv(
+                  "candidaturas",
+                  ["Candidato", "Tipo", "Status", "Enviada em"],
+                  list.map((a) => [a.candidateAlias, a.kind === "moderador" ? "Voluntário → Moderador" : "Usuário → Voluntário", a.status, a.submittedAt]),
+                )
+              }
+            >
+              <Download className="h-4 w-4" /> Exportar CSV
+            </Button>
+          </div>
+        }
         title="Candidaturas"
         description={
           pending
@@ -136,7 +189,18 @@ function Page() {
       ) : (
         <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
           {pg.pageItems.map((application) => (
-            <li key={`${application.kind}-${application.id}`}>
+            <li key={`${application.kind}-${application.id}`} className="flex items-center">
+              {application.status === "pendente" ? (
+                <span className="pl-4" onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={selected.includes(`${application.kind}-${application.id}`)}
+                    onCheckedChange={() => toggle(`${application.kind}-${application.id}`)}
+                    aria-label={`Selecionar ${application.candidateAlias}`}
+                  />
+                </span>
+              ) : (
+                <span className="w-8" aria-hidden="true" />
+              )}
               <Link
                 to={
                   application.kind === "moderador"
@@ -144,7 +208,7 @@ function Page() {
                     : "/admin/candidaturas/$id"
                 }
                 params={{ id: application.id }}
-                className="row-hover flex flex-wrap items-center gap-3 px-4 py-4"
+                className="row-hover flex min-w-0 flex-1 flex-wrap items-center gap-3 px-4 py-4"
               >
                 <div className="min-w-0 flex-1 basis-52">
                   <p className="truncate text-sm font-medium">{application.candidateAlias}</p>

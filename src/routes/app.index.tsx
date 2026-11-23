@@ -14,6 +14,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { AppShell } from "@/layouts/AppShell";
+import { UserChecklist } from "@/components/common/RoleBlocks";
 import { HeroBanner } from "@/components/common/HeroBanner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -99,6 +100,32 @@ function Page() {
           </Button>
         }
       />
+
+      {(() => {
+        const live = (conv.data ?? []).find((c) => c.status === "active" && !c.isTeamChat);
+        const waiting = (conv.data ?? []).find((c) => c.status === "waiting" && !c.isTeamChat);
+        if (!live && !waiting) return null;
+        return (
+          <Link
+            to={live ? "/app/chat/$id" : "/app/conversar"}
+            params={live ? { id: live.id } : undefined}
+            className="card-lift mb-6 flex items-center gap-3 rounded-2xl border border-success/40 bg-success/10 p-4 shadow-soft"
+          >
+            <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-success/20 text-success">
+              <MessageCircleHeart className="h-5 w-5" />
+              <span className="live-dot absolute -right-0.5 -top-0.5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">{live ? "Você tem uma conversa em andamento" : "Você está na fila de espera"}</span>
+              <span className="block text-xs text-muted-foreground">{live ? "Toque para voltar à conversa." : "Toque para acompanhar a sua posição."}</span>
+            </span>
+            <ArrowRight className="h-4 w-4 shrink-0" />
+          </Link>
+        );
+      })()}
+
+      <UserChecklist />
+
 
       <div className="stagger grid gap-3 sm:grid-cols-3">
         <Tile

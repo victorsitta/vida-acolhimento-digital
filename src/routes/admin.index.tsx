@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppShell } from "@/layouts/AppShell";
+import { AdminChecklist, AdminCharts } from "@/components/common/RoleBlocks";
 import { PageHeader } from "@/components/common/PageHeader";
 import { metricsService, volunteerReportService, reportService, chatService } from "@/services";
 import { Pager, usePagination } from "@/components/common/Pager";
@@ -127,12 +128,17 @@ function Page() {
   return (
     <AppShell>
       <HeroBanner icon={HeroIcon} title="Dashboard" description="Visão geral da plataforma." />
+
+      <AdminChecklist />
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Usuários" icon={Users} tone="primary" value={m?.totalUsers.toLocaleString("pt-BR") ?? "—"} />
         <StatCard label="Voluntários online" icon={HeartHandshake} tone="success" value={m?.totalVolunteers.toString() ?? "—"} />
         <StatCard label="Conversas hoje" icon={MessagesSquare} tone="accent" value={m?.conversationsToday.toString() ?? "—"} />
         <StatCard label="Satisfação" icon={Smile} tone="info" value={m && m.satisfactionRate > 0 ? `${m.satisfactionRate}%` : "—"} hint={m && m.satisfactionRate === 0 ? "Ainda sem avaliações" : undefined} />
       </div>
+
+      <AdminCharts />
 
       <section className="mt-8 rounded-2xl border bg-card p-5">
         <h2 className="font-display text-lg font-semibold">Conversas na semana</h2>

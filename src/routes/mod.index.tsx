@@ -4,6 +4,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { AppShell } from "@/layouts/AppShell";
+import { ModeratorChecklist, ModeratorStats } from "@/components/common/RoleBlocks";
+import { FilterChips } from "@/components/common/FilterChips";
+import { SearchInput } from "@/components/common/SearchInput";
+import { downloadCsv } from "@/lib/csv";
+import { Download } from "lucide-react";
 import { PageHeader } from "@/components/common/PageHeader";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Input } from "@/components/ui/input";
@@ -127,6 +132,11 @@ function Page() {
         description="Monitore a comunidade e tome ações operacionais."
       />
 
+      <ModeratorChecklist />
+
+      <ModeratorStats />
+
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
         <TabsList className="grid w-full grid-cols-3 mb-6">
           <TabsTrigger value="denuncias" className="gap-2">
@@ -142,24 +152,37 @@ function Page() {
 
         {/* TAB 1: Denúncias */}
         <TabsContent value="denuncias" className="space-y-4">
-          <div className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_200px]">
-            <Input
-              placeholder="Buscar por apelido ou motivo…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+          <div className="mb-4 space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <SearchInput value={search} onChange={setSearch} placeholder="Buscar por apelido ou motivo…" className="min-w-0 flex-1 basis-64 sm:max-w-md" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={!list.length}
+                onClick={() =>
+                  downloadCsv(
+                    "denuncias",
+                    ["Data", "Motivo", "Denunciado", "Status", "Prioridade"],
+                    list.map((r) => [r.createdAt, r.reason, r.reportedAlias, r.status, r.priority]),
+                  )
+                }
+              >
+                <Download className="h-4 w-4" /> Exportar CSV
+              </Button>
+            </div>
+            <FilterChips
+              label="Status da denúncia"
+              value={status}
+              onChange={setStatus}
+              options={[
+                { value: "todos", label: "Todas", count: (q.data ?? []).length },
+                { value: "pendente", label: "Pendentes", count: (q.data ?? []).filter((r) => r.status === "pendente").length },
+                { value: "em_analise", label: "Em análise", count: (q.data ?? []).filter((r) => r.status === "em_analise").length },
+                { value: "resolvido", label: "Resolvidas", count: (q.data ?? []).filter((r) => r.status === "resolvido").length },
+                { value: "arquivado", label: "Arquivadas", count: (q.data ?? []).filter((r) => r.status === "arquivado").length },
+              ]}
             />
-            <Select value={status} onValueChange={(v) => setStatus(v as ReportStatus | "todos")}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os status</SelectItem>
-                <SelectItem value="pendente">Pendente</SelectItem>
-                <SelectItem value="em_analise">Em análise</SelectItem>
-                <SelectItem value="resolvido">Resolvido</SelectItem>
-                <SelectItem value="arquivado">Arquivado</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           <ul className="divide-y overflow-hidden rounded-2xl border bg-card shadow-soft">
