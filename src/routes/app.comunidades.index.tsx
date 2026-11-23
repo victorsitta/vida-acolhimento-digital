@@ -70,10 +70,6 @@ function Page() {
               <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium">
                 {group.topic}
               </span>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Wifi className="h-3.5 w-3.5 text-emerald-500" />
-                {group.onlineCount} online
-              </span>
             </div>
             <h2 className="mt-4 font-display text-xl font-semibold">{group.name}</h2>
             <p className="mt-2 flex-1 text-sm text-muted-foreground">{group.description}</p>

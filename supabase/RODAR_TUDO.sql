@@ -318,3 +318,12 @@ WITH CHECK (sender_id = auth.uid() AND EXISTS (SELECT 1 FROM public.conversation
     AND c.status IN ('ativa','sinalizada')
     AND (c.user_id = auth.uid() OR c.volunteer_id = auth.uid())));
 NOTIFY pgrst, 'reload schema';
+
+-- ================= contagem real de participantes por grupo =================
+CREATE OR REPLACE FUNCTION public.community_member_counts()
+RETURNS TABLE(community_id UUID, member_count BIGINT)
+LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT m.community_id, count(*) FROM public.community_members m WHERE m.status = 'ativo' GROUP BY m.community_id
+$$;
+GRANT EXECUTE ON FUNCTION public.community_member_counts() TO authenticated;
+NOTIFY pgrst, 'reload schema';

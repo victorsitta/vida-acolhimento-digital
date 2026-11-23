@@ -496,9 +496,13 @@ async function handleInner<T>(
         .eq("status", "ativo");
       (members || []).forEach((m: any) => mine.set(m.community_id, m.alias));
     }
+    const counts = new Map<string, number>();
+    const { data: countRows } = await supabase.rpc("community_member_counts");
+    (countRows || []).forEach((r: any) => counts.set(r.community_id, Number(r.member_count)));
     return ok(
       (data || []).map((c: any) => ({
         ...c,
+        member_count: counts.get(c.id) ?? 0,
         is_member: mine.has(c.id),
         my_alias: mine.get(c.id),
       })),
