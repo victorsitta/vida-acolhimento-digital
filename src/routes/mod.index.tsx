@@ -140,7 +140,7 @@ function Page() {
 
         {/* TAB 1: Denúncias */}
         <TabsContent value="denuncias" className="space-y-4">
-          <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_200px]">
+          <div className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_200px]">
             <Input
               placeholder="Buscar por apelido ou motivo…"
               value={search}

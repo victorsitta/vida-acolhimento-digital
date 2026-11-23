@@ -60,7 +60,7 @@ function Page() {
         description={`Candidatura enviada em ${fmtDateTime(a.submittedAt)}`}
         actions={<StatusBadge status={a.status} />}
       />
-      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div className="space-y-4">
           <Section title="Motivação">{a.motivation}</Section>
           <Section title="Disponibilidade">{a.availability}</Section>

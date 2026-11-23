@@ -102,7 +102,7 @@ function Page() {
         actions={<StatusBadge status={r.status} />}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
           <section className="rounded-2xl border bg-card p-5">
             <h2 className="text-sm font-semibold">Detalhes</h2>

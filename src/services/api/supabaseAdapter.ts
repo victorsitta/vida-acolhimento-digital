@@ -61,6 +61,10 @@ function userAlias(c: any) {
   return c.users?.user_profiles?.nickname || c.users?.display_name || "Pessoa acolhida";
 }
 
+/** Quem espera há mais de 3h é considerado desistência: não entra na fila nem nas médias. */
+const STALE_WAIT_MS = 3 * 60 * 60 * 1000;
+const waitCutoff = () => new Date(Date.now() - STALE_WAIT_MS).toISOString();
+
 async function handleInner<T>(
   path: string,
   method = "GET",
@@ -307,6 +311,7 @@ async function handleInner<T>(
       .from("conversations")
       .select("id, created_at")
       .eq("status", "aguardando")
+      .gte("created_at", waitCutoff())
       .order("created_at", { ascending: true });
     const list = waiting || [];
     const idx = qsMatch[1] ? list.findIndex((c: any) => c.id === qsMatch[1]) : -1;
@@ -322,6 +327,7 @@ async function handleInner<T>(
       .from("conversations")
       .select(`*, ${USER_NAME_SELECT}`)
       .eq("status", "aguardando")
+      .gte("created_at", waitCutoff())
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
     return ok(
@@ -417,6 +423,7 @@ async function handleInner<T>(
       })
       .eq("id", convId)
       .eq("status", "aguardando")
+      .gte("created_at", waitCutoff())
       .select()
       .single();
     if (error) throw new Error("Este atendimento já foi aceito por outra pessoa ou não está mais na fila.");
@@ -1024,7 +1031,8 @@ async function handleInner<T>(
     const { count: pendingChats } = await supabase
       .from("conversations")
       .select("*", { count: "exact", head: true })
-      .eq("status", "aguardando");
+      .eq("status", "aguardando")
+      .gte("created_at", waitCutoff());
     const since = new Date(Date.now() - 90_000).toISOString();
     const { count: onlineVolunteers } = await supabase
       .from("volunteer_profiles")
@@ -1034,7 +1042,8 @@ async function handleInner<T>(
     const { data: waitingRows } = await supabase
       .from("conversations")
       .select("created_at")
-      .eq("status", "aguardando");
+      .eq("status", "aguardando")
+      .gte("created_at", waitCutoff());
     const avgWaitMinutes = (waitingRows || []).length
       ? Math.round(
           (waitingRows || []).reduce(

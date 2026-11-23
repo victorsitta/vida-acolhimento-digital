@@ -98,7 +98,7 @@ function Page() {
             : "Usuários que querem ser voluntários e voluntários que querem ser moderadores."
         }
       />
-      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_200px_180px]">
+      <div className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_200px_180px]">
         <Input
           placeholder="Buscar candidato..."
           value={search}

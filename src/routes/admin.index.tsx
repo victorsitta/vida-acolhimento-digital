@@ -161,15 +161,21 @@ function Page() {
 
       <div className="mt-8">
         <Tabs defaultValue="relatorios-voluntarios">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="relatorios-voluntarios" className="gap-2">
-              <FileText className="h-4 w-4" /> Relatórios de Voluntários
+          <TabsList className="mb-6 grid h-auto w-full grid-cols-3">
+            <TabsTrigger value="relatorios-voluntarios" className="flex-col gap-1 px-1 py-2 text-[11px] sm:flex-row sm:gap-2 sm:px-3 sm:text-sm">
+              <FileText className="h-4 w-4" />
+              <span className="sm:hidden">Voluntários</span>
+              <span className="hidden sm:inline">Relatórios de Voluntários</span>
             </TabsTrigger>
-            <TabsTrigger value="reportes-moderadores" className="gap-2">
-              <ShieldAlert className="h-4 w-4" /> Reportes de Moderadores
+            <TabsTrigger value="reportes-moderadores" className="flex-col gap-1 px-1 py-2 text-[11px] sm:flex-row sm:gap-2 sm:px-3 sm:text-sm">
+              <ShieldAlert className="h-4 w-4" />
+              <span className="sm:hidden">Denúncias</span>
+              <span className="hidden sm:inline">Denúncias e Reportes</span>
             </TabsTrigger>
-            <TabsTrigger value="historico-atendimentos" className="gap-2">
-              <History className="h-4 w-4" /> Histórico de Acolhimentos
+            <TabsTrigger value="historico-atendimentos" className="flex-col gap-1 px-1 py-2 text-[11px] sm:flex-row sm:gap-2 sm:px-3 sm:text-sm">
+              <History className="h-4 w-4" />
+              <span className="sm:hidden">Atendimentos</span>
+              <span className="hidden sm:inline">Histórico de Acolhimentos</span>
             </TabsTrigger>
           </TabsList>
 

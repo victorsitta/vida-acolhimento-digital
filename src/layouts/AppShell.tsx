@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
+  ArrowLeft,
   Home,
   MessageCircle,
   History,
@@ -278,6 +279,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const routeRole: ProfileRole = RANK[role] >= RANK[areaRole] ? areaRole : role;
   const items = NAV[routeRole] ?? NAV[role];
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // Botão "voltar" no celular: aparece em qualquer tela que não seja uma das abas principais.
+  const areaHome = routeRole === "usuario" ? "/app" : `/${routeRole === "voluntario" ? "vol" : routeRole === "moderador" ? "mod" : "admin"}`;
+  const isTopLevel = pathname === areaHome || items.some((i) => i.to === pathname);
+  const goBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) window.history.back();
+    else navigate({ to: areaHome });
+  };
   const mobileItems =
     items.length < 4
       ? [...items, { to: "#more", label: "Mais", icon: MoreHorizontal }]
@@ -330,7 +339,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl safe-top supports-[backdrop-filter]:bg-background/70">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 md:px-6">
-            <div className="md:hidden">
+            <div className="flex items-center gap-1 md:hidden">
+              {!isTopLevel && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={goBack}
+                  aria-label="Voltar"
+                  className="-ml-2 h-10 w-10 shrink-0"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+              )}
               <Link to="/app">
                 <Logo />
               </Link>

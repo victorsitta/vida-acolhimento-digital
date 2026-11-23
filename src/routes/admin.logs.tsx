@@ -180,7 +180,7 @@ function Page() {
         <StatCard label="No filtro" value={String(rows.length)} icon={Search} tone="accent" />
       </div>
 
-      <div className="mb-4 grid gap-2 sm:grid-cols-[1fr_220px_160px]">
+      <div className="mb-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_220px_160px]">
         <div className="relative">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
