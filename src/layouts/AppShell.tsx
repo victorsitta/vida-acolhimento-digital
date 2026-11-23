@@ -283,18 +283,35 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Logo />
           </Link>
         </div>
-        <nav aria-label="Navegação" className="flex-1 px-3 pb-4">
+        <nav aria-label="Navegação" className="flex-1 overflow-y-auto px-3 pb-4">
+          <p className="px-2.5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+            Menu
+          </p>
           <ul className="space-y-1">
             {items.map((i) => (
               <NavLink key={i.to} item={i} />
             ))}
           </ul>
-          <div className="mt-6 border-t pt-4 space-y-1">
+          <p className="mt-6 px-2.5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+            Conta
+          </p>
+          <div className="space-y-1">
             <NavLink item={{ to: "/app/preferencias", label: "Preferências", icon: Settings }} />
           </div>
         </nav>
-        <div className="border-t p-3">
-          <Button variant="ghost" className="w-full justify-start gap-2" onClick={handleLogout}>
+        <div className="space-y-2 border-t p-3">
+          <div className="flex items-center gap-3 rounded-xl bg-muted/50 p-2.5">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+              {meQuery.data?.initials ?? "··"}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold leading-tight">
+                {meQuery.data?.name ?? "Carregando…"}
+              </p>
+              <p className="text-xs capitalize text-muted-foreground">{routeRole}</p>
+            </div>
+          </div>
+          <Button variant="ghost" className="w-full justify-start gap-2 text-muted-foreground hover:text-destructive" onClick={handleLogout}>
             <LogOut className="h-4 w-4" /> Sair
           </Button>
         </div>
@@ -302,14 +319,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur safe-top">
+        <header className="sticky top-0 z-30 border-b bg-background/80 backdrop-blur-xl safe-top supports-[backdrop-filter]:bg-background/70">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3 md:px-6">
             <div className="md:hidden">
               <Link to="/app">
                 <Logo />
               </Link>
             </div>
-            <div className="hidden md:block" />
+            <div className="hidden items-center md:flex">
+              <span className="rounded-full border bg-card px-3 py-1 text-xs font-medium capitalize text-muted-foreground shadow-sm">
+                Área {routeRole === "usuario" ? "do usuário" : `de ${routeRole}`}
+              </span>
+            </div>
             <div className="flex items-center justify-end gap-2">
               <div className="hidden sm:block">
                 <InstallButton />
@@ -378,8 +399,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ) : (
                   <Link
                     to={i.to}
-                    className="flex h-16 flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground"
-                    activeProps={{ className: "text-primary" }}
+                    className="relative flex h-16 flex-col items-center justify-center gap-1 text-xs font-medium text-muted-foreground transition-colors"
+                    activeProps={{
+                      className:
+                        "text-foreground font-semibold before:absolute before:top-0 before:h-1 before:w-10 before:rounded-b-full before:bg-primary [&>svg]:text-primary",
+                    }}
                     activeOptions={{
                       exact:
                         i.to === "/app" || i.to === "/vol" || i.to === "/mod" || i.to === "/admin",
@@ -615,19 +639,36 @@ function MobileMenuLink({ item, close }: { item: Item; close: () => void }) {
 
 function NavLink({ item }: { item: Item }) {
   const { pathname } = useLocation();
-  const active = pathname === item.to || (item.to !== "/app" && pathname.startsWith(item.to));
+  const root = ["/app", "/vol", "/mod", "/admin"].includes(item.to);
+  const active = pathname === item.to || (!root && pathname.startsWith(item.to));
   return (
     <li>
       <Link
         to={item.to}
+        aria-current={active ? "page" : undefined}
         className={cn(
-          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+          "group relative flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-all",
           active
-            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            ? "bg-primary/15 text-foreground shadow-sm"
             : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         )}
       >
-        <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        {active && (
+          <span
+            className="absolute -left-3 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary"
+            aria-hidden="true"
+          />
+        )}
+        <span
+          className={cn(
+            "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition-colors",
+            active
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "bg-muted/70 group-hover:bg-background",
+          )}
+        >
+          <item.icon className="h-4 w-4" aria-hidden="true" />
+        </span>
         <span className="truncate">{item.label}</span>
       </Link>
     </li>

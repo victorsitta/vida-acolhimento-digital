@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState } from "@/components/common/EmptyState";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { ChatBubble, ChatNotice } from "@/components/chat/ChatBubble";
 import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
 import { Pager, usePagination } from "@/components/common/Pager";
 import { Input } from "@/components/ui/input";
@@ -60,31 +61,19 @@ function Transcript({ conversation }: { conversation: Conversation }) {
       <p className="px-4 pb-4 text-sm text-muted-foreground">Sem mensagens nesta conversa.</p>
     );
   return (
-    <ul className="space-y-2 px-4 pb-4">
+    <ul className="space-y-3 px-3 pb-4 sm:px-4">
       {list.map((m) => {
-        if (m.author === "system")
-          return (
-            <li key={m.id} className="text-center text-xs text-muted-foreground">
-              {m.text}
-            </li>
-          );
+        if (m.author === "system") return <ChatNotice key={m.id}>{m.text}</ChatNotice>;
         const fromUser = m.senderId ? m.senderId === conversation.userId : m.author === "volunteer";
         return (
-          <li
-            key={m.id}
-            className={
-              fromUser
-                ? "mr-auto max-w-[85%] rounded-2xl rounded-bl-sm bg-muted px-3 py-2"
-                : "ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-primary/15 px-3 py-2"
-            }
-          >
-            <span className="block text-xs font-semibold text-muted-foreground">
-              {fromUser ? conversation.userAlias : (conversation.volunteerAlias ?? "Voluntário")}
-            </span>
-            <span className="block whitespace-pre-wrap break-words text-sm">{m.text}</span>
-            <span className="mt-1 block text-xs text-muted-foreground">
-              {fmtDateTime(m.createdAt)}
-            </span>
+          <li key={m.id}>
+            <ChatBubble
+              mine={!fromUser}
+              text={m.text}
+              createdAt={m.createdAt}
+              name={fromUser ? conversation.userAlias : (conversation.volunteerAlias ?? "Voluntário")}
+              showAvatar
+            />
           </li>
         );
       })}

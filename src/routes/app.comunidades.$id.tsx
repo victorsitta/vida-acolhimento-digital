@@ -11,6 +11,7 @@ import { fmtRelative } from "@/utils/format";
 import { cn } from "@/lib/utils";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useCommunityRealtime } from "@/hooks/useCommunityRealtime";
+import { ChatBubble } from "@/components/chat/ChatBubble";
 import { useProfile } from "@/contexts/ProfileContext";
 import { Input } from "@/components/ui/input";
 import {
@@ -188,72 +189,65 @@ function Page() {
             </div>
           </header>
 
-          <div ref={scrollRef} className="h-[48vh] min-h-80 space-y-4 overflow-y-auto p-4 sm:p-5">
+          <div ref={scrollRef} className="h-[55dvh] min-h-80 space-y-3 overflow-y-auto p-3 sm:p-5">
             {(messages.data ?? []).map((message) => (
-              <article
+              <ChatBubble
                 key={message.id}
-                className={cn("max-w-[88%]", message.isMine ? "ml-auto text-right" : "mr-auto")}
-              >
-                <div className="mb-1 flex items-center gap-2 text-xs text-muted-foreground">
-                  {!message.isMine && <strong className="text-foreground">{message.alias}</strong>}
-                  <span className={message.isMine ? "ml-auto" : ""}>
-                    {fmtRelative(message.createdAt)}
-                  </span>
-                </div>
-                <div
-                  className={cn(
-                    "rounded-2xl px-4 py-3 text-left text-sm",
-                    message.isMine
-                      ? "rounded-br-md bg-primary text-primary-foreground"
-                      : "rounded-bl-md bg-muted",
-                  )}
-                >
-                  {message.text}
-                </div>
-                {!message.isMine && (
-                  <div className="mt-1 flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (window.confirm("Denunciar esta mensagem para a moderação?")) {
-                          reportMessage.mutate({ messageId: message.id, alias: message.alias });
-                        }
-                      }}
-                      disabled={reportMessage.isPending}
-                      className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive cursor-pointer"
-                    >
-                      <Flag className="h-3 w-3" /> Denunciar Mensagem
-                    </button>
-
-                    {["moderador", "administrador"].includes(role) && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setTargetMsg(message);
-                            setReportModalOpen(true);
-                          }}
-                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline cursor-pointer"
-                        >
-                          Denunciar Usuário
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (message.senderId && window.confirm(`Encaminhar o usuário "${message.alias}" para atendimento com voluntário?`)) {
-                              referUserMutation.mutate(message.senderId);
-                            }
-                          }}
-                          disabled={referUserMutation.isPending}
-                          className="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
-                        >
-                          Solicitar Acolhimento
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </article>
+                mine={!!message.isMine}
+                text={message.text}
+                createdAt={message.createdAt}
+                name={message.alias}
+                showAvatar
+                footer={
+                  !message.isMine ? (
+                    <div className="mt-1 flex flex-wrap items-center gap-3 px-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm("Denunciar esta mensagem para a moderação?")) {
+                            reportMessage.mutate({ messageId: message.id, alias: message.alias });
+                          }
+                        }}
+                        disabled={reportMessage.isPending}
+                        className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-destructive"
+                      >
+                        <Flag className="h-3 w-3" /> Denunciar
+                      </button>
+                      {["moderador", "administrador"].includes(role) && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setTargetMsg(message);
+                              setReportModalOpen(true);
+                            }}
+                            className="cursor-pointer text-xs text-primary hover:underline"
+                          >
+                            Denunciar usuário
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (
+                                message.senderId &&
+                                window.confirm(
+                                  `Encaminhar o usuário "${message.alias}" para atendimento com voluntário?`,
+                                )
+                              ) {
+                                referUserMutation.mutate(message.senderId);
+                              }
+                            }}
+                            disabled={referUserMutation.isPending}
+                            className="cursor-pointer text-xs text-emerald-600 hover:underline dark:text-emerald-400"
+                          >
+                            Solicitar acolhimento
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  ) : undefined
+                }
+              />
             ))}
             {!messages.isPending && (messages.data?.length ?? 0) === 0 && (
               <p className="py-16 text-center text-sm text-muted-foreground">

@@ -21,6 +21,7 @@ import type { ChatMessage } from "@/types";
 import { toast } from "sonner";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useChatRealtime } from "@/hooks/useChatRealtime";
+import { ChatBubble, ChatNotice } from "@/components/chat/ChatBubble";
 
 export const Route = createFileRoute("/app/chat/$id")({
   head: () => ({ meta: [{ title: "Conversa — VIDA+" }] }),
@@ -316,66 +317,23 @@ function Bubble({
   onRetry: () => void;
   onReply?: () => void;
 }) {
-  if (message.author === "system") {
-    return <p className="my-2 text-center text-xs text-muted-foreground">{message.text}</p>;
-  }
+  if (message.author === "system") return <ChatNotice>{message.text}</ChatNotice>;
   const mine = message.author === "user";
   return (
-    <div className={cn("flex group items-end gap-1.5", mine ? "justify-end" : "justify-start")}>
-      {/* Bolha */}
-      <div
-        className={cn(
-          "relative max-w-[78%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
-          mine
-            ? "rounded-br-sm bg-primary text-primary-foreground"
-            : "rounded-bl-sm bg-card border",
-        )}
-      >
-        {replyToMessage && (
-          <div className={cn(
-            "mb-1.5 rounded border-l-2 p-1.5 text-xs",
-            mine
-              ? "border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground/90"
-              : "border-primary/40 bg-muted/60 text-muted-foreground"
-          )}>
-            <span className={cn(
-              "block font-semibold text-[10px]",
-              mine ? "text-primary-foreground/80" : "text-primary"
-            )}>
-              {replyToMessage.author === "user" ? "Você" : "Voluntário"}
-            </span>
-            <span className="line-clamp-2">{replyToMessage.text}</span>
-          </div>
-        )}
-        <p className="whitespace-pre-wrap text-pretty">{message.text}</p>
-        <div
-          className={cn(
-            "mt-0.5 flex items-center gap-1 text-[10px]",
-            mine ? "justify-end text-primary-foreground/70" : "text-muted-foreground",
-          )}
-        >
-          <span>{fmtTime(message.createdAt)}</span>
-          {message.status === "sending" && <span>· enviando…</span>}
-          {message.status === "error" && (
-            <button onClick={onRetry} className="ml-1 underline">
-              Falhou — reenviar
-            </button>
-          )}
-        </div>
-      </div>
-      {/* Botão de responder — aparece ao passar o mouse */}
-      {onReply && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onReply}
-          aria-label="Responder mensagem"
-          className="h-7 w-7 shrink-0 rounded-full text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 max-md:opacity-50 hover:text-foreground hover:bg-muted"
-        >
-          <CornerUpLeft className="h-3.5 w-3.5" />
-        </Button>
-      )}
-    </div>
+    <ChatBubble
+      mine={mine}
+      text={message.text}
+      createdAt={message.createdAt}
+      name={mine ? undefined : "Voluntário"}
+      showAvatar
+      status={message.status}
+      reply={
+        replyToMessage
+          ? { author: replyToMessage.author === "user" ? "Você" : "Voluntário", text: replyToMessage.text }
+          : undefined
+      }
+      onReply={onReply}
+      onRetry={onRetry}
+    />
   );
 }

@@ -21,6 +21,7 @@ import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useChatRealtime } from "@/hooks/useChatRealtime";
 import { http } from "@/services/api/client";
 import { CareRecordSheet } from "@/components/chat/CareRecordSheet";
+import { ChatBubble, ChatNotice, TypingDots } from "@/components/chat/ChatBubble";
 
 export const Route = createFileRoute("/vol/chat/$id")({
   head: () => ({ meta: [{ title: "Atendimento — VIDA+" }] }),
@@ -181,173 +182,153 @@ function Page() {
     );
   }
 
+  const personAlias = conversation.data?.userAlias ?? "Pessoa acolhida";
+  const personInitials = personAlias
+    .split(" ")
+    .filter(Boolean)
+    .map((p: string) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   return (
     <AppShell>
       <div className="mx-auto flex max-w-2xl flex-col gap-3 pb-8">
-        {/* Card principal — escuro conforme mockup */}
-        <div
-          className="relative flex flex-col overflow-hidden rounded-3xl shadow-2xl"
-          style={{ background: "hsl(30 15% 10%)", minHeight: 520 }}
-        >
-          {/* Header do voluntario */}
-          <div
-            className="flex items-center justify-between px-5 py-4"
-            style={{ background: "hsl(30 12% 12%)" }}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-                style={{ background: "hsl(38 90% 48%)" }}
-              >
-                {initials}
-                <span
-                  className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 bg-emerald-400"
-                  style={{ borderColor: "hsl(30 12% 12%)" }}
-                />
+        <div className="flex h-[calc(100dvh-13rem)] min-h-[26rem] flex-col overflow-hidden rounded-3xl border bg-card shadow-soft">
+          {/* Cabeçalho */}
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-gradient-to-b from-primary/10 to-transparent px-4 py-3 sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                {personInitials}
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
               </div>
-              <div>
-                <p className="text-sm font-semibold text-white">{volunteerName}</p>
-                <p className="text-[11px] font-medium" style={{ color: "hsl(38 90% 58%)" }}>
-                  online · pronto para acolher
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{personAlias}</p>
+                <p className="text-xs text-muted-foreground">
+                  em atendimento · você pode sair e voltar quando quiser
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <CareRecordSheet
-                tone="dark"
                 userId={conversation.data?.userId}
                 userAlias={conversation.data?.userAlias}
                 conversationId={id}
               />
-              <button
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="h-9 w-9"
                 onClick={() => setShowRisk(!showRisk)}
-                className="rounded-xl p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white"
-                aria-label="Opcoes"
+                aria-label="Sinalizar risco"
+                aria-expanded={showRisk}
               >
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+              </Button>
             </div>
-
           </div>
 
-          {/* Painel de risco colapsavel */}
+          {/* Painel de risco */}
           {showRisk && (
-            <div
-              className="border-b px-5 py-4 animate-in fade-in slide-in-from-top-2"
-              style={{ background: "hsl(30 12% 13%)", borderColor: "hsl(30 12% 22%)" }}
-            >
-              <div className="mb-3 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-400" />
-                <span className="text-sm font-semibold text-white">Sinalizar risco</span>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Select value={riskLevel} onValueChange={setRiskLevel}>
-                  <SelectTrigger className="h-8 border-white/10 bg-white/5 text-xs text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="baixo">Baixo</SelectItem>
-                    <SelectItem value="medio">Medio</SelectItem>
-                    <SelectItem value="alto">Alto</SelectItem>
-                    <SelectItem value="imediato">Imediato</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Textarea
-                  rows={2}
-                  value={riskReason}
-                  onChange={(e) => setRiskReason(e.target.value)}
-                  placeholder="Descreva o sinal observado..."
-                  className="resize-none border-white/10 bg-white/5 text-xs text-white placeholder:text-white/30"
-                />
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 border-white/10 text-xs text-white/70 hover:bg-white/10"
-                    disabled={riskReason.trim().length < 5 || flagRisk.isPending}
-                    onClick={() => flagRisk.mutate()}
-                  >
-                    {flagRisk.isPending ? "Registrando..." : "Registrar"}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="flex-1 text-xs"
-                    onClick={() => setEnded(true)}
-                  >
-                    Encerrar
-                  </Button>
-                </div>
+            <div className="space-y-2 border-b bg-muted/40 px-4 py-4 animate-in fade-in slide-in-from-top-2 sm:px-5">
+              <p className="flex items-center gap-2 text-sm font-semibold">
+                <AlertTriangle className="h-4 w-4 text-amber-500" /> Sinalizar risco
+              </p>
+              <Select value={riskLevel} onValueChange={setRiskLevel}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="baixo">Baixo</SelectItem>
+                  <SelectItem value="medio">Médio</SelectItem>
+                  <SelectItem value="alto">Alto</SelectItem>
+                  <SelectItem value="imediato">Imediato</SelectItem>
+                </SelectContent>
+              </Select>
+              <Textarea
+                rows={2}
+                value={riskReason}
+                onChange={(e) => setRiskReason(e.target.value)}
+                placeholder="Descreva o sinal observado..."
+                className="resize-none"
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  disabled={riskReason.trim().length < 5 || flagRisk.isPending}
+                  onClick={() => flagRisk.mutate()}
+                >
+                  {flagRisk.isPending ? "Registrando..." : "Registrar sinalização"}
+                </Button>
+                <Button size="sm" variant="destructive" className="flex-1" onClick={() => setEnded(true)}>
+                  Encerrar atendimento
+                </Button>
               </div>
             </div>
           )}
 
-          {/* Area de mensagens */}
+          {/* Mensagens */}
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto px-5 py-5"
+            className="flex-1 overflow-y-auto px-3 py-4 sm:px-5"
             aria-live="polite"
-            style={{ minHeight: 320 }}
           >
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {messages.isPending && (
-                <p className="pt-8 text-center text-xs text-white/40">Carregando conversa...</p>
+                <p className="pt-8 text-center text-xs text-muted-foreground">Carregando conversa…</p>
               )}
               {(messages.data ?? []).map((message) => {
+                if (message.author === "system") {
+                  return <ChatNotice key={message.id}>{message.text}</ChatNotice>;
+                }
                 const replyToMessage = message.replyToId
                   ? (messages.data ?? []).find((msg) => msg.id === message.replyToId)
                   : undefined;
                 return (
                   <ChatBubble
                     key={message.id}
-                    message={message}
-                    replyToMessage={replyToMessage}
+                    mine={message.author === "user"}
+                    text={message.text}
+                    createdAt={message.createdAt}
+                    name={message.author === "user" ? undefined : personAlias}
+                    showAvatar
+                    status={message.status}
+                    reply={
+                      replyToMessage
+                        ? {
+                            author: replyToMessage.author === "user" ? "Você" : personAlias,
+                            text: replyToMessage.text,
+                          }
+                        : undefined
+                    }
                     onReply={() => setReplyingTo(message)}
                   />
                 );
               })}
-              {isTyping && (
-                <div className="flex items-center gap-2 animate-in fade-in">
-                  <div
-                    className="flex items-center gap-1 rounded-2xl px-4 py-2.5"
-                    style={{ background: "hsl(30 10% 17%)" }}
-                  >
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/40 [animation-delay:-0.3s]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/40 [animation-delay:-0.15s]" />
-                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-white/40" />
-                  </div>
-                  <span className="text-[10px] text-white/40">
-                    {typingUser || "digitando"}...
-                  </span>
-                </div>
-              )}
+              {isTyping && <TypingDots label={`${typingUser || personAlias} está digitando…`} />}
             </div>
           </div>
 
-          {/* Barra de input */}
-          <div
-            className="px-4 py-3"
-            style={{ background: "hsl(30 12% 12%)", borderTop: "1px solid hsl(30 12% 18%)" }}
-          >
+          {/* Composer */}
+          <div className="border-t bg-card px-3 py-3 sm:px-4">
             {replyingTo && (
-              <div
-                className="mb-2 flex items-center justify-between rounded-xl px-3 py-2 text-xs animate-in fade-in slide-in-from-bottom-1"
-                style={{
-                  background: "hsl(30 10% 17%)",
-                  borderLeft: "2px solid hsl(38 90% 48%)",
-                }}
-              >
-                <div className="pl-2">
-                  <span className="block text-[10px] font-semibold text-amber-400">
-                    Respondendo a {replyingTo.author === "user" ? "Pessoa acolhida" : "Voce"}
+              <div className="mb-2 flex items-center justify-between rounded-xl border-l-2 border-primary bg-muted/60 px-3 py-2 text-xs animate-in fade-in slide-in-from-bottom-1">
+                <div className="min-w-0">
+                  <span className="block font-semibold text-primary">
+                    Respondendo a {replyingTo.author === "user" ? "você" : personAlias}
                   </span>
-                  <span className="line-clamp-1 text-white/60">{replyingTo.text}</span>
+                  <span className="line-clamp-1 text-muted-foreground">{replyingTo.text}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setReplyingTo(null)}
-                  className="ml-2 text-white/40 hover:text-white"
+                  className="ml-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Cancelar resposta"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             )}
@@ -362,7 +343,7 @@ function Page() {
               <label htmlFor="volunteer-message" className="sr-only">
                 Mensagem
               </label>
-              <textarea
+              <Textarea
                 id="volunteer-message"
                 rows={1}
                 value={text}
@@ -374,138 +355,27 @@ function Page() {
                     if (value) send.mutate({ text: value, replyToId: replyingTo?.id });
                   }
                 }}
-                placeholder="Escreva o que esta sentindo..."
-                className="max-h-32 flex-1 resize-none rounded-2xl px-4 py-2.5 text-sm outline-none"
-                style={{
-                  background: "hsl(30 10% 17%)",
-                  color: "white",
-                  border: "1px solid hsl(30 12% 22%)",
-                }}
+                placeholder="Escreva uma mensagem…"
+                className="max-h-32 min-h-10 flex-1 resize-none rounded-2xl"
               />
-              <button
-                type="submit"
-                disabled={!text.trim() || send.isPending}
-                className="flex h-10 shrink-0 items-center rounded-2xl px-5 text-sm font-semibold text-black transition-opacity disabled:opacity-40"
-                style={{ background: "hsl(38 90% 52%)" }}
-                aria-label="Enviar mensagem"
-              >
+              <Button type="submit" disabled={!text.trim() || send.isPending} className="h-10 rounded-2xl px-5">
                 Enviar
-              </button>
+              </Button>
             </form>
           </div>
         </div>
 
-        {/* Encerrar fora do card */}
-        {!showRisk && (
-          <div className="flex justify-end">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-muted-foreground hover:text-destructive"
-              onClick={() => setEnded(true)}
-            >
-              Encerrar atendimento
-            </Button>
-          </div>
-        )}
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-muted-foreground hover:text-destructive"
+            onClick={() => setEnded(true)}
+          >
+            Encerrar atendimento
+          </Button>
+        </div>
       </div>
     </AppShell>
-  );
-}
-
-function ChatBubble({
-  message,
-  replyToMessage,
-  onReply,
-}: {
-  message: ChatMessage;
-  replyToMessage?: ChatMessage;
-  onReply?: () => void;
-}) {
-  if (message.author === "system") {
-    return (
-      <p
-        className="my-1 text-center text-[11px]"
-        style={{ color: "hsla(0,0%,100%,0.3)" }}
-      >
-        {message.text}
-      </p>
-    );
-  }
-
-  // "user" = mensagem do usuario acolhido → bolha ambar a direita
-  // "volunteer" = mensagem do voluntario → bolha escura a esquerda
-  const isUser = message.author === "user";
-
-  return (
-    <div className={cn("group flex items-end gap-2", isUser ? "justify-end" : "justify-start")}>
-      {!isUser && onReply && (
-        <button
-          onClick={onReply}
-          aria-label="Responder"
-          className="mb-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-        >
-          <CornerUpLeft
-            className="h-3.5 w-3.5"
-            style={{ color: "hsla(0,0%,100%,0.3)" }}
-          />
-        </button>
-      )}
-
-      <div
-        className="relative max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm"
-        style={
-          isUser
-            ? {
-                background: "hsl(38 90% 52%)",
-                color: "#000",
-                borderBottomRightRadius: 6,
-              }
-            : {
-                background: "hsl(30 10% 17%)",
-                color: "rgba(255,255,255,0.9)",
-                borderBottomLeftRadius: 6,
-              }
-        }
-      >
-        {replyToMessage && (
-          <div
-            className="mb-2 rounded-lg p-2 text-xs"
-            style={{
-              background: isUser ? "rgba(0,0,0,0.12)" : "rgba(255,255,255,0.06)",
-              borderLeft: `2px solid ${isUser ? "rgba(0,0,0,0.3)" : "hsl(38 90% 52%)"}`,
-            }}
-          >
-            <span
-              className="mb-0.5 block text-[10px] font-semibold"
-              style={{ color: isUser ? "rgba(0,0,0,0.6)" : "hsl(38 90% 58%)" }}
-            >
-              {replyToMessage.author === "user" ? "Pessoa acolhida" : "Voce"}
-            </span>
-            <span className="line-clamp-2 opacity-70">{replyToMessage.text}</span>
-          </div>
-        )}
-        <p className="whitespace-pre-wrap text-pretty">{message.text}</p>
-        <p
-          className="mt-1 text-right text-[10px]"
-          style={{ color: isUser ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.3)" }}
-        >
-          {fmtTime(message.createdAt)}
-        </p>
-      </div>
-
-      {isUser && onReply && (
-        <button
-          onClick={onReply}
-          aria-label="Responder"
-          className="mb-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-        >
-          <CornerUpLeft
-            className="h-3.5 w-3.5"
-            style={{ color: "hsla(0,0%,100%,0.3)" }}
-          />
-        </button>
-      )}
-    </div>
   );
 }
