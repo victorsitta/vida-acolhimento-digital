@@ -8,6 +8,8 @@ import { ProfileProvider } from "@/contexts/ProfileContext";
 import { OfflineIndicator } from "@/components/pwa/OfflineIndicator";
 import { PwaManager } from "@/components/pwa/PwaManager";
 import { Toaster } from "@/components/ui/sonner";
+import { GlobalTooltips } from "@/components/common/GlobalTooltips";
+import { applyA11y, loadA11y } from "@/lib/a11y";
 
 function NotFoundComponent() {
   return (
@@ -66,6 +68,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  // aplica as preferências de acessibilidade em qualquer tela (inclusive login)
+  useEffect(() => {
+    applyA11y(loadA11y());
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -73,6 +79,7 @@ function RootComponent() {
           <OfflineIndicator />
           <PwaManager />
           <Outlet />
+          <GlobalTooltips />
           <Toaster richColors closeButton position="top-center" />
         </ProfileProvider>
       </ThemeProvider>

@@ -22,6 +22,7 @@ import {
 import { useState, useRef, useEffect, type ReactNode } from "react";
 import { useProfile } from "@/contexts/ProfileContext";
 import { Logo } from "@/components/common/Logo";
+import { AccessibilityMenu } from "@/components/common/AccessibilityMenu";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { ProfileSwitcher } from "@/components/common/ProfileSwitcher";
 import { InstallButton } from "@/components/pwa/InstallButton";
@@ -374,6 +375,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <InstallButton />
               </div>
               <ProfileSwitcher />
+              <AccessibilityMenu />
               <ThemeToggle />
             </div>
           </div>

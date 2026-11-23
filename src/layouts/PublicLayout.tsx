@@ -3,6 +3,7 @@ import { LayoutDashboard, LogOut, Menu, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Logo } from "@/components/common/Logo";
+import { AccessibilityMenu } from "@/components/common/AccessibilityMenu";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { InstallButton } from "@/components/pwa/InstallButton";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,7 @@ export function PublicLayout({ children }: { children: ReactNode }) {
             <div className="hidden sm:block">
               <InstallButton />
             </div>
+            <AccessibilityMenu />
             <ThemeToggle />
 
             {isAuthenticated ? (
