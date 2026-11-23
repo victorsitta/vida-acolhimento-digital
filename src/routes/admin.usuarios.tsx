@@ -72,13 +72,65 @@ function Page() {
     enabled: !!selectedUserId,
   });
 
+  const roleSelect = (u: (typeof pg.pageItems)[number], full = false) => (
+                  <Select
+                    value={u.role}
+                    disabled={u.id === me.data?.id || m.isPending}
+                    onValueChange={(v) => {
+                      if (
+                        window.confirm(
+                          `Alterar o papel de ${u.name} para ${ROLE_LABEL[v as ProfileRole]}?`,
+                        )
+                      )
+                        m.mutate({ id: u.id, role: v as ProfileRole });
+                    }}
+                  >
+                    <SelectTrigger
+                      className={full ? "h-10 w-full" : "h-9 w-[160px]"}
+                      title={u.id === me.data?.id ? "Você não pode alterar o próprio papel" : undefined}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROLES.map((r) => (
+                        <SelectItem key={r} value={r}>
+                          {ROLE_LABEL[r]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+  );
+  const actions = (u: (typeof pg.pageItems)[number]) => (
+    <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedUserId(u.id)}
+                  >
+                    Detalhes
+                  </Button>
+                  <Button
+                    variant={u.status === "banido" ? "secondary" : "destructive"}
+                    size="sm"
+                    onClick={() => {
+                      if (window.confirm(`Deseja realmente ${u.status === "banido" ? "reativar" : "suspender"} este usuário?`)) {
+                        banMutation.mutate({ id: u.id, ban: u.status !== "banido" });
+                      }
+                    }}
+                    disabled={banMutation.isPending}
+                  >
+                    {u.status === "banido" ? "Reativar" : "Banir"}
+                  </Button>
+    </>
+  );
+
   return (
     <AppShell>
       <PageHeader
         title="Usuários e papéis"
         description="Gerencie permissões. Confirme antes de aplicar ações críticas."
       />
-      <div className="overflow-x-auto rounded-2xl border bg-card">
+      <div className="hidden overflow-x-auto rounded-2xl border bg-card shadow-soft md:block">
         <table className="w-full text-sm">
           <thead className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
@@ -106,59 +158,41 @@ function Page() {
                 </td>
                 <td className="px-4 py-3 hidden sm:table-cell text-muted-foreground">{u.email}</td>
                 <td className="px-4 py-3">
-                  <Select
-                    value={u.role}
-                    disabled={u.id === me.data?.id || m.isPending}
-                    onValueChange={(v) => {
-                      if (
-                        window.confirm(
-                          `Alterar o papel de ${u.name} para ${ROLE_LABEL[v as ProfileRole]}?`,
-                        )
-                      )
-                        m.mutate({ id: u.id, role: v as ProfileRole });
-                    }}
-                  >
-                    <SelectTrigger
-                      className="h-9 w-[160px]"
-                      title={u.id === me.data?.id ? "Você não pode alterar o próprio papel" : undefined}
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ROLES.map((r) => (
-                        <SelectItem key={r} value={r}>
-                          {ROLE_LABEL[r]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {roleSelect(u)}
                 </td>
                 <td className="px-4 py-3 text-right space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedUserId(u.id)}
-                  >
-                    Detalhes
-                  </Button>
-                  <Button
-                    variant={u.status === "banido" ? "secondary" : "destructive"}
-                    size="sm"
-                    onClick={() => {
-                      if (window.confirm(`Deseja realmente ${u.status === "banido" ? "reativar" : "suspender"} este usuário?`)) {
-                        banMutation.mutate({ id: u.id, ban: u.status !== "banido" });
-                      }
-                    }}
-                    disabled={banMutation.isPending}
-                  >
-                    {u.status === "banido" ? "Reativar" : "Banir"}
-                  </Button>
+                  {actions(u)}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <ul className="space-y-3 md:hidden">
+        {pg.pageItems.map((u) => (
+          <li key={u.id} className="rounded-2xl border bg-card p-4 shadow-soft">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10 shrink-0">
+                <AvatarFallback>{u.initials}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{u.name}</p>
+                {u.email && <p className="truncate text-xs text-muted-foreground">{u.email}</p>}
+              </div>
+              {u.status === "banido" && (
+                <span className="ml-auto shrink-0 rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-medium text-destructive">
+                  Suspenso
+                </span>
+              )}
+            </div>
+            <div className="mt-3 space-y-1.5">
+              <span className="text-xs font-medium text-muted-foreground">Papel</span>
+              {roleSelect(u, true)}
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">{actions(u)}</div>
+          </li>
+        ))}
+      </ul>
       <Pager {...pg} onPageChange={pg.setPage} />
 
       {/* Dialog para exibir detalhes do usuário (exclusivo admin) */}
