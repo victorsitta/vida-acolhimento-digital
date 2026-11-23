@@ -1144,6 +1144,32 @@ async function handleInner<T>(
     ) as T;
   }
 
+  if (cleanPath === "/wellbeing/mood") {
+    const { data: authData } = await supabase.auth.getUser();
+    const uid = authData.user?.id;
+    if (!uid) throw new Error("Não autenticado");
+    if (method === "GET") {
+      const since = new Date(Date.now() - 60 * 86400_000).toISOString();
+      const { data, error } = await supabase
+        .from("mood_checkins")
+        .select("id, mood, note, created_at")
+        .eq("user_id", uid)
+        .gte("created_at", since)
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return ok(data || []) as T;
+    }
+    if (method === "POST") {
+      const mood = Number(payload.mood);
+      if (!Number.isInteger(mood) || mood < 1 || mood > 5) throw new Error("Escolha um humor de 1 a 5.");
+      const { error } = await supabase
+        .from("mood_checkins")
+        .insert({ user_id: uid, mood, note: payload.note ? String(payload.note).slice(0, 500) : null });
+      if (error) throw new Error(error.message);
+      return ok({ ok: true }) as T;
+    }
+  }
+
   // 5. VOLUNTEERS & APPLICATIONS
   if (cleanPath === "/admin/volunteers" && method === "GET") {
     const { data, error } = await supabase

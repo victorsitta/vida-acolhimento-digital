@@ -8,7 +8,7 @@ export async function exportMyData(): Promise<void> {
   const uid = auth.user?.id;
   if (!uid) throw new Error("Você precisa estar autenticado.");
 
-  const [profile, user, consents, convs, members, reports, notes] = await Promise.all([
+  const [profile, user, consents, convs, members, reports, notes, moods] = await Promise.all([
     supabase.from("user_profiles").select("*").eq("user_id", uid).maybeSingle(),
     supabase.from("users").select("id, display_name, role, status, created_at").eq("id", uid).maybeSingle(),
     supabase.from("consents").select("*").eq("user_id", uid),
@@ -16,6 +16,7 @@ export async function exportMyData(): Promise<void> {
     supabase.from("community_members").select("community_id, alias, status, joined_at").eq("user_id", uid),
     supabase.from("reports").select("id, target_type, reason, description, status, created_at").eq("reporter_id", uid),
     supabase.from("notifications").select("title, body, sent_at").eq("user_id", uid),
+    supabase.from("mood_checkins").select("mood, note, created_at").eq("user_id", uid),
   ]);
 
   const convIds = (convs.data ?? []).map((c: any) => c.id);
@@ -34,6 +35,7 @@ export async function exportMyData(): Promise<void> {
     grupos: members.data,
     denuncias_enviadas: reports.data,
     notificacoes: notes.data,
+    checkins_de_humor: moods.data,
   };
 
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });

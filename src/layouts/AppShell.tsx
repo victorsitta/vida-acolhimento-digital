@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
+  HeartPulse,
   Star,
   ArrowLeft,
   Home,
@@ -24,6 +25,7 @@ import { useProfile } from "@/contexts/ProfileContext";
 import { Logo } from "@/components/common/Logo";
 import { AccessibilityMenu } from "@/components/common/AccessibilityMenu";
 import { NotificationBell } from "@/components/common/NotificationBell";
+import { SosButton } from "@/components/wellbeing/SosButton";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { ProfileSwitcher } from "@/components/common/ProfileSwitcher";
 import { InstallButton } from "@/components/pwa/InstallButton";
@@ -44,6 +46,7 @@ const NAV: Record<ProfileRole, Item[]> = {
     { to: "/app", label: "Início", icon: Home },
     { to: "/app/conversar", label: "Conversar", icon: MessageCircle },
     { to: "/app/comunidades", label: "Grupos", icon: UsersRound },
+    { to: "/app/bem-estar", label: "Bem-estar", icon: HeartPulse },
     { to: "/app/historico", label: "Histórico", icon: History },
     { to: "/app/denuncias", label: "Denúncias", icon: FileWarning },
     { to: "/app/candidatura", label: "Ser voluntário", icon: ClipboardList },
@@ -386,6 +389,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="flex-1 px-4 py-6 pb-24 md:px-10 md:py-10 md:pb-12">
           <div className="fade-up mx-auto max-w-6xl">{children}</div>
         </main>
+
+        {routeRole === "usuario" && !pathname.startsWith("/app/chat") && <SosButton />}
 
         {/* Bottom nav mobile */}
         <nav

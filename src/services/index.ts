@@ -1042,3 +1042,22 @@ export const ratingService = {
     }));
   },
 };
+
+export interface MoodEntry {
+  id: string;
+  mood: number;
+  note?: string;
+  createdAt: string;
+}
+
+/** Check-in de humor: privado, só a própria pessoa lê. */
+export const wellbeingService = {
+  async list(): Promise<MoodEntry[]> {
+    const data = await apiData<any[]>("/wellbeing/mood");
+    return data.map((r) => ({ id: r.id, mood: Number(r.mood), note: r.note ?? undefined, createdAt: r.created_at }));
+  },
+  async save(mood: number, note?: string): Promise<{ ok: true }> {
+    await apiData<unknown>("/wellbeing/mood", { method: "POST", body: JSON.stringify({ mood, note }) });
+    return { ok: true };
+  },
+};

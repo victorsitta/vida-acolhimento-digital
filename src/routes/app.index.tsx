@@ -4,6 +4,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock3,
+  HeartPulse,
   HeartHandshake,
   History,
   Inbox,
@@ -109,7 +110,7 @@ function Page() {
           featured
         />
         <Tile to="/app/comunidades" icon={UsersRound} title="Grupos de apoio" text="Converse em comunidade" tone="bg-info/15 text-info" />
-        <Tile to="/app/historico" icon={History} title="Suas conversas" text="Releia e avalie" tone="bg-accent/15 text-accent" />
+        <Tile to="/app/bem-estar" icon={HeartPulse} title="Bem-estar" text="Humor, respiração e dicas" tone="bg-success/15 text-success" />
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">

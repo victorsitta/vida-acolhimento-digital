@@ -41,6 +41,7 @@ import { Route as AppDenunciaRouteImport } from './routes/app.denuncia'
 import { Route as AppConversarRouteImport } from './routes/app.conversar'
 import { Route as AppComunidadesRouteImport } from './routes/app.comunidades'
 import { Route as AppCandidaturaRouteImport } from './routes/app.candidatura'
+import { Route as AppBemEstarRouteImport } from './routes/app.bem-estar'
 import { Route as AdminUsuariosRouteImport } from './routes/admin.usuarios'
 import { Route as AdminModeradoresRouteImport } from './routes/admin.moderadores'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
@@ -219,6 +220,11 @@ const AppCandidaturaRoute = AppCandidaturaRouteImport.update({
   path: '/app/candidatura',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppBemEstarRoute = AppBemEstarRouteImport.update({
+  id: '/app/bem-estar',
+  path: '/app/bem-estar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/admin/usuarios',
   path: '/admin/usuarios',
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/comunidades': typeof AppComunidadesRouteWithChildren
   '/app/conversar': typeof AppConversarRoute
@@ -371,6 +378,7 @@ export interface FileRoutesByTo {
   '/admin/historico': typeof AdminHistoricoRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/conversar': typeof AppConversarRoute
   '/app/denuncia': typeof AppDenunciaRoute
@@ -422,6 +430,7 @@ export interface FileRoutesById {
   '/admin/logs': typeof AdminLogsRoute
   '/admin/moderadores': typeof AdminModeradoresRouteWithChildren
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/app/bem-estar': typeof AppBemEstarRoute
   '/app/candidatura': typeof AppCandidaturaRoute
   '/app/comunidades': typeof AppComunidadesRouteWithChildren
   '/app/conversar': typeof AppConversarRoute
@@ -475,6 +484,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/moderadores'
     | '/admin/usuarios'
+    | '/app/bem-estar'
     | '/app/candidatura'
     | '/app/comunidades'
     | '/app/conversar'
@@ -523,6 +533,7 @@ export interface FileRouteTypes {
     | '/admin/historico'
     | '/admin/logs'
     | '/admin/usuarios'
+    | '/app/bem-estar'
     | '/app/candidatura'
     | '/app/conversar'
     | '/app/denuncia'
@@ -573,6 +584,7 @@ export interface FileRouteTypes {
     | '/admin/logs'
     | '/admin/moderadores'
     | '/admin/usuarios'
+    | '/app/bem-estar'
     | '/app/candidatura'
     | '/app/comunidades'
     | '/app/conversar'
@@ -625,6 +637,7 @@ export interface RootRouteChildren {
   AdminLogsRoute: typeof AdminLogsRoute
   AdminModeradoresRoute: typeof AdminModeradoresRouteWithChildren
   AdminUsuariosRoute: typeof AdminUsuariosRoute
+  AppBemEstarRoute: typeof AppBemEstarRoute
   AppCandidaturaRoute: typeof AppCandidaturaRoute
   AppComunidadesRoute: typeof AppComunidadesRouteWithChildren
   AppConversarRoute: typeof AppConversarRoute
@@ -877,6 +890,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCandidaturaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/bem-estar': {
+      id: '/app/bem-estar'
+      path: '/app/bem-estar'
+      fullPath: '/app/bem-estar'
+      preLoaderRoute: typeof AppBemEstarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/usuarios': {
       id: '/admin/usuarios'
       path: '/admin/usuarios'
@@ -1070,6 +1090,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLogsRoute: AdminLogsRoute,
   AdminModeradoresRoute: AdminModeradoresRouteWithChildren,
   AdminUsuariosRoute: AdminUsuariosRoute,
+  AppBemEstarRoute: AppBemEstarRoute,
   AppCandidaturaRoute: AppCandidaturaRoute,
   AppComunidadesRoute: AppComunidadesRouteWithChildren,
   AppConversarRoute: AppConversarRoute,
